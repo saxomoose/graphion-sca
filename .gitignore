@@ -1,8 +1,11 @@
 .env
 .gradle
 .idea
-build/
-gradle/wrapper/gradle-wrapper.jar
+web/spring.log
+web/build/
+web/src/main/resources/application.properties
 gradlew
 gradlew.bat
-src/main/resources/application.properties
+.vscode
+web/node_modules/
+
