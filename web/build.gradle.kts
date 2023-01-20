@@ -1,9 +1,10 @@
+import com.github.gradle.node.npm.task.NpmTask
+
 plugins {
     id("java")
     id("org.springframework.boot") version "3.0.1"
     id("io.spring.dependency-management") version "1.1.0"
     id("com.github.node-gradle.node") version "3.5.1"
-
 }
 
 group = "com.saxomoose"
@@ -28,8 +29,23 @@ dependencies {
 }
 
 node {
-    download.set(false)
+    download.set(true)
+    version.set("18.13.0")
+    workDir.set(file("${project.rootDir}/.gradle/node"))
+    nodeProjectDir.set(file("${project.projectDir}"))
 }
+
+tasks.register<NpmTask>("npmRunBuild") {
+    dependsOn(tasks.npmInstall)
+    npmCommand.set(listOf("run", "build"))
+    inputs.dir("node_modules")
+    inputs.dir("src/main/resources")
+    inputs.file("package.json")
+    inputs.file("webpack.config.js")
+    outputs.dir("$buildDir/resources/main/static")
+}
+
+
 
 tasks.named<Test>("test") {
     useJUnitPlatform()

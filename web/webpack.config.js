@@ -4,7 +4,7 @@ const cssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const path = require("path");
 
 module.exports = (env, argv) => ({
-    mode: argv.mode === 'production' ? 'production' : 'development',
+    mode: 'development',
     entry: './src/main/resources/static/js/app.js',
     plugins: [new miniCssExtractPlugin({filename: "css/bundle.css"})],
     output: {
@@ -34,7 +34,7 @@ module.exports = (env, argv) => ({
                 test: /\.(scss)$/,
                 use: [
                     {
-                        loader: argv.mode === 'production' ? miniCssExtractPlugin.loader : 'style-loader'
+                        loader: miniCssExtractPlugin.loader
                     },
                     {
                         loader: 'css-loader',
@@ -62,4 +62,23 @@ module.exports = (env, argv) => ({
             }
         ]
     },
+    devServer: {
+        port: 8081,
+        compress: true,
+        watchFiles: [
+            'src/main/resources/templates/**/*.html',
+            'src/main/resources/static/js/**/*.js',
+            'src/main/resources/static/scss/**/*.scss'
+        ],
+        proxy: {
+            '**': {
+                target: 'http://localhost:8080',
+                secure: false,
+                prependPath: false,
+                headers: {
+                    'X-Devserver': '1',
+                }
+            }
+        }
+    }
 });

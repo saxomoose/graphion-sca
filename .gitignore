@@ -1,11 +1,12 @@
 .env
 .gradle
 .idea
-web/spring.log
-web/build/
-web/src/main/resources/application.properties
+.vscode
 gradlew
 gradlew.bat
-.vscode
+web/build/
 web/node_modules/
+web/spring.log
+web/src/main/resources/application-dev.properties
+web/src/main/resources/application.properties
 
