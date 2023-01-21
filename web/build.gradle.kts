@@ -45,7 +45,20 @@ tasks.register<NpmTask>("npmRunBuild") {
     outputs.dir("$buildDir/resources/main/static")
 }
 
+tasks.register<NpmTask>("npmRunWatch") {
+    dependsOn(tasks.npmInstall)
+    npmCommand.set(listOf("run", "watch"))
+    inputs.dir("node_modules")
+    inputs.dir("src/main/resources")
+    inputs.file("package.json")
+    inputs.file("webpack.config.js")
+    outputs.dir("$buildDir/resources/main/static")
+}
 
+tasks.processResources {
+//    dependsOn(tasks.findByName("npmRunWatch"))
+    dependsOn(tasks.findByName("npmRunBuild"))
+}
 
 tasks.named<Test>("test") {
     useJUnitPlatform()

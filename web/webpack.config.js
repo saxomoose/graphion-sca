@@ -6,11 +6,11 @@ const path = require("path");
 module.exports = (env, argv) => ({
     mode: 'development',
     entry: './src/main/resources/static/js/app.js',
-    plugins: [new miniCssExtractPlugin({filename: "css/bundle.css"})],
     output: {
         path: path.resolve(__dirname, './build/resources/main/static'),
         filename: 'js/bundle.js'
     },
+    plugins: [new miniCssExtractPlugin({filename: "css/bundle.css"})],
     optimization: {
         minimize: true,
         minimizer: [
@@ -18,7 +18,6 @@ module.exports = (env, argv) => ({
             new cssMinimizerPlugin()
         ]
     },
-    devtool: argv.mode === 'production' ? false : 'eval-source-map',
     module: {
         rules: [
             {
@@ -62,23 +61,7 @@ module.exports = (env, argv) => ({
             }
         ]
     },
-    devServer: {
-        port: 8081,
-        compress: true,
-        watchFiles: [
-            'src/main/resources/templates/**/*.html',
-            'src/main/resources/static/js/**/*.js',
-            'src/main/resources/static/scss/**/*.scss'
-        ],
-        proxy: {
-            '**': {
-                target: 'http://localhost:8080',
-                secure: false,
-                prependPath: false,
-                headers: {
-                    'X-Devserver': '1',
-                }
-            }
-        }
+    watchOptions: {
+        ignored: '/node_modules/'
     }
 });

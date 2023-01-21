@@ -1,6 +1,7 @@
 {
   "name": "web",
   "scripts": {
+    "watch": "webpack watch",
     "build": "webpack build",
     "build-prod": "webpack build --mode production"
   },
