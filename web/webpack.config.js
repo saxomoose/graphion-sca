@@ -1,67 +1,73 @@
-const miniCssExtractPlugin = require('mini-css-extract-plugin');
-const terserPlugin = require('terser-webpack-plugin');
-const cssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserWebpackPlugin = require("terser-webpack-plugin");
+const CssMinimizerWebpackPlugin = require("css-minimizer-webpack-plugin");
 const path = require("path");
 
 module.exports = (env, argv) => ({
-    mode: 'development',
-    entry: './src/main/resources/static/js/app.js',
-    output: {
-        path: path.resolve(__dirname, './build/resources/main/static'),
-        filename: 'js/bundle.js'
+    "entry": "./src/main/resources/static/js/app.js",
+    "output": {
+        "path": path.resolve(__dirname, "./build/resources/main/static"),
+        "filename": "js/bundle.min.js"
     },
-    plugins: [new miniCssExtractPlugin({filename: "css/bundle.css"})],
-    optimization: {
-        minimize: true,
-        minimizer: [
-            new terserPlugin(),
-            new cssMinimizerPlugin()
+    "plugins": [new MiniCssExtractPlugin({ "filename": "css/bundle.min.css" })],
+    "optimization": {
+        "minimize": true,
+        "minimizer": [
+            new CssMinimizerWebpackPlugin(),
+            new TerserWebpackPlugin({ "extractComments": false })
         ]
     },
-    module: {
-        rules: [
+    // Comment out in prod.
+    "devtool": "source-map",
+    // "watchOptions": {
+    //     "ignored": "/node_modules/"
+    // },
+    "module": {
+        "rules": [
             {
-                test: /\.(js)$/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env'],
-                    },
-                },
+                "test": /\.(js)$/,
+                "use": {
+                    "loader": "babel-loader",
+                    "options": {
+                        "presets": ["@babel/preset-env"]
+                    }
+                }
             },
             {
-                test: /\.(scss)$/,
-                use: [
+                "test": /\.(scss)$/,
+                "use": [
                     {
-                        loader: miniCssExtractPlugin.loader
+                        "loader": MiniCssExtractPlugin.loader
                     },
                     {
-                        loader: 'css-loader',
-                        options: {
-                            importLoaders: 1,
-                            sourceMap: true
+                        "loader": "css-loader",
+                        "options": {
+                            "importLoaders": 2,
+                            "sourceMap": true,
+                            "url": false
                         }
                     },
                     {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: {
-                                plugins: () => [
-                                    require('autoprefixer')
+                        "loader": "postcss-loader",
+                        "options": {
+                            "postcssOptions": {
+                                "plugins": [
+                                    "autoprefixer"
                                 ]
                             },
-                            sourceMap: true
+                            "sourceMap": true
                         }
                     },
                     {
-                        loader: 'sass-loader',
-                        options: { sourceMap: true }
+                        "loader": "sass-loader",
+                        "options": { "sourceMap": true }
                     }
                 ]
+            },
+            {
+                "test": /\.(jpg|jpeg|png|git|svg)$/i,
+                "type": "asset/resource"
             }
         ]
-    },
-    watchOptions: {
-        ignored: '/node_modules/'
     }
 });

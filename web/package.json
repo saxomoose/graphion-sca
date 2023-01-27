@@ -2,7 +2,7 @@
   "name": "web",
   "scripts": {
     "watch": "webpack watch",
-    "build": "webpack build",
+    "build": "webpack build --mode development",
     "build-prod": "webpack build --mode production"
   },
   "dependencies": {
@@ -16,6 +16,13 @@
     "babel-loader": "^9.1.0",
     "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^4.2.2",
+    "eslint": "^8.32.0",
+    "eslint-config-semistandard": "^17.0.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-promise": "^6.1.1",
     "mini-css-extract-plugin": "^2.7.2",
     "postcss-loader": "^7.0.2",
     "postcss-preset-env": "^7.8.3",

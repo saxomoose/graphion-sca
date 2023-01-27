@@ -14,7 +14,7 @@ import java.io.IOException;
 public class DevConfig {
     public DevConfig(final TemplateEngine templateEngine) throws IOException {
         File sourceRoot = new ClassPathResource("application.properties").getFile().getParentFile();
-        while (sourceRoot.listFiles((dir, name) -> name.equals("gradlew")).length != 1) {
+        while (sourceRoot.listFiles((dir, name) -> name.equals("build.gradle.kts")).length != 1) {
             sourceRoot = sourceRoot.getParentFile();
         }
         final FileTemplateResolver fileTemplateResolver = new FileTemplateResolver();
