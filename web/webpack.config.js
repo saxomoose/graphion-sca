@@ -14,7 +14,7 @@ module.exports = (env, argv) => ({
         "minimize": true,
         "minimizer": [
             new CssMinimizerWebpackPlugin(),
-            new TerserWebpackPlugin({ "extractComments": false })
+            new TerserWebpackPlugin()
         ]
     },
     // Comment out in prod.
@@ -25,7 +25,7 @@ module.exports = (env, argv) => ({
     "module": {
         "rules": [
             {
-                "test": /\.(js)$/,
+                "test": /\.js$/,
                 "use": {
                     "loader": "babel-loader",
                     "options": {
@@ -34,7 +34,7 @@ module.exports = (env, argv) => ({
                 }
             },
             {
-                "test": /\.(scss)$/,
+                "test": /\.scss$/,
                 "use": [
                     {
                         "loader": MiniCssExtractPlugin.loader
@@ -60,12 +60,17 @@ module.exports = (env, argv) => ({
                     },
                     {
                         "loader": "sass-loader",
-                        "options": { "sourceMap": true }
+                        "options": {
+                            "sassOptions": {
+                                "outputStyle": "compressed"
+                            },
+                            "sourceMap": true
+                        }
                     }
                 ]
             },
             {
-                "test": /\.(jpg|jpeg|png|git|svg)$/i,
+                "test": /\.(gif|jpeg|jpg|png|svg)$/i,
                 "type": "asset/resource"
             }
         ]

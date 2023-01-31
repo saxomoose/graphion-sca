@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -45,6 +46,16 @@ tasks.register<NpmTask>("npmRunBuild") {
     outputs.dir("$buildDir/resources/main/static")
 }
 
+tasks.register<NpmTask>("npmRunBuildProd") {
+    dependsOn(tasks.npmInstall)
+    npmCommand.set(listOf("run", "build-prod"))
+    inputs.dir("node_modules")
+    inputs.dir("src/main/resources")
+    inputs.file("package.json")
+    inputs.file("webpack.config.js")
+    outputs.dir("$buildDir/resources/main/static")
+}
+
 tasks.register<NpmTask>("npmRunWatch") {
     dependsOn(tasks.npmInstall)
     npmCommand.set(listOf("run", "watch"))
@@ -58,6 +69,7 @@ tasks.register<NpmTask>("npmRunWatch") {
 tasks.processResources {
 //    dependsOn(tasks.findByName("npmRunWatch"))
     dependsOn(tasks.findByName("npmRunBuild"))
+//    dependsOn(tasks.findByName("npmRunBuildProd"))
 }
 
 tasks.named<Test>("test") {

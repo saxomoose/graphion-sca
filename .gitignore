@@ -9,4 +9,6 @@ web/node_modules/
 web/spring.log
 web/src/main/resources/application-dev.properties
 web/src/main/resources/application.properties
+web/src/main/resources/application.yml
+web/src/main/resources/dev-indexes/
 
