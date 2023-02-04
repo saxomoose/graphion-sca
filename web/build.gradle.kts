@@ -67,9 +67,9 @@ tasks.register<NpmTask>("npmRunWatch") {
 }
 
 tasks.processResources {
-//    dependsOn(tasks.findByName("npmRunWatch"))
     dependsOn(tasks.findByName("npmRunBuild"))
 //    dependsOn(tasks.findByName("npmRunBuildProd"))
+//    dependsOn(tasks.findByName("npmRunWatch"))
 }
 
 tasks.named<Test>("test") {
