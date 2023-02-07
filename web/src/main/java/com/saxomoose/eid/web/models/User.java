@@ -1,7 +1,9 @@
 package com.saxomoose.eid.web.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,6 +18,7 @@ public class User implements UserDetails {
 
     @NotNull
     @Column(unique = true)
+    @Email
     private String username;
 
     @NotNull

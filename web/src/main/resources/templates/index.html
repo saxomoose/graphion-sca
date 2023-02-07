@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 <head data-th-replace="~{fragments/head :: setTitle(~{::title})}">
     <title>Dashboard</title>
 </head>
-<body>
+<body class="d-flex flex-column h-100">
 <header data-th-replace="~{fragments/header}"></header>
-<div class="container-fluid">
-    <div class="row">
-        <aside data-th-replace="~{fragments/sidebar}"></aside>
-        <main class="col-md-10">
-            <p>test</p>
-        </main>
+<div class="flex-shrink-0">
+    <div class="container-fluid">
+        <div class="row">
+            <aside data-th-replace="~{fragments/sidebar}"></aside>
+            <main data-th-replace="~{content-fragments/index}"></main>
+        </div>
     </div>
 </div>
 <footer data-th-replace="~{fragments/footer}"></footer>

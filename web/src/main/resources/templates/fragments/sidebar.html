@@ -1,17 +1,25 @@
 <aside class="col-md-2">
-    <div class="offcanvas-md offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="sidebar" aria-labelledby="sidebarOffcanvasLabel">
+    <div class="offcanvas-md offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="sidebar">
         <div class="offcanvas-header border-bottom">
             <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#sidebar"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button>
         </div>
         <div class="offcanvas-body">
-            <ul class="list-group">
-                <li class="list-group-item active" aria-current="true">An active item</li>
-                <li class="list-group-item">A second item</li>
-                <li class="list-group-item">A third item</li>
-                <li class="list-group-item">A fourth item</li>
-                <li class="list-group-item">And a fifth one</li>
-            </ul>
+            <div class="d-flex flex-column p-3">
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <img data-th-src="@{/bootstrap-svg/window-sidebar-white.svg}" alt="window-sidebar-white" width="32" height="32" class="me-2">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link link-dark">
+                            Closings
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </aside>
