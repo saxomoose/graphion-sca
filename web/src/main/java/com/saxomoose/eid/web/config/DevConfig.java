@@ -20,6 +20,8 @@ public class DevConfig {
         final FileTemplateResolver fileTemplateResolver = new FileTemplateResolver();
 
 
+
+
       fileTemplateResolver.setPrefix(sourceRoot.getPath() + "/src/main/resources/templates/");
         fileTemplateResolver.setSuffix(".html");
         fileTemplateResolver.setCacheable(false);

@@ -1,21 +1,28 @@
-<aside class="col-md-2">
+<aside data-th-fragment="setNavLinkActive(navLink)" class="col-md-2">
     <div class="offcanvas-md offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="sidebar">
         <div class="offcanvas-header border-bottom">
             <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button>
         </div>
         <div class="offcanvas-body">
-            <div class="d-flex flex-column p-3">
+            <div class="d-flex flex-column">
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">
-                            <img data-th-src="@{/bootstrap-svg/window-sidebar-white.svg}" alt="window-sidebar-white" width="32" height="32" class="me-2">
-                            Dashboard
+                        <a data-th-href="@{/closings}" data-th-classappend="${navLink == 0} ? active : _" class="nav-link">
+                            <img data-th-src="@{__${navLink == 0}__ ? '/svg/vector-pen-white.svg' : '/svg-bootstrap/vector-pen.svg'}" alt="vector-pen" width="32" height="32" class="me-2">
+                            Closings
                         </a>
                     </li>
-                    <li>
-                        <a href="#" class="nav-link link-dark">
-                            Closings
+                    <li class="nav-item">
+                        <a data-th-href="@{/signatories}" data-th-classappend="${navLink == 1} ? active : _" class="nav-link">
+                            <img data-th-src="@{__${navLink == 1}__ ? '/svg/person-vcard-white.svg' : '/svg/person-vcard.svg'}" alt="person-card" width="32" height="32" class="me-2">
+                            Signatories
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a data-th-href="@{/documents}" data-th-classappend="${navLink == 2} ? active : _" class="nav-link">
+                            <img data-th-src="@{__${navLink == 2}__ ? '/svg/files-white.svg' : '/svg/files.svg'}" alt="files" width="32" height="32" class="me-2">
+                            Documents
                         </a>
                     </li>
                 </ul>

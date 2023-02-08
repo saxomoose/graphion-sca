@@ -3,7 +3,6 @@ package com.saxomoose.eid.web.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 import java.util.Collection;
 
@@ -15,12 +14,19 @@ public class Signatory {
     private Long id;
 
     @NotNull
+    private String firstName;
+
+    @NotNull
+    private String lastName;
+
+    @NotNull
+    @Column(unique = true)
     @Email
     private String email;
 
     @NotNull
     @Column(unique = true)
-    private int nationRegistrationNumber;
+    private Long nationalRegistrationNumber;
 
     @OneToMany(mappedBy = "signatory", orphanRemoval = true)
     private Collection<ClosingSignatory> closingSignatories;
@@ -33,6 +39,14 @@ public class Signatory {
         this.id = id;
     }
 
+    public String getFirstName() { return firstName; }
+
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
     public String getEmail() {
         return email;
     }
@@ -41,12 +55,12 @@ public class Signatory {
         this.email = email;
     }
 
-    public int getNationRegistrationNumber() {
-        return nationRegistrationNumber;
+    public Long getNationalRegistrationNumber() {
+        return nationalRegistrationNumber;
     }
 
-    public void setNationRegistrationNumber(int nationRegistrationNumber) {
-        this.nationRegistrationNumber = nationRegistrationNumber;
+    public void setNationalRegistrationNumber(Long nationalRegistrationNumber) {
+        this.nationalRegistrationNumber = nationalRegistrationNumber;
     }
 
     public Collection<ClosingSignatory> getClosingSignatories() {

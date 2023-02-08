@@ -1,10 +1,11 @@
 package com.saxomoose.eid.web.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Value;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.io.Serializable;
-import java.util.Objects;
+import java.time.Instant;
 
 @Entity
 @Table(name = "closing_signatory")
@@ -22,8 +23,13 @@ public class ClosingSignatory {
     @JoinColumn(name = "signatory_id")
     private Signatory signatory;
 
-    @Value("false")
-    private Boolean status;
+    @ManyToOne
+    @MapsId("documentId")
+    @JoinColumn(name = "document_id")
+    private Document document;
+
+    @Nullable
+    private Instant signatureTimestamp;
 
     public ClosingSignatoryKey getId() {
         return id;
@@ -49,11 +55,11 @@ public class ClosingSignatory {
         this.signatory = signatory;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
+    public Document getDocument() { return document; }
 
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
+    public void setDocument(Document document) { this.document = document; }
+
+    public Instant getSignatureTimestamp() { return signatureTimestamp; }
+
+    public void setSignatureTimestamp(Instant timestamp) { this.signatureTimestamp = timestamp; }
 }
