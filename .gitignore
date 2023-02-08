@@ -11,5 +11,5 @@ web/src/main/resources/application-dev.properties
 web/src/main/resources/application.properties
 web/src/main/resources/application.yml
 web/src/main/resources/dev-indexes/
-web/src/main/resources/static/bootstrap-svg/
+web/src/main/resources/static/svg-bootstrap/
 
