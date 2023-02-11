@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")

@@ -7,7 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
-@Table(name="signatories")
+@Table(name = "signatories")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Signatory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

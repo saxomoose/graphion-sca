@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+
 @Controller
 public class ClosingController {
     private final ClosingRepository closingRepository;
@@ -16,8 +18,9 @@ public class ClosingController {
     }
 
     @GetMapping("/closings")
-    public ModelAndView index() {
+    public ModelAndView index() throws IOException, ClassNotFoundException {
         var closings = closingRepository.findAll();
+
         var modelAndView = new ModelAndView("closings/index");
         modelAndView.addObject("closings", closings);
 

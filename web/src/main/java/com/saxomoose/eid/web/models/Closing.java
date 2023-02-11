@@ -2,11 +2,10 @@ package com.saxomoose.eid.web.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @Table(name = "closings")
@@ -16,15 +15,17 @@ public class Closing {
     private Long id;
 
     @NotNull
-    @Column(columnDefinition = "date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date date;
+    private String name;
+
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private Instant date;
 
     @OneToMany(mappedBy = "closing", orphanRemoval = true)
     private Collection<Document> documents;
 
     @OneToMany(mappedBy = "closing", orphanRemoval = true)
-    private Collection<ClosingSignatory> closingSignatories;
+    private Collection<ClosingSignatory> closingNaturalPersonSignatories;
 
     public Long getId() {
         return id;
@@ -34,16 +35,20 @@ public class Closing {
         this.id = id;
     }
 
-    public Date getDate() { return date; }
+    public String getName() { return name; }
 
-    public void setDate(Date date) { this.date = date; }
+    public void setName(String name) { this.name = name; }
+
+    public Instant getDate() { return date; }
+
+    public void setDate(Instant date) { this.date = date; }
 
     public Collection<ClosingSignatory> getClosingSignatories() {
-        return closingSignatories;
+        return closingNaturalPersonSignatories;
     }
 
     public void setClosingSignatories(Collection<ClosingSignatory> closingSignatories) {
-        this.closingSignatories = closingSignatories;
+        this.closingNaturalPersonSignatories = closingSignatories;
     }
 
     public Collection<Document> getDocuments() {
