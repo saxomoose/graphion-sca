@@ -4,4 +4,5 @@ import com.saxomoose.eid.web.models.Closing;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClosingRepository extends JpaRepository<Closing, Long> {
+
 }

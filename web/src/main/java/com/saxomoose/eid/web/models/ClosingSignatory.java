@@ -2,8 +2,6 @@ package com.saxomoose.eid.web.models;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
 
