@@ -13,6 +13,9 @@ public class LegalPerson {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
+    @OneToMany(mappedBy="legalPerson", orphanRemoval = true)
+    private Collection<OfficerSignatory> officers;
+
     @NotNull
     @Column(unique = true)
     private Long enterpriseNumber;
@@ -20,9 +23,7 @@ public class LegalPerson {
     @NotNull
     private FunctionEnum function;
 
+    // Is the legal person validly represented? 2 Requirements.
     @Column(columnDefinition = "boolean default false")
-    private Boolean status;
-
-    @OneToMany(mappedBy="legalPerson", orphanRemoval = true)
-    private Collection<OfficerSignatory> officers;
+    private Boolean status = false;
 }

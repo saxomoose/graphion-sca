@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Collection;
 
 @Entity
@@ -14,18 +15,30 @@ public class Closing {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    private String name;
-
-    @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private Instant date;
-
     @OneToMany(mappedBy = "closing", orphanRemoval = true)
     private Collection<Document> documents;
 
     @OneToMany(mappedBy = "closing", orphanRemoval = true)
     private Collection<ClosingSignatory> closingNaturalPersonSignatories;
+
+    @ManyToMany(targetEntity = Signatory.class)
+    @JoinTable(name = "closing_signatory",
+            joinColumns = {@JoinColumn(name = "closing_id")},
+            inverseJoinColumns = {@JoinColumn(name = "signatory_id")})
+    private Collection<Signatory> signatories;
+
+    @NotNull
+    private String name;
+
+    @NotNull
+    private ZoneOffset zoneOffset;
+
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate date;
+
+//    @CreatedBy
+//    private ApplicationUser applicationUser;
 
     public Long getId() {
         return id;
@@ -39,23 +52,15 @@ public class Closing {
 
     public void setName(String name) { this.name = name; }
 
-    public Instant getDate() { return date; }
+    public ZoneOffset getZoneOffset() { return zoneOffset; }
 
-    public void setDate(Instant date) { this.date = date; }
+    public void setZoneOffset(ZoneOffset zoneOffset) { this.zoneOffset = zoneOffset; }
 
-    public Collection<ClosingSignatory> getClosingSignatories() {
-        return closingNaturalPersonSignatories;
-    }
+    public LocalDate getDate() { return date; }
 
-    public void setClosingSignatories(Collection<ClosingSignatory> closingSignatories) {
-        this.closingNaturalPersonSignatories = closingSignatories;
-    }
+    public void setDate(LocalDate date) { this.date = date; }
 
-    public Collection<Document> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(Collection<Document> documents) {
-        this.documents = documents;
+    public Collection<Signatory> getSignatories() {
+        return signatories;
     }
 }

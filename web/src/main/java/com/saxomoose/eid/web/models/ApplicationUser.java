@@ -1,17 +1,20 @@
 package com.saxomoose.eid.web.models;
 
+import com.saxomoose.eid.web.enums.RoleEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name="users")
-public class User implements UserDetails {
+public class ApplicationUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -23,6 +26,14 @@ public class User implements UserDetails {
 
     @NotNull
     private String password;
+
+    // Required by UserDetails interface.
+    @NotNull
+    private boolean enabled;
+
+    @NotNull
+    @Column(columnDefinition = "smallint default 0")
+    private RoleEnum role = RoleEnum.ADMIN;
 
     public Long getId() {
         return id;
@@ -52,7 +63,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> authList = new ArrayList<>();
+        authList.add(new SimpleGrantedAuthority(role.name()));
+        return authList;
     }
 
     @Override
@@ -72,6 +85,8 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
+
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 }

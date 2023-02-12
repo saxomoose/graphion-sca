@@ -8,12 +8,12 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class OfficerSignatory extends Signatory {
+    @ManyToOne
+    private LegalPerson legalPerson;
+
     @NotNull
     private FunctionEnum function;
 
     @Nullable
     private Long enterpriseNumberPermanentRepresentative;
-
-    @ManyToOne
-    private LegalPerson legalPerson;
 }
