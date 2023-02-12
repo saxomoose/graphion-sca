@@ -37,26 +37,6 @@ public class ClosingSignatory {
         this.id = id;
     }
 
-    public Closing getClosing() {
-        return closing;
-    }
-
-    public void setClosing(Closing closing) {
-        this.closing = closing;
-    }
-
-    public Signatory getSignatory() {
-        return signatory;
-    }
-
-    public void setSignatory(Signatory signatory) {
-        this.signatory = signatory;
-    }
-
-    public Document getDocument() { return document; }
-
-    public void setDocument(Document document) { this.document = document; }
-
     public Instant getSignatureTimestamp() { return signatureTimestamp; }
 
     public void setSignatureTimestamp(Instant timestamp) { this.signatureTimestamp = timestamp; }

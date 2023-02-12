@@ -14,6 +14,9 @@ public class Signatory {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @OneToMany(mappedBy = "signatory", orphanRemoval = true)
+    private Collection<ClosingSignatory> closingSignatories;
+
     @NotNull
     private String firstName;
 
@@ -29,8 +32,9 @@ public class Signatory {
     @Column(unique = true)
     private Long nationalRegistrationNumber;
 
-    @OneToMany(mappedBy = "signatory", orphanRemoval = true)
-    private Collection<ClosingSignatory> closingSignatories;
+    // Art. 1:5 New Belgian Civil Code.
+    @NotNull
+    private Boolean consent;
 
     public Long getId() {
         return id;
@@ -48,13 +52,9 @@ public class Signatory {
 
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() { return email; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public void setEmail(String email) { this.email = email; }
 
     public Long getNationalRegistrationNumber() {
         return nationalRegistrationNumber;
@@ -64,11 +64,7 @@ public class Signatory {
         this.nationalRegistrationNumber = nationalRegistrationNumber;
     }
 
-    public Collection<ClosingSignatory> getClosingSignatories() {
-        return closingSignatories;
-    }
+    public Boolean getConsent() { return consent; }
 
-    public void setClosingSignatories(Collection<ClosingSignatory> closingSignatories) {
-        this.closingSignatories = closingSignatories;
-    }
+    public void setConsent(Boolean consent) { this.consent = consent; }
 }

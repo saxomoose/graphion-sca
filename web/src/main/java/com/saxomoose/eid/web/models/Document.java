@@ -15,13 +15,6 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    private String filename;
-
-    @NotNull
-    @Column(unique = true)
-    private String path;
-
     @OneToMany(mappedBy = "document", orphanRemoval = true)
     private Collection<ClosingSignatory> closingSignatories;
 
@@ -29,6 +22,13 @@ public class Document {
     @ManyToOne
     @JoinColumn(name="closing_id")
     private Closing closing;
+
+    @NotNull
+    private String filename;
+
+    @NotNull
+    @Column(unique = true)
+    private String path;
 
     @CreatedDate
     private Instant createdAt;
@@ -56,11 +56,11 @@ public class Document {
         this.path = path;
     }
 
-    public Closing getClosing() {
-        return closing;
-    }
+    public Instant getCreatedAt() { return createdAt; }
 
-    public void setClosing(Closing closing) {
-        this.closing = closing;
-    }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public Instant getModifiedAt() { return modifiedAt; }
+
+    public void setModifiedAt(Instant modifiedAt) { this.modifiedAt = modifiedAt; }
 }
