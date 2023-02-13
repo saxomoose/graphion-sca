@@ -17,7 +17,7 @@ public class OfficerDeserializer implements JsonDeserializer<Officer> {
             return jsonDeserializationContext.deserialize(jsonElement, NaturalPersonOfficer.class);
         }
         else {
-            return jsonDeserializationContext.<LegalPersonOfficer>deserialize(jsonElement, LegalPersonOfficer.class);
+            return jsonDeserializationContext.deserialize(jsonElement, LegalPersonOfficer.class);
         }
     }
 }

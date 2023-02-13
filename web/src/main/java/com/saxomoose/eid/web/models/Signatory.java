@@ -3,19 +3,29 @@ package com.saxomoose.eid.web.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Collection;
 
 @Entity
 @Table(name = "signatories")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@EntityListeners(AuditingEntityListener.class)
 public class Signatory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @CreatedBy
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private ApplicationUser user;
+
     @OneToMany(mappedBy = "signatory", orphanRemoval = true)
     private Collection<ClosingSignatory> closingSignatories;
+
+    @OneToMany(mappedBy = "signatory", orphanRemoval = true)
+    private Collection<LegalPersonSignatory> legalPersonSignatories;
 
     @NotNull
     private String firstName;
@@ -35,14 +45,6 @@ public class Signatory {
     // Art. 1:5 New Belgian Civil Code.
     @NotNull
     private Boolean consent;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getFirstName() { return firstName; }
 

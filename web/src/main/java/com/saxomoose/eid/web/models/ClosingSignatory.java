@@ -6,36 +6,29 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "closing_signatory")
+@Table(
+        name = "closing_signatory",
+        indexes = @Index(columnList = "closing_id, signatory_id, document_id", unique = true)
+)
 public class ClosingSignatory {
-    @EmbeddedId
-    private ClosingSignatoryKey id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @ManyToOne
-    @MapsId("closingId")
     @JoinColumn(name = "closing_id")
     private Closing closing;
 
     @ManyToOne
-    @MapsId("signatoryId")
     @JoinColumn(name = "signatory_id")
     private Signatory signatory;
 
     @ManyToOne
-    @MapsId("documentId")
     @JoinColumn(name = "document_id")
     private Document document;
 
     @Nullable
     private Instant signatureTimestamp;
-
-    public ClosingSignatoryKey getId() {
-        return id;
-    }
-
-    public void setId(ClosingSignatoryKey id) {
-        this.id = id;
-    }
 
     public Instant getSignatureTimestamp() { return signatureTimestamp; }
 

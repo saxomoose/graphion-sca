@@ -2,6 +2,8 @@ package com.saxomoose.eid.web.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -10,10 +12,16 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "closings")
+@EntityListeners(AuditingEntityListener.class)
 public class Closing {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @CreatedBy
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private ApplicationUser user;
 
     @OneToMany(mappedBy = "closing", orphanRemoval = true)
     private Collection<Document> documents;
@@ -36,9 +44,6 @@ public class Closing {
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
-
-//    @CreatedBy
-//    private ApplicationUser applicationUser;
 
     public Long getId() {
         return id;

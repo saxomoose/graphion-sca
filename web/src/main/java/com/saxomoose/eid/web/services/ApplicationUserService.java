@@ -16,9 +16,9 @@ public class ApplicationUserService implements UserDetailsService
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public ApplicationUserService(ApplicationUserRepository userRepository, PasswordEncoder passwordEncoder)
+    public ApplicationUserService(ApplicationUserRepository applicationUserRepository, PasswordEncoder passwordEncoder)
     {
-        this.applicationUserRepository = userRepository;
+        this.applicationUserRepository = applicationUserRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -38,18 +38,13 @@ public class ApplicationUserService implements UserDetailsService
     }
 
     public void createNew(ApplicationUser user) {
-        encodePassword(passwordEncoder, user);
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.applicationUserRepository.save(user);
     }
 
     public void activate(ApplicationUser user) {
         user.setEnabled(true);
         this.applicationUserRepository.save(user);
-    }
-
-    private void encodePassword(PasswordEncoder passwordEncoder, ApplicationUser account) {
-        account.setPassword(passwordEncoder.encode(account.getPassword()));
     }
 }
 
