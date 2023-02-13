@@ -19,6 +19,15 @@ public class ApplicationUser implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Collection<Closing> closings;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Collection<Signatory> signatories;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Collection<Document> documents;
+
     @NotNull
     @Column(unique = true)
     @Email
@@ -64,7 +73,7 @@ public class ApplicationUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authList = new ArrayList<>();
-        authList.add(new SimpleGrantedAuthority(role.name()));
+        authList.add(new SimpleGrantedAuthority(this.role.name()));
         return authList;
     }
 

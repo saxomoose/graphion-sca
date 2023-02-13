@@ -2,26 +2,34 @@ package com.saxomoose.eid.web.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.Collection;
 
 @Entity
 @Table(name = "documents")
+@EntityListeners(AuditingEntityListener.class)
 public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "document", orphanRemoval = true)
-    private Collection<ClosingSignatory> closingSignatories;
+    @CreatedBy
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private ApplicationUser user;
 
     @NotNull
     @ManyToOne
     @JoinColumn(name="closing_id")
     private Closing closing;
+
+    @OneToMany(mappedBy = "document", orphanRemoval = true)
+    private Collection<ClosingSignatory> closingSignatories;
 
     @NotNull
     private String filename;

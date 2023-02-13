@@ -1,8 +1,9 @@
 package com.saxomoose.eid.web.repositories;
 
 import com.saxomoose.eid.web.models.ClosingSignatory;
-import com.saxomoose.eid.web.models.ClosingSignatoryKey;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ClosingSignatoryRepository extends JpaRepository<ClosingSignatory, ClosingSignatoryKey> {
+@Repository
+public interface ClosingSignatoryRepository extends JpaRepository<ClosingSignatory, Long> {
 }
