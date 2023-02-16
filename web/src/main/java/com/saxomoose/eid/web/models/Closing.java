@@ -21,7 +21,7 @@ public class Closing {
     @CreatedBy
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private ApplicationUser user;
+    private User user;
 
     @OneToMany(mappedBy = "closing", orphanRemoval = true)
     private Collection<Document> documents;
@@ -47,10 +47,6 @@ public class Closing {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() { return name; }

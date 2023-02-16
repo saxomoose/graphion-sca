@@ -1,6 +1,6 @@
 package com.saxomoose.eid.web.config;
 
-import com.saxomoose.eid.web.models.ApplicationUser;
+import com.saxomoose.eid.web.models.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -15,7 +15,7 @@ public class AuditorAwareImpl implements AuditorAware<Long> {
                 .map(SecurityContext::getAuthentication)
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
-                .map(ApplicationUser.class::cast)
-                .map(ApplicationUser::getId);
+                .map(User.class::cast)
+                .map(User::getId);
     }
 }

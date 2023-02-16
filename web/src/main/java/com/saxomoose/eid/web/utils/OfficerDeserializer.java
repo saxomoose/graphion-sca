@@ -4,9 +4,9 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.saxomoose.eid.web.dtos.LegalPersonOfficer;
-import com.saxomoose.eid.web.dtos.NaturalPersonOfficer;
-import com.saxomoose.eid.web.dtos.Officer;
+import com.saxomoose.eid.web.dtos.cbe.LegalPersonOfficer;
+import com.saxomoose.eid.web.dtos.cbe.NaturalPersonOfficer;
+import com.saxomoose.eid.web.dtos.cbe.Officer;
 
 import java.lang.reflect.Type;
 

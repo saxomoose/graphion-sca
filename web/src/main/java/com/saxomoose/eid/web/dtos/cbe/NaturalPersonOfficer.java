@@ -1,4 +1,4 @@
-package com.saxomoose.eid.web.dtos;
+package com.saxomoose.eid.web.dtos.cbe;
 
 import com.google.gson.annotations.SerializedName;
 

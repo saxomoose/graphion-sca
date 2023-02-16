@@ -3,29 +3,30 @@ package com.saxomoose.eid.web.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Collection;
 
 @Entity
-@Table(name = "signatories")
+@Table(
+        name = "signatories",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "email_unique_constraint", columnNames = { "email" }),
+                @UniqueConstraint(name = "national_registration_number_unique_constraint", columnNames = { "national_registration_number" })})
 @EntityListeners(AuditingEntityListener.class)
 public class Signatory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @CreatedBy
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private ApplicationUser user;
+    @OneToOne
+    private OfficerSignatory officerSignatory;
 
     @OneToMany(mappedBy = "signatory", orphanRemoval = true)
     private Collection<ClosingSignatory> closingSignatories;
 
-    @OneToMany(mappedBy = "signatory", orphanRemoval = true)
-    private Collection<LegalPersonSignatory> legalPersonSignatories;
+    @ManyToMany(mappedBy = "signatories")
+    private Collection<User> users;
 
     @NotNull
     private String firstName;
@@ -34,12 +35,11 @@ public class Signatory {
     private String lastName;
 
     @NotNull
-    @Column(unique = true)
     @Email
     private String email;
 
     @NotNull
-    @Column(unique = true)
+    @Column(name = "national_registration_number")
     private Long nationalRegistrationNumber;
 
     // Art. 1:5 New Belgian Civil Code.

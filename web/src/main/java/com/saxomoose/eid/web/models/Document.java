@@ -11,7 +11,9 @@ import java.time.Instant;
 import java.util.Collection;
 
 @Entity
-@Table(name = "documents")
+@Table(
+        name = "documents",
+        uniqueConstraints = { @UniqueConstraint(name = "path_unique_constraint", columnNames = { "path" })})
 @EntityListeners(AuditingEntityListener.class)
 public class Document {
     @Id
@@ -21,7 +23,7 @@ public class Document {
     @CreatedBy
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private ApplicationUser user;
+    private User user;
 
     @NotNull
     @ManyToOne
@@ -31,11 +33,13 @@ public class Document {
     @OneToMany(mappedBy = "document", orphanRemoval = true)
     private Collection<ClosingSignatory> closingSignatories;
 
+    @OneToMany(mappedBy = "document", orphanRemoval = true)
+    private Collection<OfficerSignatory> officerSignatories;
+
     @NotNull
     private String filename;
 
     @NotNull
-    @Column(unique = true)
     private String path;
 
     @CreatedDate
@@ -46,10 +50,6 @@ public class Document {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getFilename() { return filename; }

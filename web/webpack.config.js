@@ -18,7 +18,7 @@ module.exports = (env, argv) => ({
         ]
     },
     // Comment out in prod.
-    "devtool": "source-map",
+    // "devtool": "source-map",
     // "watchOptions": {
     //     "ignored": "/node_modules/"
     // },
@@ -40,12 +40,7 @@ module.exports = (env, argv) => ({
                         "loader": MiniCssExtractPlugin.loader
                     },
                     {
-                        "loader": "css-loader",
-                        "options": {
-                            "importLoaders": 2,
-                            "sourceMap": true,
-                            "url": false
-                        }
+                        "loader": "css-loader"
                     },
                     {
                         "loader": "postcss-loader",
@@ -54,8 +49,7 @@ module.exports = (env, argv) => ({
                                 "plugins": [
                                     "autoprefixer"
                                 ]
-                            },
-                            "sourceMap": true
+                            }
                         }
                     },
                     {
@@ -63,8 +57,7 @@ module.exports = (env, argv) => ({
                         "options": {
                             "sassOptions": {
                                 "outputStyle": "compressed"
-                            },
-                            "sourceMap": true
+                            }
                         }
                     }
                 ]
