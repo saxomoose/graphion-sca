@@ -1,4 +1,4 @@
-package com.saxomoose.eid.web.dtos;
+package com.saxomoose.eid.web.dtos.cbe;
 
 import java.io.Serializable;
 import java.util.Collection;

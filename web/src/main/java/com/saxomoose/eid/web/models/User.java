@@ -1,6 +1,6 @@
 package com.saxomoose.eid.web.models;
 
-import com.saxomoose.eid.web.enums.RoleEnum;
+import com.saxomoose.eid.web.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -13,8 +13,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name="users")
-public class ApplicationUser implements UserDetails {
+@Table(
+        name="users",
+        uniqueConstraints = { @UniqueConstraint(name = "username_unique_constraint", columnNames = "username") })
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,14 +24,17 @@ public class ApplicationUser implements UserDetails {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Collection<Closing> closings;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+            name = "signatory_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "signatory_id"))
     private Collection<Signatory> signatories;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Collection<Document> documents;
 
     @NotNull
-    @Column(unique = true)
     @Email
     private String username;
 
@@ -37,19 +42,24 @@ public class ApplicationUser implements UserDetails {
     private String password;
 
     // Required by UserDetails interface.
+    // TODO User model: email validation
     @NotNull
-    private boolean enabled;
+    @Column(columnDefinition = "boolean default true")
+    private boolean enabled = Boolean.TRUE;
 
     @NotNull
     @Column(columnDefinition = "smallint default 0")
-    private RoleEnum role = RoleEnum.ADMIN;
+    private Role role = Role.ADMIN;
+
+    public User() { }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     @Override

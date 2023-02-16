@@ -6,20 +6,18 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
-@Table(name = "legal_persons")
+@Table(
+        name = "legal_persons",
+        uniqueConstraints = { @UniqueConstraint(name = "enterprise_number_unique_constraint", columnNames = { "enterprise_number" })})
 public class LegalPerson {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @OneToMany(mappedBy="legalPerson", orphanRemoval = true)
-    private Collection<LegalPersonSignatory> legalPersonSignatories;
+    private Collection<ClosingLegalPerson> closingLegalPersons;
 
     @NotNull
-    @Column(unique = true)
+    @Column(name = "enterprise_number")
     private Long enterpriseNumber;
-
-    // Is the legal person validly represented? 2 Requirements.
-    @Column(columnDefinition = "boolean default false")
-    private Boolean status = false;
 }

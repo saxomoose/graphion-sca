@@ -18,7 +18,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                        <th-block data-th-block data-th-each="closing : ${closings}">
+                        <th-block data-th-each="closing : ${closings}">
                             <tr>
                                 <td data-th-text="${closing.id}"></td>
                                 <td data-th-text="${#dates.format(closing.date, 'yyyy-MM-dd')}"></td>
@@ -67,5 +67,6 @@
     </div>
 </div>
 <footer data-th-replace="~{fragments/footer}"></footer>
+<footer data-th-replace="~{fragments/scripts}"></footer>
 </body>
 </html>
