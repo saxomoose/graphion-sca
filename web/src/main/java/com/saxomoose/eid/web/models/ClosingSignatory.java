@@ -8,7 +8,7 @@ import java.time.Instant;
 @Entity
 @Table(
         name = "closing_signatory",
-        uniqueConstraints = @UniqueConstraint(name = "unique_constraint", columnNames = { "closing_id", "signatory_id", "document_id" }))
+        uniqueConstraints = @UniqueConstraint(name = "cs_unique_constraint", columnNames = { "closing_id", "signatory_id", "document_id" }))
 public class ClosingSignatory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

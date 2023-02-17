@@ -7,7 +7,7 @@ import java.util.Collection;
 @Entity
 @Table(
         name = "closing_legal_person",
-        uniqueConstraints = @UniqueConstraint(name="unique_constraint", columnNames = { "closing_id", "legal_person_id" }))
+        uniqueConstraints = @UniqueConstraint(name="cl_unique_constraint", columnNames = { "closing_id", "legal_person_id" }))
 public class ClosingLegalPerson {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
