@@ -42,7 +42,7 @@ public class User implements UserDetails {
     private String password;
 
     // Required by UserDetails interface.
-    // TODO User model: email validation
+    // TODO email validation
     @NotNull
     @Column(columnDefinition = "boolean default true")
     private boolean enabled = Boolean.TRUE;

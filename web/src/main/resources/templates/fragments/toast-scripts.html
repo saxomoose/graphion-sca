@@ -1,0 +1,11 @@
+<script type="module">
+    import { Toast } from "bootstrap";
+    const toastElList = document.querySelectorAll(".toast");
+    if (toastElList.length !== 0) {
+        const toastList = [...toastElList].map(
+            toastEl => new Toast(toastEl)
+        );
+        toastList.forEach(toast => toast.show());
+        // console.log(toastList);
+    }
+</script>
