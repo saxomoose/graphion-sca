@@ -3,15 +3,15 @@
         <a data-th-href="@{/}" class="me-auto">
             <img data-th-src="@{/svg/house.svg}" alt="graphion-logo" width="32" height="32">
         </a>
-        <button data-sec-authorize="isAuthenticated()" class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
-            <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32" class="filter-white">
+        <button data-sec-authorize="isAuthenticated()" data-bs-toggle="offcanvas" data-bs-target="#sidebar" class="navbar-toggler" >
+            <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32">
         </button>
         <ul class="nav">
             <li data-sec-authorize="!isAuthenticated()" class="nav-item">
-                <a  data-th-href="@{/login}" class="nav-link" >Login</a>
+                <a  data-th-href="@{/login}" class="nav-link px-2 link-dark" >Login</a>
             </li>
             <li data-sec-authorize="!isAuthenticated()" class="nav-item">
-                <a data-th-href="@{/register}"  class="nav-link">Register</a>
+                <a data-th-href="@{/register}"  class="nav-link px-2 link-dark">Register</a>
             </li>
         </ul>
         <form data-sec-authorize="isAuthenticated()" data-th-action="@{/logout}" method="post">

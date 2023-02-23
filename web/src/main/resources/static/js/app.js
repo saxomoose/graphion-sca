@@ -5,7 +5,8 @@ import "../scss/app.scss";
 
 // Option 1
 // eslint-disable-next-line no-unused-vars
-import * as bootstrap from "bootstrap";
+import * as bootstrap from "bootstrap/dist/js/bootstrap.min";
+window.bootstrap = bootstrap;
 
 // Option 2
 // import 'bootstrap/js/dist/alert';

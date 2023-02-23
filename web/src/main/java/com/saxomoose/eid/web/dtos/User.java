@@ -12,7 +12,7 @@ public class User {
     // - Must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number
     // - Can contain special characters
     // (- Max 128 characters)
-    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,128}$")
+    @Pattern(regexp = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,128}$")
     private String password;
 
     public String getUsername() {

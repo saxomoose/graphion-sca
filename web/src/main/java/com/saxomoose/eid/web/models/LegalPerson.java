@@ -11,13 +11,18 @@ import java.util.Collection;
         uniqueConstraints = { @UniqueConstraint(name = "enterprise_number_unique_constraint", columnNames = { "enterprise_number" })})
 public class LegalPerson {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(mappedBy="legalPerson", orphanRemoval = true)
+    @OneToMany(mappedBy="legalPerson")
     private Collection<ClosingLegalPerson> closingLegalPersons;
+
+    @OneToMany(mappedBy = "legalPerson")
+    private Collection<LegalPersonTenant> legalPersonTenants;
 
     @NotNull
     @Column(name = "enterprise_number")
     private Long enterpriseNumber;
+
+
 }

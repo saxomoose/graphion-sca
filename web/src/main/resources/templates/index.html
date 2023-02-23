@@ -7,7 +7,7 @@
 <header data-th-replace="~{fragments/header}"></header>
 <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
 <footer data-th-replace="~{fragments/footer}"></footer>
-<div data-th-replace="~{fragments/scripts}"></div>
-<div data-th-replace="~{fragments/toast-scripts}"></div>
+<script data-th-replace="~{fragments/scripts}"></script>
+<script data-th-replace="~{fragments/toast-scripts}"></script>
 </body>
 </html>

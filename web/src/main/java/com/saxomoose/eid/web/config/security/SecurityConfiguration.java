@@ -1,12 +1,10 @@
-package com.saxomoose.eid.web.config;
+package com.saxomoose.eid.web.config.security;
 
 import com.saxomoose.eid.web.services.JdbcUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,23 +22,30 @@ public class SecurityConfiguration {
         this.jdbcUserDetailsService = jdbcUserDetailsService;
     }
 
-    @Bean
-    AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
     @Autowired
     public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(jdbcUserDetailsService)
-
             .passwordEncoder(passwordEncoder)
-                .and();
-//            .authenticationProvider();
+                .and()
+        ;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return new com.saxomoose.eid.web.config.security.AuthenticationFailureHandler();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new com.saxomoose.eid.web.config.security.AuthenticationEntryPoint();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            AuthenticationFailureHandler authenticationFailureHandler,
+            AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
+
         http.httpBasic()
             .and()
             .authorizeHttpRequests((requests) -> requests
@@ -53,10 +58,12 @@ public class SecurityConfiguration {
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/closings")
+                .failureHandler(authenticationFailureHandler)
                 .permitAll())
             .logout(logout -> logout
                 .logoutSuccessUrl("/")
-                .permitAll());
+                .permitAll())
+            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 
         return http.build();
     }

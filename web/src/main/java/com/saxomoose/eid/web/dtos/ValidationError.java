@@ -13,5 +13,5 @@ public class ValidationError {
 
     public String getField() { return field; }
 
-    public Notification getToast() { return notification; }
+    public Notification getNotification() { return notification; }
 }
