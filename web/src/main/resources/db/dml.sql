@@ -1,5 +1,5 @@
 insert into eid.users (id, username, password, enabled, role)
-values (1, 'admin@graphion.test', '$2a$10$YJEbiOtJUgifetrfIX6TbuvjR7BfcchOmY2bInakWdBKkUnoly5jm', true, 0);
+values (1, 'admin@graphion.test', '$2a$10$x9xY8PNgRUeU/qVyItDFHuJiuVh1/t0jNsS3.uB1.7UsKuXLUmmBG', true, 0);
 
 -- insert into eid.closings (id, name, date, zone_offset)
 -- values

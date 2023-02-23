@@ -16,17 +16,17 @@ import java.util.Collection;
 @EntityListeners(AuditingEntityListener.class)
 public class Signatory {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    private OfficerSignatory officerSignatory;
+    @OneToOne(mappedBy = "signatory")
+    private Officer officer;
 
-    @OneToMany(mappedBy = "signatory", orphanRemoval = true)
+    @OneToMany(mappedBy = "signatory")
     private Collection<ClosingSignatory> closingSignatories;
 
-    @ManyToMany(mappedBy = "signatories")
-    private Collection<User> users;
+    @OneToMany(mappedBy = "signatory")
+    private Collection<SignatoryTenant> tenantSignatories;
 
     @NotNull
     private String firstName;

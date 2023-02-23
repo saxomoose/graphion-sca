@@ -13,7 +13,7 @@ public class Notification {
         this.body = body;
     }
 
-    public NotificationType getToastType() { return notificationType; }
+    public NotificationType getNotificationType() { return notificationType; }
 
     public String getHeader() { return header; }
 

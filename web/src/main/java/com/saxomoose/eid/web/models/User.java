@@ -18,21 +18,13 @@ import java.util.List;
         uniqueConstraints = { @UniqueConstraint(name = "username_unique_constraint", columnNames = "username") })
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    private Collection<Closing> closings;
-
-    @ManyToMany
-    @JoinTable(
-            name = "signatory_user",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "signatory_id"))
-    private Collection<Signatory> signatories;
-
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    private Collection<Document> documents;
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "tenant_id")
+    private Tenant tenant;
 
     @NotNull
     @Email
@@ -42,20 +34,26 @@ public class User implements UserDetails {
     private String password;
 
     // Required by UserDetails interface.
-    // TODO email validation
+    //
     @NotNull
-    @Column(columnDefinition = "boolean default true")
-    private boolean enabled = Boolean.TRUE;
+    private Boolean enabled;
 
     @NotNull
-    @Column(columnDefinition = "smallint default 0")
-    private Role role = Role.ADMIN;
+    private Role role;
 
     public User() { }
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public User(Tenant tenant, String username, String password, Boolean enabled, Role role) {
+        this.tenant = tenant;
+        this.username = username;
+        this.password = password;
+        this.enabled = enabled;
+        this.role = role;
     }
 
     public Long getId() {
@@ -81,13 +79,6 @@ public class User implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authList = new ArrayList<>();
-        authList.add(new SimpleGrantedAuthority(this.role.name()));
-        return authList;
-    }
-
-    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -107,5 +98,17 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authList = new ArrayList<>();
+        authList.add(new SimpleGrantedAuthority(this.role.name()));
+
+        return authList;
+    }
+
+    public Tenant getTenant() {
+        return this.tenant;
+    }
 }

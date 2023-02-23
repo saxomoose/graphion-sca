@@ -1,7 +1,7 @@
-<div class="container-fuid mt-auto bg-light border-top px-2">
-    <footer class="d-flex flex-wrap justify-content-between align-items-center my-2">
-        <p class="col-md-4 mb-0 text-muted">© 2022 Graphion</p>
-        <ul class="nav col-md-4 justify-content-end">
+<footer class="container-fluid mt-auto bg-light border-top">
+    <nav class="d-flex navbar align-items-center">
+        <p data-th-text="|© 2022-${#dates.year(#dates.createNow())} Graphion|" class="mb-0 text-muted"></p>
+        <ul class="nav">
             <li class="nav-item">
                 <a href="#" class="nav-link px-2 text-muted">Tutorial</a>
             </li>
@@ -9,5 +9,5 @@
                 <a href="#" class="nav-link px-2 text-muted">About</a>
             </li>
         </ul>
-    </footer>
-</div>
+    </nav>
+</footer>

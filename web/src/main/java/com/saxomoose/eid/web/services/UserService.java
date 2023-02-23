@@ -3,6 +3,8 @@ package com.saxomoose.eid.web.services;
 import com.saxomoose.eid.web.exceptions.UniqueConstraintViolationException;
 import com.saxomoose.eid.web.models.User;
 import com.saxomoose.eid.web.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +15,8 @@ import java.util.Optional;
 @Service
 public class UserService
 {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -33,12 +37,15 @@ public class UserService
     }
 
     public void createNew(User user) throws UniqueConstraintViolationException {
+        var test = passwordEncoder.encode(user.getPassword());
+
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         try {
             this.userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             if (e.getMostSpecificCause().getMessage().contains("username_unique_constraint")) {
-                // TODO implement log and throw
+                logger.info(String.format("User not created. username %s already exists in eid.users.", user.getUsername()));
                 throw new UniqueConstraintViolationException();
             }
         }

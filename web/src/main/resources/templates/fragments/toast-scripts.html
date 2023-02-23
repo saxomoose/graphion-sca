@@ -1,9 +1,9 @@
-<script type="module">
-    import { Toast } from "bootstrap";
+<!--suppress JSUnresolvedVariable -->
+<script>
     const toastElList = document.querySelectorAll(".toast");
     if (toastElList.length !== 0) {
         const toastList = [...toastElList].map(
-            toastEl => new Toast(toastEl)
+            toastEl => new bootstrap.Toast(toastEl)
         );
         toastList.forEach(toast => toast.show());
         // console.log(toastList);

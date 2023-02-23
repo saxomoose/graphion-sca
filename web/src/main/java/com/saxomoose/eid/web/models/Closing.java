@@ -3,9 +3,12 @@ package com.saxomoose.eid.web.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Collection;
@@ -15,18 +18,19 @@ import java.util.Collection;
 @EntityListeners(AuditingEntityListener.class)
 public class Closing {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @CreatedBy
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "tenant_id")
+    private Tenant tenant;
 
-    @OneToMany(mappedBy = "closing", orphanRemoval = true)
+    @OneToMany(mappedBy = "closing")
     private Collection<Document> documents;
 
-    @OneToMany(mappedBy = "closing", orphanRemoval = true)
+    @OneToMany(mappedBy = "closing")
     private Collection<ClosingSignatory> closingNaturalPersonSignatories;
 
     @ManyToMany(targetEntity = Signatory.class)
@@ -44,6 +48,25 @@ public class Closing {
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
+
+    @CreatedDate
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "created_timestamp")
+    private Instant createdTimestamp;
+
+    @LastModifiedDate
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "last_modified_timestamp")
+    protected Instant lastModifiedTimestamp;
+
+    public Closing() { }
+
+    public Closing(Tenant tenant, String name, ZoneOffset zoneOffset, LocalDate date) {
+        this.tenant = tenant;
+        this.name = name;
+        this.zoneOffset = zoneOffset;
+        this.date = date;
+    }
 
     public Long getId() {
         return id;

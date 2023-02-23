@@ -17,11 +17,6 @@ module.exports = (env, argv) => ({
             new TerserWebpackPlugin()
         ]
     },
-    // Comment out in prod.
-    // "devtool": "source-map",
-    // "watchOptions": {
-    //     "ignored": "/node_modules/"
-    // },
     "module": {
         "rules": [
             {
