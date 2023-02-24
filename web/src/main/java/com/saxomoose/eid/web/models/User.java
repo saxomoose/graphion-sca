@@ -22,7 +22,7 @@ public class User implements UserDetails {
     private Long id;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
@@ -34,7 +34,6 @@ public class User implements UserDetails {
     private String password;
 
     // Required by UserDetails interface.
-    //
     @NotNull
     private Boolean enabled;
 

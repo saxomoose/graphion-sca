@@ -23,9 +23,9 @@ public class ClosingController {
     public ModelAndView index() throws IOException, ClassNotFoundException {
         final var closings = closingRepository.findAll();
         var signatories = new ArrayList<Signatory>();
-        for (final var closing : closings) {
-            signatories.addAll(closing.getSignatories());
-        }
+//        for (final var closing : closings) {
+//            signatories.addAll(closing.getSignatories());
+//        }
 
         final var modelAndView = new ModelAndView("closings/index");
         modelAndView.addObject("closings", closings);

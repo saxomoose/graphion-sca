@@ -46,6 +46,14 @@ public class Signatory {
     @NotNull
     private Boolean consent;
 
+    public Signatory(String firstName, String lastName, String email, Long nationalRegistrationNumber, Boolean consent) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.nationalRegistrationNumber = nationalRegistrationNumber;
+        this.consent = consent;
+    }
+
     public String getFirstName() { return firstName; }
 
     public void setFirstName(String firstName) { this.firstName = firstName; }

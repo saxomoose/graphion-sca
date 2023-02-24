@@ -6,21 +6,19 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Entity
-@Table(
-        name = "closing_legal_person",
-        uniqueConstraints = @UniqueConstraint(name="closing_legal_person_unique_constraint", columnNames = { "closing_id", "legal_person_id" }))
+@Table(name = "closing_legal_person")
 public class ClosingLegalPerson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "closing_id")
     private Closing closing;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "legal_person_id")
     private LegalPerson legalPerson;
 
