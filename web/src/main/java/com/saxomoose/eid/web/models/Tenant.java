@@ -16,13 +16,13 @@ public class Tenant {
     private Collection<User> users;
 
     @OneToMany(mappedBy = "tenant")
-    private Collection<Closing> closings;
-
-    @OneToMany(mappedBy = "tenant")
     private Collection<SignatoryTenant> signatoryTenants;
 
     @OneToMany(mappedBy = "tenant")
     private Collection<LegalPersonTenant> legalPersonTenants;
+
+    @OneToMany(mappedBy = "tenant")
+    private Collection<Closing> closings;
 
     @OneToMany(mappedBy = "tenant")
     private Collection<Document> documents;

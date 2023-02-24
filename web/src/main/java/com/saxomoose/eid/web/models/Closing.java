@@ -6,12 +6,10 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Collection;
 
 @Entity
 @Table(name = "closings")
@@ -23,21 +21,15 @@ public class Closing {
 
     @NotNull
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
-    @OneToMany(mappedBy = "closing")
-    private Collection<Document> documents;
-
-    @OneToMany(mappedBy = "closing")
-    private Collection<ClosingSignatory> closingNaturalPersonSignatories;
-
-    @ManyToMany(targetEntity = Signatory.class)
-    @JoinTable(name = "closing_signatory",
-            joinColumns = {@JoinColumn(name = "closing_id")},
-            inverseJoinColumns = {@JoinColumn(name = "signatory_id")})
-    private Collection<Signatory> signatories;
+//    @ManyToMany(targetEntity = Signatory.class)
+//    @JoinTable(name = "closing_signatory",
+//            joinColumns = {@JoinColumn(name = "closing_id")},
+//            inverseJoinColumns = {@JoinColumn(name = "signatory_id")})
+//    private Collection<Signatory> signatories;
 
     @NotNull
     private String name;
@@ -46,16 +38,13 @@ public class Closing {
     private ZoneOffset zoneOffset;
 
     @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
 
     @CreatedDate
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "created_timestamp")
     private Instant createdTimestamp;
 
     @LastModifiedDate
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "last_modified_timestamp")
     protected Instant lastModifiedTimestamp;
 
@@ -83,8 +72,4 @@ public class Closing {
     public LocalDate getDate() { return date; }
 
     public void setDate(LocalDate date) { this.date = date; }
-
-    public Collection<Signatory> getSignatories() {
-        return signatories;
-    }
 }

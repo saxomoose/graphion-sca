@@ -17,12 +17,12 @@ public class SignatoryTenant {
 
     @NotNull
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "signatory_id")
     private Signatory signatory;
 }

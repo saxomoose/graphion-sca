@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);
 
-    @Query(nativeQuery = true, value="SELECT *  FROM eid.users ORDER BY random() LIMIT 1")
-    User findRandom();
+    @Query(nativeQuery = true, value="SELECT *  FROM eid.users LIMIT 1")
+    User findFirst();
 }

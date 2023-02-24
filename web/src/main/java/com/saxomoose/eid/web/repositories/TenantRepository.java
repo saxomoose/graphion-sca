@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface TenantRepository extends JpaRepository<Tenant, Long> {
-    @Query(nativeQuery = true, value="SELECT *  FROM eid.tenants ORDER BY random() LIMIT 1")
-    Tenant findRandom();
+    @Query(nativeQuery = true, value="SELECT *  FROM eid.tenants LIMIT 1")
+    Tenant findFirst();
 }

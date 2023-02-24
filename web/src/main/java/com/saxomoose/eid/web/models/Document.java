@@ -7,10 +7,8 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
-import java.util.Collection;
 
 @Entity
 @Table(
@@ -25,23 +23,15 @@ public class Document {
 
     @NotNull
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
     @NotNull
-    @ManyToOne
-    @JoinColumn(name="closing_id")
-    private Closing closing;
-
-    @OneToMany(mappedBy = "document")
-    private Collection<ClosingSignatory> closingSignatories;
-
-    @OneToMany(mappedBy = "document")
-    private Collection<Officer> officerSignatories;
+    private String filename;
 
     @NotNull
-    private String filename;
+    private String path;
 
     @NotNull
     private SupportedMediaType mediaType = SupportedMediaType.PDF;
@@ -49,20 +39,17 @@ public class Document {
     // Minio attributes: uuid, versionuuid
 
     @CreatedDate
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "created_timestamp")
     private Instant createdTimestamp;
 
     @LastModifiedDate
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "last_modified_timestamp")
     protected Instant lastModifiedTimestamp;
 
     public Document() { }
 
-    public Document(Tenant tenant, Closing closing, String fileName) {
+    public Document(Tenant tenant, String fileName) {
         this.tenant = tenant;
-        this.closing = closing;
         this.filename = fileName;
     }
 

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClosingRepository extends JpaRepository<Closing, Long> {
-    @Query(nativeQuery = true, value="SELECT *  FROM eid.closings ORDER BY random() LIMIT 1")
-    Closing findRandom();
+    @Query(nativeQuery = true, value="SELECT *  FROM eid.closings LIMIT 1")
+    Closing findFirst();
 }

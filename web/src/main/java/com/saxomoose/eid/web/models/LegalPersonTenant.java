@@ -17,12 +17,12 @@ public class LegalPersonTenant {
 
     @NotNull
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "legal_person_id")
     private LegalPerson legalPerson;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 }
