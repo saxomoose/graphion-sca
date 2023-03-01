@@ -2,12 +2,17 @@ import com.github.gradle.node.npm.task.NpmTask
 
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.0.1"
-    id("io.spring.dependency-management") version "1.1.0"
-    id("com.github.node-gradle.node") version "3.5.1"
+    @Suppress("DSL_SCOPE_VIOLATION")
+    alias(libs.plugins.flyway)
+    @Suppress("DSL_SCOPE_VIOLATION")
+    alias(libs.plugins.node)
+    @Suppress("DSL_SCOPE_VIOLATION")
+    alias(libs.plugins.springboot)
+    @Suppress("DSL_SCOPE_VIOLATION")
+    alias(libs.plugins.springdependencymanagement)
 }
 
-group = "com.saxomoose"
+group = "io.github.saxomoose"
 version = "0.0.1"
 
 repositories {
@@ -15,11 +20,12 @@ repositories {
 }
 
 dependencies {
+    compileOnly(libs.flyway.core)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation("com.github.javafaker:javafaker:1.0.2")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.google.guava:guava:31.1-jre")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation(libs.javafaker)
+    implementation(libs.gson)
+    implementation(libs.guava)
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -31,9 +37,28 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 }
 
+flyway {
+    url = providers.gradleProperty("flyway.url").get()
+    schemas = arrayOf(providers.gradleProperty("flyway.schemas").get())
+    user = providers.gradleProperty("flyway.user").get()
+    password = providers.gradleProperty("flyway.password").get()
+    locations = arrayOf("classpath:db/migration/v001")
+    cleanDisabled = false
+    outOfOrder = true
+}
+
+tasks.flywayMigrate {
+    dependsOn(tasks.classes)
+}
+
+tasks.register("flywayCleanMigrate") {
+    dependsOn(tasks.flywayClean)
+    dependsOn(tasks.flywayMigrate)
+}
+
 node {
     download.set(true)
-    version.set("18.13.0")
+    version.set(providers.gradleProperty("node.version").get())
     workDir.set(file("${project.rootDir}/.gradle/node"))
     nodeProjectDir.set(file("${project.projectDir}"))
 }
