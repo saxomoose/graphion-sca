@@ -1,0 +1,13 @@
+[versions]
+
+[libraries]
+flyway-core = { module = "org.flywaydb:flyway-core", version = "9.15.1" }
+gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
+guava = { module = "com.google.guava:guava", version = "31.1-jre" }
+javafaker = { module = "com.github.javafaker:javafaker", version = "1.0.2" }
+
+[plugins]
+flyway = { id = "org.flywaydb.flyway", version = "9.15.1" }
+node = { id = "com.github.node-gradle.node", version = "3.5.1" }
+springboot = { id = "org.springframework.boot", version = "3.0.1" }
+springdependencymanagement = { id = "io.spring.dependency-management", version = "1.1.0" }
