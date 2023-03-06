@@ -1,4 +1,9 @@
 import com.github.gradle.node.npm.task.NpmTask
+import org.flywaydb.gradle.task.FlywayCleanTask
+import org.flywaydb.gradle.task.FlywayMigrateTask
+
+extra["db.dev.url"] = providers.gradleProperty("db.dev.url").get()
+extra["db.test.url"] = providers.gradleProperty("db.test.url").get()
 
 plugins {
     id("java")
@@ -38,7 +43,6 @@ dependencies {
 }
 
 flyway {
-    url = providers.gradleProperty("flyway.url").get()
     schemas = arrayOf(providers.gradleProperty("flyway.schemas").get())
     user = providers.gradleProperty("flyway.user").get()
     password = providers.gradleProperty("flyway.password").get()
@@ -49,11 +53,30 @@ flyway {
 
 tasks.flywayMigrate {
     dependsOn(tasks.classes)
+    url = "${project.extra["db.dev.url"]}"
 }
 
-tasks.register("flywayCleanMigrate") {
+tasks.flywayClean {
+    url = "${project.extra["db.dev.url"]}"
+}
+
+tasks.register<Task>("flywayCleanMigrate") {
     dependsOn(tasks.flywayClean)
     dependsOn(tasks.flywayMigrate)
+}
+
+tasks.register<FlywayMigrateTask>("flywayMigrateTest") {
+    dependsOn(tasks.classes)
+    url = "${project.extra["db.test.url"]}"
+}
+
+tasks.register<FlywayCleanTask>("flywayCleanTest") {
+    url = "${project.extra["db.test.url"]}"
+}
+
+tasks.register<Task>("flywayCleanMigrateTest") {
+    dependsOn(tasks.findByName("flywayMigrateTest"))
+    dependsOn(tasks.findByName("flywayCleanTest"))
 }
 
 node {
