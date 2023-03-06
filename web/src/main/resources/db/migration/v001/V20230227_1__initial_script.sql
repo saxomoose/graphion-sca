@@ -1,110 +1,111 @@
-CREATE TABLE eid.tenant (
+CREATE TABLE sca.tenant (
     id bigserial PRIMARY KEY,
-    bucket character varying(255),
+    name character varying(255) NOT NULL UNIQUE,
     endpoint character varying(255),
-    name character varying(255) NOT NULL UNIQUE
+    bucket character varying(255),
+    version bigint NOT NULL,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL
 );
 
-CREATE TABLE eid.user (
+CREATE TABLE sca.user (
     id bigserial PRIMARY KEY,
-    enabled boolean NOT NULL,
-    password character varying(255) NOT NULL,
-    role character varying(255) NOT NULL,
     username character varying(255) NOT NULL UNIQUE,
+    password character varying(255) NOT NULL,
+    enabled boolean NOT NULL,
+    role character varying(255) NOT NULL,
     tenant bigint NOT NULL,
-    CONSTRAINT fk_21hn1a5ja1tve7ae02fnn4cld FOREIGN KEY (tenant) REFERENCES eid.tenant(id)
+    version bigint NOT NULL,
+    created_by bigint,
+    last_modified_by bigint,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT fk_21hn1a5ja1tve7ae02fnn4cld FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
+    CONSTRAINT fk_xrm5kc7fcipmupq47qb7erbca FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_fvofgwr9u29o5c9wm5t7rxmf3 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
-CREATE TABLE eid.signatory (
+CREATE TABLE sca.signatory (
     id bigserial PRIMARY KEY,
-    consent boolean NOT NULL,
-    email character varying(255) NOT NULL UNIQUE,
+    national_registration_number bigint NOT NULL UNIQUE,
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
-    national_registration_number bigint NOT NULL UNIQUE
-);
-
-CREATE TABLE eid.signatory_tenant (
-    signatory bigint NOT NULL,
+    email character varying(255) NOT NULL UNIQUE,
+    consent boolean NOT NULL,
     tenant bigint NOT NULL,
-    CONSTRAINT pk_signatory_tenant PRIMARY KEY (signatory, tenant),
-    CONSTRAINT fk_3bao161ny6nc59rsq5jt9303n FOREIGN KEY (signatory) REFERENCES eid.signatory(id),
-    CONSTRAINT fk_fs0966lrhnd4cx1p2595jj8qd FOREIGN KEY (tenant) REFERENCES eid.tenant(id)
+    version bigint NOT NULL,
+    CONSTRAINT fk_gy9ohx5nb3iqb3w4zmiztitnh FOREIGN KEY (tenant) REFERENCES sca.tenant(id)
 );
 
-CREATE TABLE eid.legal_person (
+CREATE TABLE sca.legal_person (
     id bigserial PRIMARY KEY,
-    enterprise_number bigint NOT NULL UNIQUE
-);
-
-CREATE TABLE eid.legal_person_tenant (
-    legal_person bigint NOT NULL,
+    enterprise_number bigint NOT NULL UNIQUE,
     tenant bigint NOT NULL,
-    CONSTRAINT pk_legal_person_tenant PRIMARY KEY (legal_person, tenant),
-    CONSTRAINT fk_dhlk7d40yb1hasmuoih7wnk5e FOREIGN KEY (tenant) REFERENCES eid.tenant(id),
-    CONSTRAINT fk_t2lku4wmeaefh1q69vwi94ktu FOREIGN KEY (legal_person) REFERENCES eid.legal_person(id)
+    version bigint NOT NULL,
+    CONSTRAINT fk_3w7dqdxa2eq4q4q2rpzdid2c2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id)
 );
 
-CREATE TABLE eid.closing (
+CREATE TABLE sca.closing (
     id bigserial PRIMARY KEY,
-    created_timestamp timestamp(6),
-    date date NOT NULL,
-    last_modified_timestamp timestamp(6),
     name character varying(255) NOT NULL,
-    zone_offset character varying(6) NOT NULL,
+    zone_id character varying(255) NOT NULL,
+    date date NOT NULL,
     tenant bigint NOT NULL,
-    CONSTRAINT fk_28r54jdf20uxapd9ll4xc9swl FOREIGN KEY (tenant) REFERENCES eid.tenant(id)
+    version bigint NOT NULL,
+    created_by bigint,
+    last_modified_by bigint,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT fk_28r54jdf20uxapd9ll4xc9swl FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
+    CONSTRAINT fk_npngjh2wzvv74ptuxts7cu9ct FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_dyd3m7iqwxpovnzso95b3qees FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
-CREATE TABLE eid.document (
+CREATE TABLE sca.document (
     id bigserial PRIMARY KEY,
-    created_timestamp timestamp(6),
     filename character varying(255) NOT NULL,
-    last_modified_timestamp timestamp(6),
-    media_type character varying(255) NOT NULL,
+    path character varying(255) NOT NULL,
     tenant bigint NOT NULL,
-    CONSTRAINT fk_3n1fmnwawut96uv6etsoppyn2 FOREIGN KEY (tenant) REFERENCES eid.tenant(id)
+    version bigint NOT NULL,
+    CONSTRAINT fk_3n1fmnwawut96uv6etsoppyn2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id)
 );
 
-CREATE TABLE eid.closing_legal_person (
-    id bigserial PRIMARY KEY,
-    status boolean DEFAULT false,
+CREATE TABLE sca.closing_legal_person (
     closing bigint NOT NULL,
     legal_person integer NOT NULL,
-    CONSTRAINT fk_sbfjnolasb7ki47onw6hs1fl5 FOREIGN KEY (closing) REFERENCES eid.closing(id),
-    CONSTRAINT fk_hfnec6hphjm63bifwwp4o9pks FOREIGN KEY (legal_person) REFERENCES eid.legal_person(id)
+    status boolean DEFAULT false,
+    CONSTRAINT pk_closing_legal_person PRIMARY KEY (closing, legal_person),
+    CONSTRAINT fk_sbfjnolasb7ki47onw6hs1fl5 FOREIGN KEY (closing) REFERENCES sca.closing(id),
+    CONSTRAINT fk_hfnec6hphjm63bifwwp4o9pks FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id)
 );
 
-CREATE TABLE eid.officer (
-    id bigserial PRIMARY KEY,
-    enterprise_number bigint,
+CREATE TABLE sca.officer (
+    legal_person bigint NOT NULL,
+    signatory bigint NOT NULL,
     function character varying(255) NOT NULL,
-    closing_legal_person bigint NOT NULL,
-    signatory bigint NOT NULL,
-    CONSTRAINT officer_unique_constraint UNIQUE (closing_legal_person, signatory),
-    CONSTRAINT fk_7foy21sx48iatl2bfugmc9xn1 FOREIGN KEY (closing_legal_person) REFERENCES eid.closing_legal_person(id),
-    CONSTRAINT fk_bu5hcphxwyu0413ea7buxeope FOREIGN KEY (signatory) REFERENCES eid.signatory(id)
+    enterprise_number bigint,
+    CONSTRAINT pk_officer PRIMARY KEY (legal_person, signatory),
+    CONSTRAINT fk_7foy21sx48iatl2bfugmc9xn1 FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id),
+    CONSTRAINT fk_bu5hcphxwyu0413ea7buxeope FOREIGN KEY (signatory) REFERENCES sca.signatory(id)
 );
 
-CREATE TABLE eid.closing_signatory (
-    id bigserial PRIMARY KEY,
-    signature_timestamp timestamp(6),
+CREATE TABLE sca.closing_signatory (
     closing bigint NOT NULL,
-    document bigint NOT NULL,
     signatory bigint NOT NULL,
-    CONSTRAINT fk_amkea6t1p36344x6jeb2652jf FOREIGN KEY (closing) REFERENCES eid.closing(id),
-    CONSTRAINT fk_4dpb1t6xryd3m4dsr65cs9e8e FOREIGN KEY (signatory) REFERENCES eid.signatory(id),
-    CONSTRAINT fk_gv276xrnywepnpiw1h04johx FOREIGN KEY (document) REFERENCES eid.document(id)
+    document bigint NOT NULL,
+    signature_timestamp timestamp(6) with time zone,
+    CONSTRAINT pk_closing_signatory PRIMARY KEY (closing, signatory, document),
+    CONSTRAINT fk_amkea6t1p36344x6jeb2652jf FOREIGN KEY (closing) REFERENCES sca.closing(id),
+    CONSTRAINT fk_gv276xrnywepnpiw1h04johxf FOREIGN KEY (document) REFERENCES sca.document(id),
+    CONSTRAINT fk_4dpb1t6xryd3m4dsr65cs9e8e FOREIGN KEY (signatory) REFERENCES sca.signatory(id)
 );
 
-ALTER TABLE eid.tenant OWNER TO graphioneid;
-ALTER TABLE eid.user OWNER TO graphioneid;
-ALTER TABLE eid.signatory OWNER TO graphioneid;
-ALTER TABLE eid.signatory_tenant OWNER TO graphioneid;
-ALTER TABLE eid.legal_person OWNER TO graphioneid;
-ALTER TABLE eid.legal_person_tenant OWNER TO graphioneid;
-ALTER TABLE eid.closing OWNER TO graphioneid;
-ALTER TABLE eid.document OWNER TO graphioneid;
-ALTER TABLE eid.closing_legal_person OWNER TO graphioneid;
-ALTER TABLE eid.officer OWNER TO graphioneid;
-ALTER TABLE eid.closing_signatory OWNER TO graphioneid;
+ALTER TABLE sca.closing OWNER TO graphionsca;
+ALTER TABLE sca.closing_legal_person OWNER TO graphionsca;
+ALTER TABLE sca.closing_signatory OWNER TO graphionsca;
+ALTER TABLE sca.document OWNER TO graphionsca;
+ALTER TABLE sca.legal_person OWNER TO graphionsca;
+ALTER TABLE sca.officer OWNER TO graphionsca;
+ALTER TABLE sca.signatory OWNER TO graphionsca;
+ALTER TABLE sca.tenant OWNER TO graphionsca;
+ALTER TABLE sca.user OWNER TO graphionsca;
