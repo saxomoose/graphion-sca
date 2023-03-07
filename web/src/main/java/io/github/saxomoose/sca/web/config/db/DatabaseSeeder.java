@@ -3,12 +3,15 @@ package io.github.saxomoose.sca.web.config.db;
 import io.github.saxomoose.sca.web.enums.Function;
 import io.github.saxomoose.sca.web.models.*;
 import io.github.saxomoose.sca.web.repositories.*;
+import io.github.saxomoose.sca.web.repositories.projections.MutableUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
@@ -18,6 +21,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private TenantRepository tenantRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MutableUserRepository mutableUserRepository;
     @Autowired
     private SignatoryRepository signatoryRepository;
     @Autowired
@@ -42,9 +47,13 @@ public class DatabaseSeeder implements CommandLineRunner {
             tenantRepository.save(tenant);
             var tenant2 = tenantRepository.findById(2L).get();
 
-            var user = User.of(environment.getProperty("env.seeder.adminusername"), environment.getProperty("env.seeder.adminpassword"), tenant1.getId());
+            var user = User.of(environment.getProperty("env.seeder.adminusername"), environment.getProperty("env.seeder.adminpassword"));
             userRepository.save(user);
             var user1 = userRepository.findFirst();
+
+//            var mutableUser = MutableUser.of(user1);
+//            mutableUser.setEnabled(Boolean.FALSE);
+//            mutableUserRepository.save(mutableUser);
 
             var signatory = Signatory.of(26854545232L, "Evarest", "Schoofs", "evarest@northstone.test", tenant1.getId());
             signatoryRepository.save(signatory);

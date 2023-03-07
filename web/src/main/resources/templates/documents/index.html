@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head data-th-replace="~{fragments/head :: frag(~{::title})}">
+    <title>Documents</title>
+</head>
+<body class="d-flex flex-column h-100">
+<header data-th-replace="~{fragments/header}"></header>
+<div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+<div class="flex-shrink-0">
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=2)}"></aside>
+            <main class="col-md-6">
+                <div>
+                    <a data-th-href="@{/documents/create}">Add document</a>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Filename</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th-block data-th-each="document : ${documents}">
+                        <tr>
+                            <td data-th-text="${document.friendlyFilename}"></td>
+                        </tr>
+                    </th-block>
+                    </tbody>
+                </table>
+            </main>
+        </div>
+    </div>
+</div>
+<footer data-th-replace="~{fragments/footer}"></footer>
+<script data-th-replace="~{fragments/scripts}"></script>
+<div data-th-replace="~{fragments/toast-scripts}"></div>
+</body>
+</html>

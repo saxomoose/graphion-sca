@@ -42,6 +42,14 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 }
 
+tasks.bootRun {
+    systemProperty("spring.profiles.active", "dev")
+}
+
+tasks.test {
+    systemProperty("spring.profiles.active", "test")
+}
+
 flyway {
     schemas = arrayOf(providers.gradleProperty("flyway.schemas").get())
     user = providers.gradleProperty("flyway.user").get()
