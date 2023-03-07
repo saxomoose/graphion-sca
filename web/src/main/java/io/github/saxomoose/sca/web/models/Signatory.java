@@ -1,28 +1,35 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Table(schema = "sca")
 public class Signatory {
     @Id
     private final Long id;
 
-//    @OneToOne(mappedBy = "signatory")
-//    private Officer officer;
-
     private final Long nationalRegistrationNumber;
     private final String firstName;
     private final String lastName;
-    private String email;
+    private final String email;
     // Art. 1:5 New Belgian Civil Code.
-    private Boolean consent;
+    private final Boolean consent;
 
     private final Long tenant;
 
     @Version
     private Long version;
+    @CreatedBy
+    private Long createdBy;
+    @LastModifiedBy
+    private Long lastModifiedBy;
+    @CreatedDate
+    private LocalDateTime createdDate;
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
 
     public static Signatory of(Long nationalRegistrationNumber, String firstName, String lastName, String email, Long tenant) {
         return new Signatory(null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE, tenant);
@@ -48,6 +55,15 @@ public class Signatory {
     public Boolean getConsent() { return consent; }
     public Long getTenant() { return this.tenant; }
 
-    public void setConsent(Boolean consent) { this.consent = consent; }
-    public void setEmail(String email) { this.email = email; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Signatory signatory = (Signatory) o;
+        return Objects.equals(id, signatory.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

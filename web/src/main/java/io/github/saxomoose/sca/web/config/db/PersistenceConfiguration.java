@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.config.db;
 
+import io.github.saxomoose.sca.web.config.AuditorAwareImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -11,8 +12,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.transaction.TransactionManager;
-import io.github.saxomoose.sca.web.config.AuditorAwareImpl;
-import io.github.saxomoose.sca.web.models.User;
 
 import javax.sql.DataSource;
 
@@ -21,7 +20,7 @@ import javax.sql.DataSource;
 @EnableJdbcAuditing
 public class PersistenceConfiguration extends AbstractJdbcConfiguration {
     @Bean
-    AuditorAware<User> auditorProvider() {
+    AuditorAware<Long> auditorProvider() {
         return new AuditorAwareImpl();
     }
     @Bean

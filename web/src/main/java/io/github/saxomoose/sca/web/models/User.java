@@ -11,16 +11,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Table(schema = "sca")
 public class User implements UserDetails {
     @Id
     private final Long id;
     private final String username;
-    private String password;
+    private final String password;
     // Required by UserDetails interface.
-    private Boolean enabled;
-    private Role role;
+    private final Boolean enabled;
+    private final Role role;
 
     private final Long tenant;
 
@@ -39,7 +40,6 @@ public class User implements UserDetails {
     public static User of(String username, String password) {
         return new User(null, username, password, Boolean.TRUE, Role.ROLE_ADMIN, 1L);
     }
-
     public static User of(String username, String password, Long tenant) {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
@@ -85,18 +85,27 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authList = new ArrayList<>();
-        authList.add(new SimpleGrantedAuthority(this.role.name()));
+        authList.add(new SimpleGrantedAuthority(role.name()));
 
         return authList;
     }
+    public Role getRole() { return role; }
     public Long getTenant() { return tenant; }
+    public Long getVersion() { return version; }
+    public Long getCreatedBy() { return createdBy; }
+    public Long getLastModifiedBy() { return lastModifiedBy; }
+    public LocalDateTime getCreatedDate() { return createdDate; }
+    public LocalDateTime getLastModifiedDate() { return lastModifiedDate; }
 
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
     }
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
-    public void setRole(Role role) { this.role = role; }
-
 }

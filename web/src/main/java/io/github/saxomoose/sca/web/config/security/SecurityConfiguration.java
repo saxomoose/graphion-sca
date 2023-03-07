@@ -47,14 +47,15 @@ public class SecurityConfiguration {
             .and()
             .authorizeHttpRequests((requests) -> requests
                     .requestMatchers("/", "/register").permitAll()
-                    // Comment out to enable security.
+                    // Toggle basic auth.
 //                    .requestMatchers("/**").permitAll()
                     .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/closings")
+                // Redirect to closings
+                .defaultSuccessUrl("/documents")
                 .failureHandler(authenticationFailureHandler)
                 .permitAll())
             .logout(logout -> logout

@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Table(schema = "sca")
 public class Tenant {
@@ -43,4 +44,16 @@ public class Tenant {
     public String getName() { return name; }
     public String getEndpoint() { return endpoint; }
     public String getBucket() { return bucket; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tenant tenant = (Tenant) o;
+        return Objects.equals(id, tenant.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

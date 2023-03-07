@@ -10,7 +10,7 @@ CREATE TABLE sca.tenant (
 
 CREATE TABLE sca.user (
     id bigserial PRIMARY KEY,
-    username character varying(255) NOT NULL UNIQUE,
+    username character varying(255) NOT NULL,
     password character varying(255) NOT NULL,
     enabled boolean NOT NULL,
     role character varying(255) NOT NULL,
@@ -20,6 +20,7 @@ CREATE TABLE sca.user (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT unique_constraint_user UNIQUE(username, tenant),
     CONSTRAINT fk_21hn1a5ja1tve7ae02fnn4cld FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_xrm5kc7fcipmupq47qb7erbca FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_fvofgwr9u29o5c9wm5t7rxmf3 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
@@ -27,22 +28,36 @@ CREATE TABLE sca.user (
 
 CREATE TABLE sca.signatory (
     id bigserial PRIMARY KEY,
-    national_registration_number bigint NOT NULL UNIQUE,
+    national_registration_number bigint NOT NULL,
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
-    email character varying(255) NOT NULL UNIQUE,
+    email character varying(255) NOT NULL,
     consent boolean NOT NULL,
     tenant bigint NOT NULL,
     version bigint NOT NULL,
-    CONSTRAINT fk_gy9ohx5nb3iqb3w4zmiztitnh FOREIGN KEY (tenant) REFERENCES sca.tenant(id)
+    created_by bigint,
+    last_modified_by bigint,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT unique_constraint_signatory UNIQUE(national_registration_number, tenant),
+    CONSTRAINT fk_gy9ohx5nb3iqb3w4zmiztitnh FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
+    CONSTRAINT fk_9oyvpg7hbksavchjtdxdqdjbn FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_k5ro5xzq35qp34s2d3jtww2u5 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
 CREATE TABLE sca.legal_person (
     id bigserial PRIMARY KEY,
-    enterprise_number bigint NOT NULL UNIQUE,
+    enterprise_number bigint NOT NULL,
     tenant bigint NOT NULL,
     version bigint NOT NULL,
-    CONSTRAINT fk_3w7dqdxa2eq4q4q2rpzdid2c2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id)
+    created_by bigint,
+    last_modified_by bigint,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT unique_constraint_legal_person UNIQUE(enterprise_number, tenant),
+    CONSTRAINT fk_3w7dqdxa2eq4q4q2rpzdid2c2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
+    CONSTRAINT fk_fo9m7etyd4e3weag5mig43ebu FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_mzprcu2kgq2hjs5bia2bpaia2 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
 CREATE TABLE sca.closing (
@@ -56,6 +71,7 @@ CREATE TABLE sca.closing (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT unique_constraint_closing UNIQUE(name, tenant),
     CONSTRAINT fk_28r54jdf20uxapd9ll4xc9swl FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_npngjh2wzvv74ptuxts7cu9ct FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_dyd3m7iqwxpovnzso95b3qees FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
@@ -63,11 +79,18 @@ CREATE TABLE sca.closing (
 
 CREATE TABLE sca.document (
     id bigserial PRIMARY KEY,
-    filename character varying(255) NOT NULL,
+    friendly_filename character varying(255) NOT NULL,
     path character varying(255) NOT NULL,
     tenant bigint NOT NULL,
     version bigint NOT NULL,
-    CONSTRAINT fk_3n1fmnwawut96uv6etsoppyn2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id)
+    created_by bigint,
+    last_modified_by bigint,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT unique_constraint_document UNIQUE (tenant, path),
+    CONSTRAINT fk_3n1fmnwawut96uv6etsoppyn2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
+    CONSTRAINT fk_4e9wkjnymp324zm7fofswoicj FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_igz4yymunfjtm3m7aj7cx2z34 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
 CREATE TABLE sca.closing_legal_person (

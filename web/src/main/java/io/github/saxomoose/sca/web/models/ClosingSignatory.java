@@ -8,7 +8,7 @@ import java.time.Instant;
 public class ClosingSignatory {
     protected Long signatory;
     protected Long document;
-    protected Instant signatureTimestamp;
+    private Instant signatureTimestamp;
 
     public Instant getSignatureTimestamp() { return signatureTimestamp; }
 

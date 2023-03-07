@@ -4,7 +4,13 @@ import io.github.saxomoose.sca.web.models.Document;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Collection;
+
 public interface DocumentRepository extends CrudRepository<Document, Long> {
     @Query("SELECT *  FROM sca.document LIMIT 1")
     Document findFirst();
+
+    Collection<Document> findAllByTenant(Long tenantId);
+
+
 }
