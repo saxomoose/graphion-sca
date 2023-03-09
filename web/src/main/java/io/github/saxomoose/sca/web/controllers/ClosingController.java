@@ -18,10 +18,8 @@ public class ClosingController {
     @GetMapping("/closings")
     public ModelAndView index() {
 //        final var closings = closingRepository.findAll();
-
         final var modelAndView = new ModelAndView("closings/index");
 //        modelAndView.addObject("closings", closings);
-
         return modelAndView;
     }
 }

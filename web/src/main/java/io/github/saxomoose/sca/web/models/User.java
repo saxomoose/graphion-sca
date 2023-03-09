@@ -18,9 +18,9 @@ public class User implements UserDetails {
     @Id
     private final Long id;
     private final String username;
-    private final String password;
+    private String password;
     // Required by UserDetails interface.
-    private final Boolean enabled;
+    private Boolean enabled;
     private final Role role;
 
     private final Long tenant;
@@ -91,11 +91,10 @@ public class User implements UserDetails {
     }
     public Role getRole() { return role; }
     public Long getTenant() { return tenant; }
-    public Long getVersion() { return version; }
-    public Long getCreatedBy() { return createdBy; }
-    public Long getLastModifiedBy() { return lastModifiedBy; }
-    public LocalDateTime getCreatedDate() { return createdDate; }
-    public LocalDateTime getLastModifiedDate() { return lastModifiedDate; }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public boolean equals(Object o) {

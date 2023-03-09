@@ -61,12 +61,12 @@ public class LegalPerson {
     public void addOfficer(Long signatory, Function function, Long enterpriseNumber) {
         this.officers.add(createOfficerRef(signatory, function, enterpriseNumber));
     }
+
     private Officer createOfficerRef(Long signatory, Function function, Long enterpriseNumber) {
         final var officer = new Officer();
         officer.signatory = signatory;
         officer.function = function;
         officer.enterpriseNumber = enterpriseNumber;
-
         return officer;
     }
 }

@@ -17,7 +17,6 @@ public class InternationalizationConfiguration implements WebMvcConfigurer {
         final var messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasenames("classpath:i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
-
         return messageSource;
     }
 
@@ -26,7 +25,6 @@ public class InternationalizationConfiguration implements WebMvcConfigurer {
         final var sessionLocaleResolver = new SessionLocaleResolver();
         sessionLocaleResolver.setDefaultLocale(Locale.US);
 //        sessionLocaleResolver.setLocaleAttributeName("session.current.locale");
-
         return sessionLocaleResolver;
     }
 
@@ -34,7 +32,6 @@ public class InternationalizationConfiguration implements WebMvcConfigurer {
 //    public LocaleChangeInterceptor localeChangeInterceptor() {
 //        LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
 //        localeChangeInterceptor.setParamName("language");
-//
 //        return localeChangeInterceptor;
 //    }
 //

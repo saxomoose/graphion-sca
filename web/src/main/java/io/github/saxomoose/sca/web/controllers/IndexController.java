@@ -18,17 +18,13 @@ public class IndexController {
 //        Locale locale = LocaleContextHolder.getLocale();
 //        var test = session.getAttribute("session.current.locale");
 //        var test2 = session.getAttribute("session.current.timezone");
-
         final var modelAndView = new ModelAndView();
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
-
         logger.info("A info message");
-
         modelAndView.setViewName("index");
-
         return modelAndView;
     }
 }

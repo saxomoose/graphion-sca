@@ -2,7 +2,7 @@ package io.github.saxomoose.sca.web.controllers;
 
 import io.github.saxomoose.sca.web.dtos.Notification;
 import io.github.saxomoose.sca.web.enums.NotificationType;
-import io.github.saxomoose.sca.web.exceptions.UniqueConstraintViolationException;
+import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
 import io.github.saxomoose.sca.web.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -52,22 +52,20 @@ public class JdbcAuthController {
             // return if user is already logged in.
             modelAndView.setViewName("redirect:/");
         }
-
         return modelAndView;
     }
 
     @PostMapping(value = "/register")
     public RedirectView register(
             @Valid
-            @ModelAttribute
-            final io.github.saxomoose.sca.web.dtos.User userDTO,
+            @ModelAttribute final io.github.saxomoose.sca.web.dtos.User userDTO,
             final BindingResult bindingResult,
             final RedirectAttributes redirectAttributes) {
         final var redirectView = new RedirectView();
         if (!bindingResult.hasErrors()) {
             try {
                 userService.create(userDTO);
-            } catch (UniqueConstraintViolationException e) {
+            } catch (DatabaseConstraintViolationException e) {
                 bindingResult.rejectValue("username", "duplicate");
             }
             if (!bindingResult.hasErrors()) {
@@ -84,7 +82,6 @@ public class JdbcAuthController {
             }
             redirectAttributes.addFlashAttribute("notifications", validationErrors);
         }
-
         return redirectView;
     }
 
@@ -92,13 +89,12 @@ public class JdbcAuthController {
     public ModelAndView login(
             final Principal principal,
             final HttpServletRequest request
-            ) {
+    ) {
         final var modelAndView = new ModelAndView();
         if (principal == null) {
             modelAndView.setViewName("auth/login");
             final var userDTO = new io.github.saxomoose.sca.web.dtos.User();
             modelAndView.addObject("user", userDTO);
-
             // On failed login.
             final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
             if (inputFlashMap != null) {
@@ -108,7 +104,6 @@ public class JdbcAuthController {
             // return if user is already logged in.
             modelAndView.setViewName("redirect:/");
         }
-
         return modelAndView;
     }
 }

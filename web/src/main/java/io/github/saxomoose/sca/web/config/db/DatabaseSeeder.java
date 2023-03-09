@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.config.db;
 import io.github.saxomoose.sca.web.enums.Function;
 import io.github.saxomoose.sca.web.models.*;
 import io.github.saxomoose.sca.web.repositories.*;
-import io.github.saxomoose.sca.web.repositories.projections.MutableUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
@@ -21,8 +20,6 @@ public class DatabaseSeeder implements CommandLineRunner {
     private TenantRepository tenantRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private MutableUserRepository mutableUserRepository;
     @Autowired
     private SignatoryRepository signatoryRepository;
     @Autowired
@@ -47,7 +44,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             tenantRepository.save(tenant);
             var tenant2 = tenantRepository.findById(2L).get();
 
-            var user = User.of(environment.getProperty("env.seeder.adminusername"), environment.getProperty("env.seeder.adminpassword"));
+            var user = User.of(environment.getProperty("seeder.adminusername"), environment.getProperty("seeder.adminpassword"));
             userRepository.save(user);
             var user1 = userRepository.findFirst();
 

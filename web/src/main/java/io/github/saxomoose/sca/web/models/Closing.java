@@ -72,20 +72,21 @@ public class Closing {
     public void addNaturalPersonSignatory(Long signatory, Long document) {
         this.naturalPersonSignatories.add(createNaturalPersonSignatory(signatory, document));
     }
+
     private ClosingSignatory createNaturalPersonSignatory(Long signatory, Long document) {
         final var closingSignatory = new ClosingSignatory();
         closingSignatory.signatory = signatory;
         closingSignatory.document = document;
-
         return closingSignatory;
     }
+
     public void addLegalPersonSignatory(Long legalPerson) {
         this.legalPersonSignatories.add(createLegalPersonSignatory(legalPerson));
     }
+
     private ClosingLegalPerson createLegalPersonSignatory(Long legalPerson) {
         final var closingLegalPerson = new ClosingLegalPerson();
         closingLegalPerson.legalPerson = legalPerson;
-
         return closingLegalPerson;
     }
 }

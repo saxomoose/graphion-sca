@@ -28,7 +28,7 @@ CREATE TABLE sca.user (
 
 CREATE TABLE sca.signatory (
     id bigserial PRIMARY KEY,
-    national_registration_number bigint NOT NULL,
+    national_registration_number bigint,
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE sca.signatory (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_signatory UNIQUE(national_registration_number, tenant),
+    CONSTRAINT unique_constraint_signatory UNIQUE(email, tenant),
     CONSTRAINT fk_gy9ohx5nb3iqb3w4zmiztitnh FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_9oyvpg7hbksavchjtdxdqdjbn FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_k5ro5xzq35qp34s2d3jtww2u5 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
@@ -87,7 +87,8 @@ CREATE TABLE sca.document (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_document UNIQUE (tenant, path),
+    CONSTRAINT unique_constraint_document_friendly_filename UNIQUE (tenant, friendly_filename),
+    CONSTRAINT unique_constraint_document_path UNIQUE (tenant, path),
     CONSTRAINT fk_3n1fmnwawut96uv6etsoppyn2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_4e9wkjnymp324zm7fofswoicj FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_igz4yymunfjtm3m7aj7cx2z34 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)

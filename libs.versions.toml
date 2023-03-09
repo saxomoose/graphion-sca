@@ -5,6 +5,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version = "9.15.1" }
 gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
 guava = { module = "com.google.guava:guava", version = "31.1-jre" }
 javafaker = { module = "com.github.javafaker:javafaker", version = "1.0.2" }
+minio = { module = "io.minio:minio", version = "8.5.2"}
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version = "9.15.1" }
