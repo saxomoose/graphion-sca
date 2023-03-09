@@ -15,11 +15,21 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
     private final PasswordEncoder passwordEncoder;
     private final JdbcUserDetailsService jdbcUserDetailsService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final AuthenticationFailureHandler authenticationFailureHandler;
 
     @Autowired
-    public SecurityConfiguration(PasswordEncoder passwordEncoder, JdbcUserDetailsService jdbcUserDetailsService) {
+    public SecurityConfiguration(PasswordEncoder passwordEncoder,
+                                 JdbcUserDetailsService jdbcUserDetailsService,
+                                 AuthenticationEntryPoint authenticationEntryPoint,
+                                 AuthenticationSuccessHandler authenticationSuccessHandler,
+                                 AuthenticationFailureHandler authenticationFailureHandler) {
         this.passwordEncoder = passwordEncoder;
         this.jdbcUserDetailsService = jdbcUserDetailsService;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
+        this.authenticationFailureHandler = authenticationFailureHandler;
     }
     @Autowired
     public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
@@ -30,39 +40,26 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new AuthenticationFailureHandler();
-    }
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
-        return new AuthenticationEntryPoint();
-    }
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            AuthenticationFailureHandler authenticationFailureHandler,
-            AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
-
-        http.httpBasic()
-            .and()
-            .authorizeHttpRequests((requests) -> requests
-                    .requestMatchers("/", "/register").permitAll()
-                    // Toggle basic auth.
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests()
+                .requestMatchers("/", "/register").permitAll()
+                // Deactivate basic auth.
 //                    .requestMatchers("/**").permitAll()
-                    .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
-                    .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
+                .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginPage("/login").permitAll()
                 // Redirect to closings
-                .defaultSuccessUrl("/documents")
+                .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
-                .permitAll())
-            .logout(logout -> logout
+                .and()
+            .logout()
+                .logoutUrl("/logout").permitAll()
                 .logoutSuccessUrl("/")
-                .permitAll())
+                .and()
             .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
-
         return http.build();
     }
 }

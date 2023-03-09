@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.javafaker)
     implementation(libs.gson)
     implementation(libs.guava)
+    implementation(libs.minio)
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")

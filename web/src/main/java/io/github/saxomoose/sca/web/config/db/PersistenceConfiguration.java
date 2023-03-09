@@ -27,7 +27,6 @@ public class PersistenceConfiguration extends AbstractJdbcConfiguration {
     DataSourceInitializer initializer(DataSource dataSource) {
         var initializer = new DataSourceInitializer();
         initializer.setDataSource(dataSource);
-
         return initializer;
     }
     @Bean
