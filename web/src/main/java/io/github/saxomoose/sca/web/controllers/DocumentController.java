@@ -11,11 +11,12 @@ import io.github.saxomoose.sca.web.services.DocumentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class DocumentController {
@@ -49,6 +51,8 @@ public class DocumentController {
         return modelAndView;
     }
 
+
+
     @GetMapping("/documents/create")
     public ModelAndView create(
             final HttpServletRequest request
@@ -66,16 +70,14 @@ public class DocumentController {
 
     @PostMapping("/documents")
     public RedirectView store(
-            final HttpServletRequest request,
             @Valid @ModelAttribute final io.github.saxomoose.sca.web.dtos.Document documentDTO,
             final BindingResult bindingResult,
             final RedirectAttributes redirectAttributes
     ) {
-        final var tenant = (Tenant) request.getSession().getAttribute("tenant");
         final var redirectView = new RedirectView();
         if (!bindingResult.hasErrors()) {
             try {
-                documentService.create(documentDTO, documentDTO.getFile(), tenant);
+                documentService.create(documentDTO, documentDTO.getFile());
             } catch (IllegalArgumentException e) {
                 if (e.getCause() instanceof UnsupportedFileFormatException) {
                     bindingResult.rejectValue("file", "unsupportedfileformat");
@@ -106,5 +108,17 @@ public class DocumentController {
             redirectAttributes.addFlashAttribute("notifications", validationErrors);
         }
         return redirectView;
+    }
+
+    @GetMapping("/files/{tenant}/{file}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(
+            @PathVariable Integer tenant,
+            @PathVariable UUID file) {
+
+        final var inputStreamResource = documentService.getFile(tenant, file);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(inputStreamResource);
     }
 }

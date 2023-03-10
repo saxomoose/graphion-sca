@@ -8,11 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Objects;
 
-public class File {
+public class FileToCreate {
     private final MediaType mediaType;
     private final byte[] contentBytes;
 
-    public static File of(final MultipartFile file) throws IOException, IllegalArgumentException {
+    public static FileToCreate of(final MultipartFile file) throws IOException, IllegalArgumentException {
         MediaType mediaType;
         try {
             mediaType = MediaType.parse(Objects.requireNonNull(file.getContentType()));
@@ -32,10 +32,10 @@ public class File {
             throw new IllegalArgumentException(new NullOrEmptyFileException());
         }
 
-        return new File(mediaType, bytes);
+        return new FileToCreate(mediaType, bytes);
     }
 
-    public File(MediaType mediaType, byte[] contentBytes) {
+    public FileToCreate(MediaType mediaType, byte[] contentBytes) {
         this.mediaType = mediaType;
         this.contentBytes = contentBytes;
     }
