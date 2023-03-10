@@ -6,11 +6,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JdbcUserDetailsService implements UserDetailsService {
+public class JDBCUserDetailsService implements UserDetailsService {
     private final UserService userService;
 
     @Autowired
-    public JdbcUserDetailsService(UserService userService) {
+    public JDBCUserDetailsService(UserService userService) {
         this.userService = userService;
     }
 

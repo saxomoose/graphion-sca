@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.config.security;
 
-import io.github.saxomoose.sca.web.services.JdbcUserDetailsService;
+import io.github.saxomoose.sca.web.services.JDBCUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,14 +14,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
     private final PasswordEncoder passwordEncoder;
-    private final JdbcUserDetailsService jdbcUserDetailsService;
+    private final JDBCUserDetailsService jdbcUserDetailsService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
 
     @Autowired
     public SecurityConfiguration(PasswordEncoder passwordEncoder,
-                                 JdbcUserDetailsService jdbcUserDetailsService,
+                                 JDBCUserDetailsService jdbcUserDetailsService,
                                  AuthenticationEntryPoint authenticationEntryPoint,
                                  AuthenticationSuccessHandler authenticationSuccessHandler,
                                  AuthenticationFailureHandler authenticationFailureHandler) {
