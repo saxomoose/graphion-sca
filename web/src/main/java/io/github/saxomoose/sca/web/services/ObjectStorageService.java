@@ -1,7 +1,8 @@
 package io.github.saxomoose.sca.web.services;
 
 import io.github.saxomoose.sca.web.dtos.FileToCreate;
-import io.github.saxomoose.sca.web.exceptions.NullOrEmptyFileException;
+import io.github.saxomoose.sca.web.exceptions.InvalidFileException;
+import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
 import io.github.saxomoose.sca.web.exceptions.UnsupportedFileFormatException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.minio.*;
@@ -41,14 +42,9 @@ public class ObjectStorageService {
         this.environment = environment;
     }
 
-    public InputStreamResource getFileAsResource(String name) {
+    public InputStreamResource getFileAsStream(String path) throws ObjectStorageException {
         final var bucket = setBucket();
-        try {
-            return new InputStreamResource(Objects.requireNonNull(getFileAsStream(bucket, name)));
-        } catch (NullPointerException e) {
-            logger.info(e.getMessage());
-        }
-        return null;
+        return new InputStreamResource(getFileAsStream(bucket, path));
     }
 
 //    private byte[] getFileAsBytes(String bucket, String name) {
@@ -61,60 +57,57 @@ public class ObjectStorageService {
 //        }
 //    }
 
-    private StatObjectResponse statObject(String bucket, String name) {
+    private StatObjectResponse statObject(final String bucket, final UUID name) throws ObjectStorageException {
         try {
             return Objects.requireNonNull(minioClient.statObject(StatObjectArgs
                     .builder()
                     .bucket(bucket)
-                    .object(name)
+                    .object(name.toString())
                     .build())
             );
         } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException | NullPointerException e) {
             logger.info(e.getMessage());
+            throw new ObjectStorageException();
         }
-        return null;
     }
 
-    private InputStream getFileAsStream(String bucket, String name) {
+    private InputStream getFileAsStream(final String bucket, String path) throws ObjectStorageException {
         // Handle exception if file does not exist.
         try {
             return Objects.requireNonNull(minioClient.getObject(GetObjectArgs.builder()
                     .bucket(bucket)
-                    .object(name).build())
+                    .object(path)
+                    .build())
             );
 
         } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException | NullPointerException e) {
             logger.info(e.getMessage());
+            throw new ObjectStorageException();
         }
-        return null;
     }
 
-    public ObjectWriteResponse storeFile(final String filename, final MultipartFile rawFile) throws IllegalArgumentException {
+    public ObjectWriteResponse storeFile(final String filename, final MultipartFile rawFile) throws IllegalArgumentException, ObjectStorageException {
         final var name = UUID.nameUUIDFromBytes(filename.getBytes());
         final var file = parseFile(rawFile);
         Objects.requireNonNull(file);
         final var bucket = setBucket();
         configureBucket(bucket);
-        final var createFile = storeFile(bucket, name, file);
-        return createFile;
+        return storeFile(bucket, name, file);
     }
 
     private FileToCreate parseFile(final MultipartFile rawFile) throws IllegalArgumentException {
         try {
             return FileToCreate.of(rawFile);
-        } catch (IOException e) {
-            logger.info(e.getMessage());
         } catch (IllegalArgumentException e) {
             if (e.getCause() instanceof UnsupportedFileFormatException) {
                 logger.info("Document not created. Unsupported file format.");
                 throw e;
-            } else if (e.getCause() instanceof NullOrEmptyFileException) {
+            } else if (e.getCause() instanceof InvalidFileException) {
                 logger.info("Document not created. Empty document.");
                 throw e;
             }
+            throw e;
         }
-        // Not run.
-        return null;
     }
 
     private String setBucket() {
@@ -142,22 +135,22 @@ public class ObjectStorageService {
     }
 
     // WriteResponseObject contains versionId.
-    private ObjectWriteResponse storeFile(final String bucket, final UUID name, final FileToCreate fileToCreate) {
-    try {
-        return Objects.requireNonNull(minioClient.putObject(PutObjectArgs.builder()
-                .bucket(bucket)
-                .object(String.format("/documents/%s", name.toString()))
-                .stream(new ByteArrayInputStream(
-                        fileToCreate.getContentBytes()),
-                        fileToCreate.getContentBytes().length,
-                        -1)
-                .contentType(fileToCreate.getMediaType().toString())
-                .build())
-        );
-    } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException | NullPointerException e) {
-        logger.info(e.getMessage());
+    private ObjectWriteResponse storeFile(final String bucket, final UUID name, final FileToCreate fileToCreate) throws ObjectStorageException {
+        try {
+            return Objects.requireNonNull(minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(String.format("/documents/%s", name))
+                    .stream(new ByteArrayInputStream(
+                                    fileToCreate.getContentBytes()),
+                            fileToCreate.getContentBytes().length,
+                            -1)
+                    .contentType(fileToCreate.getMediaType().toString())
+                    .build())
+            );
+        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException |
+                 NullPointerException e) {
+            logger.info(e.getMessage());
+            throw new ObjectStorageException();
+        }
     }
-        return null;
-    }
-
 }

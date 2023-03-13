@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(DocumentController.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @WithMockUser(roles="ADMIN")
-public class DocumentControllerTests {
+public class DocumentControllerTest {
     @Autowired
     private MockMvc mockMvc;
 

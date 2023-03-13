@@ -10,9 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ObjectStorageServiceTests {
+public class ObjectStorageServiceTest {
     @Autowired
-    HttpSession httpSession;
+    private HttpSession httpSession;
+    
     @Autowired
     private ObjectStorageService objectStorageService;
 

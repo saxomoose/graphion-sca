@@ -1,7 +1,7 @@
 package io.github.saxomoose.sca.web.dtos;
 
-import com.google.common.net.MediaType;
-import io.github.saxomoose.sca.web.exceptions.NullOrEmptyFileException;
+import org.springframework.http.MediaType;
+import io.github.saxomoose.sca.web.exceptions.InvalidFileException;
 import io.github.saxomoose.sca.web.exceptions.UnsupportedFileFormatException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,11 +12,11 @@ public class FileToCreate {
     private final MediaType mediaType;
     private final byte[] contentBytes;
 
-    public static FileToCreate of(final MultipartFile file) throws IOException, IllegalArgumentException {
+    public static FileToCreate of(final MultipartFile file) throws IllegalArgumentException {
         MediaType mediaType;
         try {
-            mediaType = MediaType.parse(Objects.requireNonNull(file.getContentType()));
-            if (!mediaType.equals(MediaType.PDF)) {
+            mediaType = MediaType.parseMediaType(Objects.requireNonNull(file.getContentType()));
+            if (!mediaType.equals(MediaType.APPLICATION_PDF)) {
                 throw new IllegalArgumentException();
             }
         } catch (NullPointerException | IllegalArgumentException e){
@@ -28,8 +28,8 @@ public class FileToCreate {
             if (bytes.length == 0) {
                 throw new IllegalArgumentException();
             }
-        } catch (NullPointerException | IllegalArgumentException e) {
-            throw new IllegalArgumentException(new NullOrEmptyFileException());
+        } catch (NullPointerException | IllegalArgumentException | IOException e) {
+            throw new IllegalArgumentException(new InvalidFileException());
         }
 
         return new FileToCreate(mediaType, bytes);

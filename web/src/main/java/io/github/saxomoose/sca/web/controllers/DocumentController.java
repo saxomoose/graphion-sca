@@ -3,16 +3,15 @@ package io.github.saxomoose.sca.web.controllers;
 import io.github.saxomoose.sca.web.dtos.Notification;
 import io.github.saxomoose.sca.web.enums.DatabaseConstraint;
 import io.github.saxomoose.sca.web.enums.NotificationType;
-import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
-import io.github.saxomoose.sca.web.exceptions.NullOrEmptyFileException;
-import io.github.saxomoose.sca.web.exceptions.UnsupportedFileFormatException;
+import io.github.saxomoose.sca.web.exceptions.*;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -24,6 +23,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Controller
@@ -73,52 +73,81 @@ public class DocumentController {
             @Valid @ModelAttribute final io.github.saxomoose.sca.web.dtos.Document documentDTO,
             final BindingResult bindingResult,
             final RedirectAttributes redirectAttributes
-    ) {
+    ) throws ValidationException, IllegalArgumentException, ObjectStorageException {
         final var redirectView = new RedirectView();
         if (!bindingResult.hasErrors()) {
-            try {
-                documentService.create(documentDTO, documentDTO.getFile());
-            } catch (IllegalArgumentException e) {
-                if (e.getCause() instanceof UnsupportedFileFormatException) {
-                    bindingResult.rejectValue("file", "unsupportedfileformat");
-                } else if (e.getCause() instanceof NullOrEmptyFileException) {
-                    bindingResult.rejectValue("file", "empty");
-                } else if (e.getCause() instanceof DatabaseConstraintViolationException) {
-                    if (((DatabaseConstraintViolationException) e.getCause()).getDatabaseConstraint()
-                            == DatabaseConstraint.unique_constraint_document_friendly_filename) {
-                        bindingResult.rejectValue("friendlyFilename", "duplicate");
-                    }
-                }
-            }
-            if (!bindingResult.hasErrors()) {
-                redirectView.setUrl("/documents");
-                redirectAttributes.addFlashAttribute(
-                        "notifications",
-                        List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));
-            }
+            documentService.create(documentDTO, documentDTO.getFile());
+        } else {
+            throw new ValidationException(bindingResult);
         }
-
-        if (bindingResult.hasErrors()) {
-            redirectView.setUrl("/documents/create");
-            final var validationErrors = new ArrayList<Notification>();
-            for (final var fieldError : bindingResult.getFieldErrors()) {
-                //noinspection DataFlowIssue
-                validationErrors.add(new Notification(NotificationType.ERROR, "notification.error.validation", fieldError.getCodes()[0]));
-            }
-            redirectAttributes.addFlashAttribute("notifications", validationErrors);
-        }
+        redirectView.setUrl("/documents");
+        redirectAttributes.addFlashAttribute(
+                "notifications",
+                List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));
         return redirectView;
     }
 
     @GetMapping("/files/{tenant}/{file}")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(
-            @PathVariable Integer tenant,
-            @PathVariable UUID file) {
-
+    public ResponseEntity<InputStreamResource> serveFile(
+            @PathVariable final Integer tenant,
+            @PathVariable final UUID file,
+            final HttpServletResponse response) throws ObjectStorageException {
         final var inputStreamResource = documentService.getFile(tenant, file);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(inputStreamResource);
+        return new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(value = {
+            ValidationException.class,
+            IllegalArgumentException.class,
+            ObjectStorageException.class
+    })
+    public RedirectView handle(
+            final Exception exception,
+            final RedirectAttributes redirectAttributes
+    ) throws IllegalStateException {
+        final var notifications = new ArrayList<Notification>();
+        switch (exception) {
+            case ValidationException validationException -> {
+                for (final var fieldError : validationException.getBindingResult().getFieldErrors()) {
+                    notifications.add(new Notification(
+                            NotificationType.ERROR,
+                            "notification.error.validation",
+                            Objects.requireNonNull(fieldError.getCodes())[0]));
+                }
+            }
+            case IllegalArgumentException illegalArgumentException -> {
+                switch (illegalArgumentException.getCause()) {
+                    case UnsupportedFileFormatException ignored ->
+                            notifications.add(new Notification(
+                                    NotificationType.ERROR,
+                                    "notification.error.validation",
+                                    "unsupportedfileformat.document.file"));
+                    case InvalidFileException ignored ->
+                            notifications.add(new Notification(
+                                    NotificationType.ERROR,
+                                    "notification.error.validation",
+                                    "empty.document.file"));
+                    case DatabaseConstraintViolationException databaseConstraintViolationException -> {
+                        if (databaseConstraintViolationException.getDatabaseConstraint() == DatabaseConstraint.unique_constraint_document_friendly_filename) {
+                            notifications.add(new Notification(
+                                    NotificationType.ERROR,
+                                    "notification.error.validation",
+                                    "duplicate.document.file"));
+                        }
+                    }
+                    default -> throw new IllegalStateException(illegalArgumentException);
+                }
+            }
+            case ObjectStorageException ignored ->
+                    notifications.add(new Notification(
+                            NotificationType.ERROR,
+                            "notification.error.objectstorage",
+                            "TODO"));
+            default -> throw new IllegalStateException(exception);
+        }
+        final var redirectView = new RedirectView("/documents/create");
+        redirectAttributes.addFlashAttribute("notifications", notifications);
+        return redirectView;
     }
 }
