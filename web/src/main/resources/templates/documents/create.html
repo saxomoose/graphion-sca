@@ -15,8 +15,8 @@
                     <div class="col-md-4">
                         <form data-th-action="@{/documents}" data-th-object="${document}" enctype="multipart/form-data" method="post">
                             <div class="mb-3">
-                                <label data-th-for="friendlyFilename" class="form-label">Filename</label>
-                                <input data-th-field="*{friendlyFilename}" class="form-control">
+                                <label data-th-for="filename" class="form-label">Filename</label>
+                                <input data-th-field="*{filename}" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <input id="file" name="file" type="file" class="form-control">

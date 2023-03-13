@@ -79,7 +79,7 @@ CREATE TABLE sca.closing (
 
 CREATE TABLE sca.document (
     id bigserial PRIMARY KEY,
-    friendly_filename character varying(255) NOT NULL,
+    filename character varying(255) NOT NULL,
     path character varying(255) NOT NULL,
     tenant bigint NOT NULL,
     version bigint NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE sca.document (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_document_friendly_filename UNIQUE (tenant, friendly_filename),
+    CONSTRAINT unique_constraint_document_filename UNIQUE (tenant, filename),
     CONSTRAINT unique_constraint_document_path UNIQUE (tenant, path),
     CONSTRAINT fk_3n1fmnwawut96uv6etsoppyn2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_4e9wkjnymp324zm7fofswoicj FOREIGN KEY (created_by) REFERENCES sca.user(id),

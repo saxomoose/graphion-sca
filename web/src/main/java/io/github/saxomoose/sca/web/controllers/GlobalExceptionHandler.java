@@ -7,8 +7,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 @ControllerAdvice(basePackages = "io.github.saxomoose.sca.web.controllers")
 public class GlobalExceptionHandler {
-    @ExceptionHandler(value = Exception.class)
-    public ModelAndView handle(final Exception exception) {
+    @ExceptionHandler(value = Throwable.class)
+    public ModelAndView handle(final Throwable throwable) {
         final var modelAndView = new ModelAndView();
         return modelAndView;
     }
