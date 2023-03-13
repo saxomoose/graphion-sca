@@ -102,7 +102,7 @@ public class JdbcAuthController {
             }
         } else {
             // return if user is already logged in.
-            modelAndView.setViewName("redirect:/");
+            modelAndView.setView(new RedirectView("/"));
         }
         return modelAndView;
     }

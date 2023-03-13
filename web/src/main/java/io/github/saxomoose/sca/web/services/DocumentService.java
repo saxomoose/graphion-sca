@@ -2,6 +2,7 @@ package io.github.saxomoose.sca.web.services;
 
 import io.github.saxomoose.sca.web.enums.DatabaseConstraint;
 import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
+import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.repositories.DocumentRepository;
@@ -14,8 +15,6 @@ import org.springframework.data.relational.core.conversion.DbActionExecutionExce
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -43,7 +42,7 @@ public class DocumentService {
     public void create(
             final io.github.saxomoose.sca.web.dtos.Document documentDTO,
             final MultipartFile file
-    ) throws IllegalArgumentException {
+    ) throws IllegalArgumentException, ObjectStorageException {
         final var createdFile = objectStorageService.storeFile(documentDTO.getFriendlyFilename(), file);
         final var document = Document.of(documentDTO.getFriendlyFilename(), createdFile.object(), ((Tenant) httpSession.getAttribute("tenant")).getId());
         try {
@@ -56,15 +55,11 @@ public class DocumentService {
         }
     }
 
-    public InputStreamResource getFile(Integer tenant, UUID documentName) {
-//        return objectStorageService.getFileAsResource(documentName);
-        // TODO
-        byte[] bytes = {};
-        return new InputStreamResource(new InputStream() {
-            @Override
-            public int read() throws IOException {
-                return 0;
-            }
-        });
+    public InputStreamResource getFile(Integer tenant, UUID documentName) throws ObjectStorageException {
+        final var path = String.format("/documents/%s", documentName);
+        documentRepository.find(tenant, path);
+
+        return objectStorageService.getFileAsStream(path);
+
     }
 }
