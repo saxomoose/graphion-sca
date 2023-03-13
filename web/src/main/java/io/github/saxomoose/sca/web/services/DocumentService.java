@@ -43,23 +43,24 @@ public class DocumentService {
             final io.github.saxomoose.sca.web.dtos.Document documentDTO,
             final MultipartFile file
     ) throws IllegalArgumentException, ObjectStorageException {
-        final var createdFile = objectStorageService.storeFile(documentDTO.getFriendlyFilename(), file);
-        final var document = Document.of(documentDTO.getFriendlyFilename(), createdFile.object(), ((Tenant) httpSession.getAttribute("tenant")).getId());
+        final var createdFile = objectStorageService.storeFile(documentDTO.getFilename(), file);
+        final var document = Document.of(documentDTO.getFilename(), createdFile.object(), ((Tenant) httpSession.getAttribute("tenant")).getId());
         try {
             documentRepository.save(document);
         } catch (DbActionExecutionException e) {
-            if (e.getCause().getMessage().contains(DatabaseConstraint.unique_constraint_document_friendly_filename.name())) {
-                logger.info(String.format("Document not created. friendly_name %s already exists for tenant %d.", document.getFriendlyFilename(), document.getTenant()));
-                throw new IllegalArgumentException(new DatabaseConstraintViolationException(DatabaseConstraint.unique_constraint_document_friendly_filename));
+            if (e.getCause().getMessage().contains(DatabaseConstraint.unique_constraint_document_filename.name())) {
+                logger.info(String.format("Document not created. filename %s already exists for tenant %d.", document.getFilename(), document.getTenant()));
+                throw new IllegalArgumentException(new DatabaseConstraintViolationException(DatabaseConstraint.unique_constraint_document_filename));
             }
         }
     }
 
-    public InputStreamResource getFile(Integer tenant, UUID documentName) throws ObjectStorageException {
+    public Document getDocument(Integer tenant, UUID documentName) {
         final var path = String.format("/documents/%s", documentName);
-        documentRepository.find(tenant, path);
+        return documentRepository.find(tenant, path);
+    }
 
-        return objectStorageService.getFileAsStream(path);
-
+    public InputStreamResource getFile(Integer tenant, String path) throws ObjectStorageException {
+        return new InputStreamResource(objectStorageService.getObjectAsStream(path));
     }
 }

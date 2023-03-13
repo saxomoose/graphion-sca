@@ -7,11 +7,11 @@ import io.github.saxomoose.sca.web.exceptions.*;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -89,12 +89,24 @@ public class DocumentController {
 
     @GetMapping("/files/{tenant}/{file}")
     @ResponseBody
-    public ResponseEntity<InputStreamResource> serveFile(
+    public ResponseEntity<Resource> serveFile(
             @PathVariable final Integer tenant,
             @PathVariable final UUID file,
-            final HttpServletResponse response) throws ObjectStorageException {
-        final var inputStreamResource = documentService.getFile(tenant, file);
-        return new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
+            @RequestParam final Boolean download
+    ) throws ObjectStorageException {
+        final var document = documentService.getDocument(tenant, file);
+        final var inputStreamResource = documentService.getFile(tenant, document.getPath());
+        return ResponseEntity.ok()
+                .headers(httpHeaders -> {
+                    httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+                    if (download) {
+                        httpHeaders.setContentDisposition(ContentDisposition
+                                .attachment()
+                                .filename(String.format("%s.pdf", document.getFilename()))
+                                .build());
+                    }
+                })
+                .body(inputStreamResource);
     }
 
     @ExceptionHandler(value = {
@@ -129,7 +141,7 @@ public class DocumentController {
                                     "notification.error.validation",
                                     "empty.document.file"));
                     case DatabaseConstraintViolationException databaseConstraintViolationException -> {
-                        if (databaseConstraintViolationException.getDatabaseConstraint() == DatabaseConstraint.unique_constraint_document_friendly_filename) {
+                        if (databaseConstraintViolationException.getDatabaseConstraint() == DatabaseConstraint.unique_constraint_document_filename) {
                             notifications.add(new Notification(
                                     NotificationType.ERROR,
                                     "notification.error.validation",

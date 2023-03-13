@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Document {
     @Id
     private final Long id;
-    private final String friendlyFilename;
+    private final String filename;
     private final String path;
 
     private final Long tenant;
@@ -26,13 +26,13 @@ public class Document {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Document of(String friendlyFilename, String path, Long tenant) {
-        return new Document(null, friendlyFilename, path, tenant);
+    public static Document of(String filename, String path, Long tenant) {
+        return new Document(null, filename, path, tenant);
     }
 
-    public Document(Long id, String friendlyFilename, String path, Long tenant) {
+    public Document(Long id, String filename, String path, Long tenant) {
         this.id = id;
-        this.friendlyFilename = friendlyFilename;
+        this.filename = filename;
         this.path = path;
         this.tenant = tenant;
     }
@@ -40,7 +40,7 @@ public class Document {
     public Long getId() {
         return id;
     }
-    public String getFriendlyFilename() { return friendlyFilename; }
+    public String getFilename() { return filename; }
     public String getPath() { return path; }
     public Long getTenant() { return tenant; }
 

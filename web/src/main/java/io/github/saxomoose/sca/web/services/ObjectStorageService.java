@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,9 +41,9 @@ public class ObjectStorageService {
         this.environment = environment;
     }
 
-    public InputStreamResource getFileAsStream(String path) throws ObjectStorageException {
+    public InputStream getObjectAsStream(String path) throws ObjectStorageException {
         final var bucket = setBucket();
-        return new InputStreamResource(getFileAsStream(bucket, path));
+        return getObjectAsStream(bucket, path);
     }
 
 //    private byte[] getFileAsBytes(String bucket, String name) {
@@ -71,7 +70,7 @@ public class ObjectStorageService {
         }
     }
 
-    private InputStream getFileAsStream(final String bucket, String path) throws ObjectStorageException {
+    private InputStream getObjectAsStream(final String bucket, String path) throws ObjectStorageException {
         // Handle exception if file does not exist.
         try {
             return Objects.requireNonNull(minioClient.getObject(GetObjectArgs.builder()
