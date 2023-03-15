@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-public class JdbcAuthController {
-    private static final Logger logger = LoggerFactory.getLogger(JdbcAuthController.class);
+public class JDBCAuthController {
+    private static final Logger logger = LoggerFactory.getLogger(JDBCAuthController.class);
 
     private final UserService userService;
 
     @Autowired
-    public JdbcAuthController(UserService userService) {
+    public JDBCAuthController(UserService userService) {
         this.userService = userService;
     }
 

@@ -13,10 +13,10 @@
             <main class="col-md-10">
                 <div class="row">
                     <div class="col-md-4">
-                        <form data-th-action="@{/documents}" data-th-object="${document}" enctype="multipart/form-data" method="post">
+                        <form id="uploadForm" data-th-action="@{/documents}" enctype="multipart/form-data" method="post">
                             <div class="mb-3">
-                                <label data-th-for="filename" class="form-label">Filename</label>
-                                <input data-th-field="*{filename}" class="form-control">
+                                <label for="filename" class="form-label">Filename</label>
+                                <input id="filename" name="filename" type="text" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <input id="file" name="file" type="file" class="form-control">
@@ -31,6 +31,6 @@
 </div>
 <footer data-th-replace="~{fragments/footer}"></footer>
 <script data-th-replace="~{fragments/scripts}"></script>
-<div data-th-replace="~{fragments/toast-scripts}"></div>
+<script data-th-replace="~{fragments/toast-scripts}"></script>
 </body>
 </html>
