@@ -9,5 +9,5 @@ public class ClosingLegalPerson {
 
 //    Is the legal person validly represented? 2 Requirements.
 //    @Column(columnDefinition = "boolean default false")
-    private Boolean status = Boolean.FALSE;
+    private final Boolean status = Boolean.FALSE;
 }

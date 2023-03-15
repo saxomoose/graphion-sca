@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -41,9 +41,9 @@ public class DocumentService {
 
     public void create(
             final io.github.saxomoose.sca.web.dtos.Document documentDTO,
-            final MultipartFile file
-    ) throws IllegalArgumentException, ObjectStorageException {
-        final var createdFile = objectStorageService.storeFile(documentDTO.getFilename(), file);
+            final InputStream inputStream
+            ) throws IllegalArgumentException, ObjectStorageException {
+        final var createdFile = objectStorageService.storeFile(documentDTO.getFilename(), inputStream);
         final var document = Document.of(documentDTO.getFilename(), createdFile.object(), ((Tenant) httpSession.getAttribute("tenant")).getId());
         try {
             documentRepository.save(document);

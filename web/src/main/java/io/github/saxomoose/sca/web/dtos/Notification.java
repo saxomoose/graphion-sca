@@ -14,8 +14,6 @@ public class Notification {
     }
 
     public NotificationType getNotificationType() { return notificationType; }
-
     public String getHeader() { return header; }
-
     public String getBody() { return body; }
 }

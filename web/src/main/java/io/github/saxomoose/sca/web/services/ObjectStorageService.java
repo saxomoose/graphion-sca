@@ -1,9 +1,6 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.dtos.FileToCreate;
-import io.github.saxomoose.sca.web.exceptions.InvalidFileException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
-import io.github.saxomoose.sca.web.exceptions.UnsupportedFileFormatException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.minio.*;
 import io.minio.errors.MinioException;
@@ -13,9 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -85,28 +80,12 @@ public class ObjectStorageService {
         }
     }
 
-    public ObjectWriteResponse storeFile(final String filename, final MultipartFile rawFile) throws IllegalArgumentException, ObjectStorageException {
+    public ObjectWriteResponse storeFile(final String filename, final InputStream inputStream) throws IllegalArgumentException, ObjectStorageException {
         final var name = UUID.nameUUIDFromBytes(filename.getBytes());
-        final var file = parseFile(rawFile);
-        Objects.requireNonNull(file);
         final var bucket = setBucket();
         configureBucket(bucket);
-        return storeFile(bucket, name, file);
-    }
-
-    private FileToCreate parseFile(final MultipartFile rawFile) throws IllegalArgumentException {
-        try {
-            return FileToCreate.of(rawFile);
-        } catch (IllegalArgumentException e) {
-            if (e.getCause() instanceof UnsupportedFileFormatException) {
-                logger.info("Document not created. Unsupported file format.");
-                throw e;
-            } else if (e.getCause() instanceof InvalidFileException) {
-                logger.info("Document not created. Empty document.");
-                throw e;
-            }
-            throw e;
-        }
+        final var objectWriteResponse = storeFile(bucket, name, inputStream);
+        return objectWriteResponse;
     }
 
     private String setBucket() {
@@ -134,16 +113,13 @@ public class ObjectStorageService {
     }
 
     // WriteResponseObject contains versionId.
-    private ObjectWriteResponse storeFile(final String bucket, final UUID name, final FileToCreate fileToCreate) throws ObjectStorageException {
+    private ObjectWriteResponse storeFile(final String bucket, final UUID name, final InputStream inputStream) throws ObjectStorageException {
         try {
             return Objects.requireNonNull(minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(String.format("/documents/%s", name))
-                    .stream(new ByteArrayInputStream(
-                                    fileToCreate.getContentBytes()),
-                            fileToCreate.getContentBytes().length,
-                            -1)
-                    .contentType(fileToCreate.getMediaType().toString())
+                    .stream(inputStream, inputStream.available(), -1)
+//                    .contentType(MediaType.APPLICATION_PDF.toString())
                     .build())
             );
         } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException |

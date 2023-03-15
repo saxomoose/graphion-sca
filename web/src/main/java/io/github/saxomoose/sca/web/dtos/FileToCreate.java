@@ -1,8 +1,6 @@
 package io.github.saxomoose.sca.web.dtos;
 
 import org.springframework.http.MediaType;
-import io.github.saxomoose.sca.web.exceptions.InvalidFileException;
-import io.github.saxomoose.sca.web.exceptions.UnsupportedFileFormatException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,7 +18,7 @@ public class FileToCreate {
                 throw new IllegalArgumentException();
             }
         } catch (NullPointerException | IllegalArgumentException e){
-            throw new IllegalArgumentException(new UnsupportedFileFormatException());
+            throw new IllegalArgumentException();
         }
         byte[] bytes;
         try {
@@ -29,7 +27,7 @@ public class FileToCreate {
                 throw new IllegalArgumentException();
             }
         } catch (NullPointerException | IllegalArgumentException | IOException e) {
-            throw new IllegalArgumentException(new InvalidFileException());
+            throw new IllegalArgumentException();
         }
 
         return new FileToCreate(mediaType, bytes);

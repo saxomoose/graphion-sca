@@ -1,13 +1,11 @@
 package io.github.saxomoose.sca.web.exceptions;
 
-import org.springframework.validation.BindingResult;
-
 public class ValidationException extends Exception {
-    final BindingResult bindingResult;
+    private final String messageKey;
 
-    public ValidationException(BindingResult bindingResult) {
-        this.bindingResult = bindingResult;
+    public ValidationException(String messageKey) {
+        this.messageKey = messageKey;
     }
 
-    public BindingResult getBindingResult() { return bindingResult; }
+    public String getMessageKey() { return this.messageKey; }
 }

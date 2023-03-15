@@ -18,7 +18,7 @@ public class User implements UserDetails {
     @Id
     private final Long id;
     private final String username;
-    private String password;
+    private final String password;
     // Required by UserDetails interface.
     private Boolean enabled;
     private final Role role;

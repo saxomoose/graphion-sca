@@ -24,6 +24,12 @@ public class DocumentControllerTest {
     @MockBean
     private DocumentService documentService;
 
+//    @Test
+//    public void createFile() {
+//        final var part = new MockMultipartHttpServletRequest()
+//        this.mockMvc.perform(multipart(HttpMethod.POST, "/documents").part())
+//    }
+
     @Test
     public void serveFile() throws Exception {
         this.mockMvc.perform(get("/files/e3d704f3-542b-34a6-a1eb-ed70dc0efe13"))
