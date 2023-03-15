@@ -15,7 +15,6 @@
             </li>
         </ul>
         <form data-sec-authorize="isAuthenticated()" data-th-action="@{/logout}" method="post">
-            <input type="hidden" data-th-name="${_csrf.parameterName}" data-th-value="${_csrf.token}" />
             <input type="submit" value="Log out" />
         </form>
     </nav>

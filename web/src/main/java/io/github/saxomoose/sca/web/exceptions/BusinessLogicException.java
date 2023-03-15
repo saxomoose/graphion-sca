@@ -1,9 +1,9 @@
 package io.github.saxomoose.sca.web.exceptions;
 
-public class ValidationException extends Exception {
+public class BusinessLogicException extends Exception {
     private final String messageKey;
 
-    public ValidationException(String messageKey) {
+    public BusinessLogicException(String messageKey) {
         this.messageKey = messageKey;
     }
 

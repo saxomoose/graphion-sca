@@ -1,22 +1,23 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import io.github.saxomoose.sca.web.dtos.Notification;
-import io.github.saxomoose.sca.web.enums.DatabaseConstraint;
 import io.github.saxomoose.sca.web.enums.NotificationType;
-import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
-import io.github.saxomoose.sca.web.exceptions.ValidationException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
+import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -24,16 +25,22 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Controller
 public class DocumentController {
+    private final TenantService tenantService;
     private final DocumentService documentService;
 
+
     @Autowired
-    public DocumentController(DocumentService documentService) {
+    public DocumentController(TenantService tenantService, DocumentService documentService) {
+        this.tenantService = tenantService;
         this.documentService = documentService;
     }
 
@@ -70,28 +77,42 @@ public class DocumentController {
             consumes = "multipart/form-data"
     )
     public RedirectView store(
+            final Principal principal,
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes
-            ) throws IOException, IllegalArgumentException, ObjectStorageException, ServletException, ValidationException {
+            ) throws IOException, IllegalArgumentException, ObjectStorageException, ServletException, BusinessLogicException {
         final var parts = request.getParts();
+        if (parts.size() != 4) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
         io.github.saxomoose.sca.web.dtos.Document document = null;
-        InputStream inputStream = null;
+        Long clientSideFileSize = null;
+        InputStream fileInputStream = null;
         for (var part: parts) {
-            if (part.getName().equals("filename")) {
+            if (part.getName().equals("fileSize")) {
+                final var bytes = part.getInputStream().readAllBytes();
+                if (bytes.length == 0) {
+                    throw new BusinessLogicException("document.file.empty");
+                }
+                clientSideFileSize = ByteBuffer.wrap(bytes).getLong();
+            } else if (part.getName().equals("filename")) {
                 final var filename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
                 document = io.github.saxomoose.sca.web.dtos.Document.of(filename);
             } else if (part.getName().equals("file")) {
+                Objects.requireNonNull(clientSideFileSize);
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
-                    throw new ValidationException("document.file.unsupportedfileformat");
-                } else if (part.getSize() == 0) {
-                    throw new ValidationException("document.file.empty");
+                    throw new BusinessLogicException("document.file.unsupportedfileformat");
+                } else if (part.getSize() != clientSideFileSize) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
                 }
-                inputStream = part.getInputStream();
+                fileInputStream = part.getInputStream();
             }
         }
-        if (document != null && inputStream != null) {
-            documentService.create(document, inputStream);
-        }
+        Objects.requireNonNull(clientSideFileSize);
+        Objects.requireNonNull(document);
+        Objects.requireNonNull(fileInputStream);
+        final var tenant = tenantService.getTenantByUsername(principal.getName());
+        documentService.create(tenant, document, clientSideFileSize, fileInputStream);
         redirectAttributes.addFlashAttribute(
                 "notifications",
                 List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));
@@ -103,12 +124,13 @@ public class DocumentController {
             produces = "application/pdf")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(
-            @PathVariable final Integer tenant,
+            final Principal principal,
             @PathVariable final UUID file,
             @RequestParam final Boolean download
     ) throws ObjectStorageException {
-        final var document = documentService.getDocument(tenant, file);
-        final var inputStreamResource = documentService.getFile(tenant, document.getPath());
+        final var tenant = tenantService.getTenantByUsername(principal.getName());
+        final var document = documentService.getDocument(tenant.getId(), file);
+        final var inputStreamResource = documentService.getFile(tenant.getBucket(), document.getPath());
         return ResponseEntity.ok()
                 .headers(httpHeaders -> {
                     httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -123,7 +145,7 @@ public class DocumentController {
     }
 
     @ExceptionHandler(value = {
-            IllegalArgumentException.class,
+            BusinessLogicException.class,
             ObjectStorageException.class
     })
     public RedirectView handle(
@@ -134,38 +156,21 @@ public class DocumentController {
         if (!request.getServletPath().equals("/documents")) {
             throw exception;
         }
-        List<Notification> notifications = null;
+        List<Notification> notifications;
         switch (exception) {
-            case IllegalArgumentException illegalArgumentException -> {
-                final var headerKey = "notification.error.validation";
-                switch (illegalArgumentException.getCause()) {
-                    case ValidationException validationException -> notifications = List.of(new Notification(
-                            NotificationType.ERROR,
-                            headerKey,
-                            validationException.getMessageKey())
-                    );
-                    case DatabaseConstraintViolationException databaseConstraintViolationException -> {
-                        if (databaseConstraintViolationException.getDatabaseConstraint() == DatabaseConstraint.unique_constraint_document_filename) {
-                            notifications = List.of(new Notification(
-                                    NotificationType.ERROR,
-                                    headerKey,
-                                    "document.filename.duplicate")
-                            );
-                        }
-                    }
-                    default -> throw new IllegalStateException(illegalArgumentException);
-                }
-            }
-            case ObjectStorageException ignored -> notifications = List.of(new Notification(
+            case BusinessLogicException businessLogicException -> notifications = List.of(new Notification(
+                    NotificationType.ERROR,
+                    "notification.error.validation",
+                    businessLogicException.getMessageKey())
+            );
+            case ObjectStorageException objectStorageException -> notifications = List.of(new Notification(
                     NotificationType.ERROR,
                     "notification.error",
-                    "TODO")
+                    objectStorageException.getMessageKey())
             );
             default -> throw new IllegalStateException(exception);
         }
-        if (notifications != null) {
-            redirectAttributes.addFlashAttribute("notifications", notifications);
-        }
+        redirectAttributes.addFlashAttribute("notifications", notifications);
         return new RedirectView("/documents/create");
     }
 }
