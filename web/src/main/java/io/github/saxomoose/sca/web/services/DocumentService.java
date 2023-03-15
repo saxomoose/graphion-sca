@@ -1,16 +1,16 @@
 package io.github.saxomoose.sca.web.services;
 
 import io.github.saxomoose.sca.web.enums.DatabaseConstraint;
-import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.repositories.DocumentRepository;
-import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +23,11 @@ import java.util.UUID;
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final HttpSession httpSession;
     private final DocumentRepository documentRepository;
     private final ObjectStorageService objectStorageService;
 
     @Autowired
-    public DocumentService(HttpSession httpSession, DocumentRepository documentRepository, ObjectStorageService objectStorageService) {
-        this.httpSession = httpSession;
+    public DocumentService(DocumentRepository documentRepository, ObjectStorageService objectStorageService) {
         this.documentRepository = documentRepository;
         this.objectStorageService = objectStorageService;
     }
@@ -40,27 +38,36 @@ public class DocumentService {
     }
 
     public void create(
+            final Tenant tenant,
             final io.github.saxomoose.sca.web.dtos.Document documentDTO,
-            final InputStream inputStream
-            ) throws IllegalArgumentException, ObjectStorageException {
-        final var createdFile = objectStorageService.storeFile(documentDTO.getFilename(), inputStream);
-        final var document = Document.of(documentDTO.getFilename(), createdFile.object(), ((Tenant) httpSession.getAttribute("tenant")).getId());
+            Long clientSideFileSize, final InputStream inputStream
+            ) throws ObjectStorageException, BusinessLogicException {
+        final var name = UUID.nameUUIDFromBytes(documentDTO.getFilename().getBytes());
+        final var path = String.format("/documents/%s", name);
+        // check uniqueness
+        try {
+            getDocument(tenant.getId(), name);
+        } catch (EmptyResultDataAccessException exception) {
+            logger.info(String.format("Document not created. filename %s already exists for tenant %d.", documentDTO.getFilename(), tenant.getId()));
+            throw new BusinessLogicException("document.filename.duplicate");
+        }
+        objectStorageService.storeFile(tenant.getBucket(), path, clientSideFileSize, inputStream);
+        final var document = Document.of(documentDTO.getFilename(), path, tenant.getId());
         try {
             documentRepository.save(document);
         } catch (DbActionExecutionException e) {
             if (e.getCause().getMessage().contains(DatabaseConstraint.unique_constraint_document_filename.name())) {
-                logger.info(String.format("Document not created. filename %s already exists for tenant %d.", document.getFilename(), document.getTenant()));
-                throw new IllegalArgumentException(new DatabaseConstraintViolationException(DatabaseConstraint.unique_constraint_document_filename));
+
             }
         }
     }
 
-    public Document getDocument(Integer tenant, UUID documentName) {
+    public Document getDocument(Long tenant, UUID documentName) {
         final var path = String.format("/documents/%s", documentName);
         return documentRepository.find(tenant, path);
     }
 
-    public InputStreamResource getFile(Integer tenant, String path) throws ObjectStorageException {
-        return new InputStreamResource(objectStorageService.getObjectAsStream(path));
+    public InputStreamResource getFile(String bucket, String path) throws ObjectStorageException {
+        return new InputStreamResource(objectStorageService.getObjectAsStream(bucket, path));
     }
 }

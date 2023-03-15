@@ -11,7 +11,6 @@
         <div class="row d-flex justify-content-center align-items-center">
             <div class="col-md-4">
                 <form data-th-action="@{/register}" data-th-object="${user}" method="post">
-                    <input type="hidden" data-th-name="${_csrf.parameterName}" data-th-value="${_csrf.token}" />
                     <div class="mb-3">
                         <label data-th-for="username" class="form-label">Email address</label>
                         <input data-th-field="*{username}" type="email" class="form-control">

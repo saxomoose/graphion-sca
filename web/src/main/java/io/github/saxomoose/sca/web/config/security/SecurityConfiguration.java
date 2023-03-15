@@ -16,19 +16,16 @@ public class SecurityConfiguration {
     private final PasswordEncoder passwordEncoder;
     private final JDBCUserDetailsService jdbcUserDetailsService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
 
     @Autowired
     public SecurityConfiguration(PasswordEncoder passwordEncoder,
                                  JDBCUserDetailsService jdbcUserDetailsService,
                                  AuthenticationEntryPoint authenticationEntryPoint,
-                                 AuthenticationSuccessHandler authenticationSuccessHandler,
                                  AuthenticationFailureHandler authenticationFailureHandler) {
         this.passwordEncoder = passwordEncoder;
         this.jdbcUserDetailsService = jdbcUserDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
-        this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
     }
     @Autowired
@@ -52,7 +49,7 @@ public class SecurityConfiguration {
             .formLogin()
                 .loginPage("/login").permitAll()
                 // Redirect to closings
-                .successHandler(authenticationSuccessHandler)
+                .loginPage("/documents")
                 .failureHandler(authenticationFailureHandler)
                 .and()
             .logout()
