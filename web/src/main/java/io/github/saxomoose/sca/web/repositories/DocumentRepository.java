@@ -15,4 +15,7 @@ public interface DocumentRepository extends CrudRepository<Document, Long> {
 
     @Query("SELECT *  FROM sca.document WHERE tenant = :tenant AND path = :path")
     Document find(@Param("tenant") Long tenant, @Param("path") String path);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM sca.document WHERE tenant = :tenant AND path = :path)")
+    Boolean exists(@Param("tenant") Long tenant, @Param("path") String path);
 }

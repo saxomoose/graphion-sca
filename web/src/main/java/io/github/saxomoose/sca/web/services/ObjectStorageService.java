@@ -41,7 +41,8 @@ public class ObjectStorageService {
 //        }
 //    }
 
-    public StatObjectResponse statObject(final String bucket, final String path) throws ObjectStorageException {
+    public StatObjectResponse statObject(String bucket, final String path) throws ObjectStorageException {
+        bucket = setBucket(bucket);
         try {
             return Objects.requireNonNull(minioClient.statObject(StatObjectArgs
                     .builder()
@@ -55,7 +56,8 @@ public class ObjectStorageService {
         }
     }
 
-    public InputStream getObjectAsStream(final String bucket, final String path) throws ObjectStorageException {
+    public InputStream getObjectAsStream(String bucket, final String path) throws ObjectStorageException {
+        bucket = setBucket(bucket);
         // Handle exception if file does not exist.
         try {
             return Objects.requireNonNull(minioClient.getObject(GetObjectArgs.builder()
@@ -70,14 +72,17 @@ public class ObjectStorageService {
         }
     }
 
-    public void storeFile(final String bucket, final String path, Long clientSideFileSize, final InputStream inputStream) throws ObjectStorageException {
-        @SuppressWarnings("DataFlowIssue")
-        final var setBucket = Objects.requireNonNullElse(bucket, environment.getProperty("objectstorage.defaultbucket"));
-        configureBucket(setBucket);
-        storeFile(setBucket, path, inputStream);
+    public void storeFile(String bucket, final String path, Long clientSideFileSize, final InputStream inputStream) throws ObjectStorageException {
+        bucket = setBucket(bucket);
+        configureBucket(bucket);
+        storeFile(bucket, path, inputStream);
         if (statObject(bucket, path).size() != clientSideFileSize) {
             throw new ObjectStorageException("TODO");
         }
+    }
+
+    private String setBucket(final String bucket) {
+        return Objects.requireNonNullElse(bucket, environment.getProperty("objectstorage.defaultbucket"));
     }
 
     // Should only create 1 bucket per tenant.

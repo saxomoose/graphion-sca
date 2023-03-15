@@ -1,6 +1,5 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.enums.DatabaseConstraint;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
 import io.github.saxomoose.sca.web.models.Document;
@@ -10,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -45,21 +42,18 @@ public class DocumentService {
         final var name = UUID.nameUUIDFromBytes(documentDTO.getFilename().getBytes());
         final var path = String.format("/documents/%s", name);
         // check uniqueness
-        try {
-            getDocument(tenant.getId(), name);
-        } catch (EmptyResultDataAccessException exception) {
+        if(documentExists(tenant.getId(), name)) {
             logger.info(String.format("Document not created. filename %s already exists for tenant %d.", documentDTO.getFilename(), tenant.getId()));
             throw new BusinessLogicException("document.filename.duplicate");
         }
         objectStorageService.storeFile(tenant.getBucket(), path, clientSideFileSize, inputStream);
         final var document = Document.of(documentDTO.getFilename(), path, tenant.getId());
-        try {
-            documentRepository.save(document);
-        } catch (DbActionExecutionException e) {
-            if (e.getCause().getMessage().contains(DatabaseConstraint.unique_constraint_document_filename.name())) {
+        documentRepository.save(document);
+    }
 
-            }
-        }
+    public Boolean documentExists(Long tenant, UUID documentName) {
+        final var path = String.format("/documents/%s", documentName);
+        return documentRepository.exists(tenant, path);
     }
 
     public Document getDocument(Long tenant, UUID documentName) {

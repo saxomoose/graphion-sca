@@ -49,7 +49,7 @@ public class SecurityConfiguration {
             .formLogin()
                 .loginPage("/login").permitAll()
                 // Redirect to closings
-                .loginPage("/documents")
+                .defaultSuccessUrl("/documents")
                 .failureHandler(authenticationFailureHandler)
                 .and()
             .logout()

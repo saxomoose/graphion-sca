@@ -13,7 +13,10 @@ public interface ClosingRepository extends CrudRepository<Closing, Long> {
     Closing findFirst();
 
     @Modifying
-    @Query("UPDATE sca.closing_signatory " + "SET signature_timestamp = :signature_timestamp " + "WHERE closing = :closing AND signatory = :signatory"
-    )
+    @Query("""
+        UPDATE sca.closing_signatory 
+        SET signature_timestamp = :signature_timestamp
+        WHERE closing = :closing AND signatory = :signatory"
+    """)
     boolean setSignatureTimestamp(@Param("closing") Long closing, @Param("signatory") Long signatory, @Param("signature_timestamp") Instant timestamp);
 }

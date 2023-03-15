@@ -15,7 +15,7 @@ public interface TenantRepository extends CrudRepository<Tenant, Long> {
                 SELECT tenant
                 FROM sca.user
                 WHERE id = :userId
-            );
+            )
     """)
     Tenant findByUserId(Long userId);
 
@@ -26,7 +26,7 @@ public interface TenantRepository extends CrudRepository<Tenant, Long> {
                 SELECT tenant
                 FROM sca.user
                 WHERE username = :username
-            );
+            )
     """)
     Tenant findByUsername(String username);
 }

@@ -4,7 +4,6 @@ import io.github.saxomoose.sca.web.dtos.Notification;
 import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
-import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;
@@ -25,7 +24,6 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
@@ -46,9 +44,10 @@ public class DocumentController {
 
     @GetMapping("/documents")
     public ModelAndView index(
+            final Principal principal,
             final HttpServletRequest request
     ) {
-        final var tenantId = ((Tenant) request.getSession().getAttribute("tenant")).getId();
+        final var tenantId = tenantService.getTenantByUsername(principal.getName()).getId();
         final var documents = documentService.getDocuments(tenantId);
         final var modelAndView = new ModelAndView("documents/index");
         modelAndView.addObject("documents", documents);
@@ -94,7 +93,7 @@ public class DocumentController {
                 if (bytes.length == 0) {
                     throw new BusinessLogicException("document.file.empty");
                 }
-                clientSideFileSize = ByteBuffer.wrap(bytes).getLong();
+                clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
             } else if (part.getName().equals("filename")) {
                 final var filename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
                 document = io.github.saxomoose.sca.web.dtos.Document.of(filename);
@@ -120,7 +119,7 @@ public class DocumentController {
     }
 
     @GetMapping(
-            value = "/files/{tenant}/{file}",
+            value = "/files/{file}",
             produces = "application/pdf")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(
