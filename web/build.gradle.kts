@@ -2,8 +2,8 @@ import com.github.gradle.node.npm.task.NpmTask
 import org.flywaydb.gradle.task.FlywayCleanTask
 import org.flywaydb.gradle.task.FlywayMigrateTask
 
-extra["db.dev.url"] = providers.gradleProperty("db.dev.url").get()
-extra["db.test.url"] = providers.gradleProperty("db.test.url").get()
+extra["graphion.db.dev.url"] = providers.gradleProperty("graphion.db.dev.url").get()
+extra["graphion.db.test.url"] = providers.gradleProperty("graphion.db.test.url").get()
 
 plugins {
     id("java")
@@ -48,26 +48,49 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("--enable-preview")
+// dev
+tasks.bootRun {
+    systemProperty("spring.profiles.active", "dev")
 }
 
-tasks.withType<Test>().configureEach {
-    jvmArgs("--enable-preview")
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("--enable-preview")
 }
 
 tasks.withType<JavaExec>().configureEach {
     jvmArgs("--enable-preview")
 }
 
-tasks.bootRun {
-    systemProperty("spring.profiles.active", "dev")
+tasks.processResources {
+    dependsOn(tasks.findByName("npmRunBuild"))
+//    dependsOn(tasks.findByName("npmRunBuildProd"))
 }
 
+// test
 tasks.test {
     systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+//    dependsOn(tasks.findByName("dockerComposeUp"))
+//    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
+//    doLast {
+//        tasks.findByName("dockerComposeDown")
+//    }
 }
 
+tasks.withType<Test>().configureEach {
+    jvmArgs("--enable-preview")
+}
+
+// docker
+tasks.register<Exec>("dockerComposeUp") {
+    commandLine("docker", "compose", "-f", "/home/ubuntu/code/graphion/containers/docker-compose-test.yml", "up", "-d")
+}
+
+tasks.register<Exec>("dockerComposeDown") {
+    commandLine("compose", "-f", "/home/ubuntu/code/graphion/containers/docker-compose-test.yml", "down", "--volumes")
+}
+
+// flyway
 flyway {
     schemas = arrayOf(providers.gradleProperty("flyway.schemas").get())
     user = providers.gradleProperty("flyway.user").get()
@@ -79,11 +102,11 @@ flyway {
 
 tasks.flywayMigrate {
     dependsOn(tasks.classes)
-    url = "${project.extra["db.dev.url"]}"
+    url = "${project.extra["graphion.db.dev.url"]}"
 }
 
 tasks.flywayClean {
-    url = "${project.extra["db.dev.url"]}"
+    url = "${project.extra["graphion.db.dev.url"]}"
 }
 
 tasks.register<Task>("flywayCleanMigrate") {
@@ -93,11 +116,11 @@ tasks.register<Task>("flywayCleanMigrate") {
 
 tasks.register<FlywayMigrateTask>("flywayMigrateTest") {
     dependsOn(tasks.classes)
-    url = "${project.extra["db.test.url"]}"
+    url = "${project.extra["graphion.db.test.url"]}"
 }
 
 tasks.register<FlywayCleanTask>("flywayCleanTest") {
-    url = "${project.extra["db.test.url"]}"
+    url = "${project.extra["graphion.db.test.url"]}"
 }
 
 tasks.register<Task>("flywayCleanMigrateTest") {
@@ -105,6 +128,7 @@ tasks.register<Task>("flywayCleanMigrateTest") {
     dependsOn(tasks.findByName("flywayCleanTest"))
 }
 
+// node
 node {
     download.set(true)
     version.set(providers.gradleProperty("node.version").get())
@@ -132,14 +156,5 @@ tasks.register<NpmTask>("npmRunBuildProd") {
     inputs.file("package.json")
     inputs.file("webpack.config.js")
     outputs.dir("$buildDir/resources/main/static")
-}
-
-tasks.processResources {
-    dependsOn(tasks.findByName("npmRunBuild"))
-//    dependsOn(tasks.findByName("npmRunBuildProd"))
-}
-
-tasks.named<Test>("test") {
-    useJUnitPlatform()
 }
 

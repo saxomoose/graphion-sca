@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Component
@@ -36,13 +36,9 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private void load() {
         if (tenantRepository.count() == 0) {
-            var tenant = Tenant.of("northstone");
+            var tenant = Tenant.of("sca");
             tenantRepository.save(tenant);
             var tenant1 = tenantRepository.findFirst();
-
-            tenant = Tenant.of("scargo");
-            tenantRepository.save(tenant);
-            var tenant2 = tenantRepository.findById(2L).get();
 
             var user = User.of(environment.getProperty("seeder.adminusername"), environment.getProperty("seeder.adminpassword"));
             userRepository.save(user);
@@ -62,7 +58,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             documentRepository.save(document);
             var document1 = documentRepository.findFirst();
 
-            var closing = Closing.of("demo_closing_1", ZoneId.of("Europe/Brussels"), LocalDate.now(), tenant1.getId());
+            var closing = Closing.of("demo_closing_1", ZoneId.of("Europe/Brussels"), LocalDateTime.now(), tenant1.getId());
             closing.addNaturalPersonSignatory(signatory1.getId(), document1.getId());
             closingRepository.save(closing);
             var closing1 = closingRepository.findFirst();

@@ -1,8 +1,7 @@
 CREATE TABLE sca.tenant (
     id bigserial PRIMARY KEY,
     name character varying(255) NOT NULL UNIQUE,
-    endpoint character varying(255),
-    bucket character varying(255),
+    bucket character varying(255) NOT NULL,
     version bigint NOT NULL,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL
@@ -64,7 +63,7 @@ CREATE TABLE sca.closing (
     id bigserial PRIMARY KEY,
     name character varying(255) NOT NULL,
     zone_id character varying(255) NOT NULL,
-    date date NOT NULL,
+    timestamp timestamp(6) NOT NULL,
     tenant bigint NOT NULL,
     version bigint NOT NULL,
     created_by bigint,
@@ -124,12 +123,12 @@ CREATE TABLE sca.closing_signatory (
     CONSTRAINT fk_4dpb1t6xryd3m4dsr65cs9e8e FOREIGN KEY (signatory) REFERENCES sca.signatory(id)
 );
 
-ALTER TABLE sca.closing OWNER TO graphionsca;
-ALTER TABLE sca.closing_legal_person OWNER TO graphionsca;
-ALTER TABLE sca.closing_signatory OWNER TO graphionsca;
-ALTER TABLE sca.document OWNER TO graphionsca;
-ALTER TABLE sca.legal_person OWNER TO graphionsca;
-ALTER TABLE sca.officer OWNER TO graphionsca;
-ALTER TABLE sca.signatory OWNER TO graphionsca;
-ALTER TABLE sca.tenant OWNER TO graphionsca;
-ALTER TABLE sca.user OWNER TO graphionsca;
+ALTER TABLE sca.closing OWNER TO graphionscaweb;
+ALTER TABLE sca.closing_legal_person OWNER TO graphionscaweb;
+ALTER TABLE sca.closing_signatory OWNER TO graphionscaweb;
+ALTER TABLE sca.document OWNER TO graphionscaweb;
+ALTER TABLE sca.legal_person OWNER TO graphionscaweb;
+ALTER TABLE sca.officer OWNER TO graphionscaweb;
+ALTER TABLE sca.signatory OWNER TO graphionscaweb;
+ALTER TABLE sca.tenant OWNER TO graphionscaweb;
+ALTER TABLE sca.user OWNER TO graphionscaweb;
