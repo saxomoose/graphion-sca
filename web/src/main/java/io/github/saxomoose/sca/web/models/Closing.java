@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.models;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -16,7 +15,7 @@ public class Closing {
     private final Long id;
     private final String name;
     private final ZoneId zoneId;
-    private final LocalDate date;
+    private final LocalDateTime timestamp;
 
     private final Long tenant;
 
@@ -34,15 +33,15 @@ public class Closing {
     private Set<ClosingSignatory> naturalPersonSignatories = new HashSet<>();
     private Set<ClosingLegalPerson> legalPersonSignatories = new HashSet<>();
 
-    public static Closing of(String name, ZoneId zoneId, LocalDate date, Long tenant) {
-        return new Closing(null, name, zoneId, date, tenant);
+    public static Closing of(String name, ZoneId zoneId, LocalDateTime timestamp, Long tenant) {
+        return new Closing(null, name, zoneId, timestamp, tenant);
     }
 
-    public Closing(Long id, String name, ZoneId zoneId, LocalDate date, Long tenant) {
+    public Closing(Long id, String name, ZoneId zoneId, LocalDateTime timestamp, Long tenant) {
         this.id = id;
         this.name = name;
         this.zoneId = zoneId;
-        this.date = date;
+        this.timestamp = timestamp;
         this.tenant = tenant;
     }
 
@@ -51,7 +50,7 @@ public class Closing {
     }
     public String getName() { return name; }
     public ZoneId getZoneId() { return zoneId; }
-    public LocalDate getDate() { return date; }
+    public LocalDateTime getTimestamp() { return timestamp; }
     public Long getTenant() { return tenant; }
 
     public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories) { this.naturalPersonSignatories = naturalPersonSignatories; }

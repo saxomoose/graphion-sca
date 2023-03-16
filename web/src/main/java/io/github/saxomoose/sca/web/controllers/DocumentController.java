@@ -4,10 +4,12 @@ import io.github.saxomoose.sca.web.dtos.Notification;
 import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
+import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -25,29 +27,29 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Controller
 public class DocumentController {
+    private final HttpSession httpSession;
     private final TenantService tenantService;
     private final DocumentService documentService;
 
 
     @Autowired
-    public DocumentController(TenantService tenantService, DocumentService documentService) {
+    public DocumentController(HttpSession httpSession, TenantService tenantService, DocumentService documentService) {
+        this.httpSession = httpSession;
         this.tenantService = tenantService;
         this.documentService = documentService;
     }
 
     @GetMapping("/documents")
     public ModelAndView index(
-            final Principal principal,
             final HttpServletRequest request
     ) {
-        final var tenantId = tenantService.getTenantByUsername(principal.getName()).getId();
+        final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).getId();
         final var documents = documentService.getDocuments(tenantId);
         final var modelAndView = new ModelAndView("documents/index");
         modelAndView.addObject("documents", documents);
@@ -76,15 +78,14 @@ public class DocumentController {
             consumes = "multipart/form-data"
     )
     public RedirectView store(
-            final Principal principal,
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes
-            ) throws IOException, IllegalArgumentException, ObjectStorageException, ServletException, BusinessLogicException {
+            ) throws BusinessLogicException, IOException, ObjectStorageException, ServletException, BusinessLogicException {
         final var parts = request.getParts();
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        io.github.saxomoose.sca.web.dtos.Document document = null;
+        String filename = null;
         Long clientSideFileSize = null;
         InputStream fileInputStream = null;
         for (var part: parts) {
@@ -95,10 +96,9 @@ public class DocumentController {
                 }
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
             } else if (part.getName().equals("filename")) {
-                final var filename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-                document = io.github.saxomoose.sca.web.dtos.Document.of(filename);
+                filename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                Validator.validateFilename(filename);
             } else if (part.getName().equals("file")) {
-                Objects.requireNonNull(clientSideFileSize);
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
                     throw new BusinessLogicException("document.file.unsupportedfileformat");
                 } else if (part.getSize() != clientSideFileSize) {
@@ -108,10 +108,10 @@ public class DocumentController {
             }
         }
         Objects.requireNonNull(clientSideFileSize);
-        Objects.requireNonNull(document);
+        Objects.requireNonNull(filename);
         Objects.requireNonNull(fileInputStream);
-        final var tenant = tenantService.getTenantByUsername(principal.getName());
-        documentService.create(tenant, document, clientSideFileSize, fileInputStream);
+        final var tenant = (Tenant) httpSession.getAttribute("tenant");
+        documentService.store(tenant, filename, clientSideFileSize, fileInputStream);
         redirectAttributes.addFlashAttribute(
                 "notifications",
                 List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));
@@ -119,15 +119,15 @@ public class DocumentController {
     }
 
     @GetMapping(
-            value = "/files/{file}",
+            value = "/files/{tenantId}/{file}",
             produces = "application/pdf")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(
-            final Principal principal,
+            @PathVariable final Long tenantId,
             @PathVariable final UUID file,
             @RequestParam final Boolean download
     ) throws ObjectStorageException {
-        final var tenant = tenantService.getTenantByUsername(principal.getName());
+        final var tenant = tenantService.getTenant(tenantId);
         final var document = documentService.getDocument(tenant.getId(), file);
         final var inputStreamResource = documentService.getFile(tenant.getBucket(), document.getPath());
         return ResponseEntity.ok()
@@ -167,7 +167,7 @@ public class DocumentController {
                     "notification.error",
                     objectStorageException.getMessageKey())
             );
-            default -> throw new IllegalStateException(exception);
+            default -> throw exception;
         }
         redirectAttributes.addFlashAttribute("notifications", notifications);
         return new RedirectView("/documents/create");

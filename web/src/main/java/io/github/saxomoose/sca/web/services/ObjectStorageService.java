@@ -6,14 +6,12 @@ import io.minio.errors.MinioException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
 
 // Singleton by default.
 @Service
@@ -21,14 +19,12 @@ public class ObjectStorageService {
     private static final Logger logger = LoggerFactory.getLogger(ObjectStorageService.class);
 
     private final MinioClient minioClient;
-    private final Environment environment;
 
     @Autowired
     public ObjectStorageService(
-            MinioClient minioClient,
-            Environment environment) {
+            MinioClient minioClient
+    ) {
         this.minioClient = minioClient;
-        this.environment = environment;
     }
 
 //    private byte[] getFileAsBytes(String bucket, String name) {
@@ -41,48 +37,54 @@ public class ObjectStorageService {
 //        }
 //    }
 
-    public StatObjectResponse statObject(String bucket, final String path) throws ObjectStorageException {
-        bucket = setBucket(bucket);
+    public StatObjectResponse statObject(final String bucket, final String path) throws ObjectStorageException {
         try {
-            return Objects.requireNonNull(minioClient.statObject(StatObjectArgs
+            return minioClient.statObject(StatObjectArgs
                     .builder()
                     .bucket(bucket)
                     .object(path)
-                    .build())
+                    .build()
             );
-        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException | NullPointerException e) {
+        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException e) {
             logger.info(e.getMessage());
             throw new ObjectStorageException("TODO");
         }
     }
 
-    public InputStream getObjectAsStream(String bucket, final String path) throws ObjectStorageException {
-        bucket = setBucket(bucket);
+    public InputStream getObjectAsStream(final String bucket, final String path) throws ObjectStorageException {
         // Handle exception if file does not exist.
         try {
-            return Objects.requireNonNull(minioClient.getObject(GetObjectArgs.builder()
+            return minioClient.getObject(GetObjectArgs.builder()
                     .bucket(bucket)
                     .object(path)
-                    .build())
+                    .build()
             );
 
-        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException | NullPointerException e) {
+        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException e) {
             logger.info(e.getMessage());
             throw new ObjectStorageException("TODO");
         }
     }
 
-    public void storeFile(String bucket, final String path, Long clientSideFileSize, final InputStream inputStream) throws ObjectStorageException {
-        bucket = setBucket(bucket);
+    public void storeFile(final String bucket, final String path, final Long clientSideFileSize, final InputStream inputStream) throws ObjectStorageException {
         configureBucket(bucket);
-        storeFile(bucket, path, inputStream);
+        storeObject(bucket, path, inputStream);
         if (statObject(bucket, path).size() != clientSideFileSize) {
             throw new ObjectStorageException("TODO");
         }
     }
 
-    private String setBucket(final String bucket) {
-        return Objects.requireNonNullElse(bucket, environment.getProperty("objectstorage.defaultbucket"));
+    public void deleteObject(final String bucket, final String path) throws ObjectStorageException {
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(path)
+                    .build()
+            );
+        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException e) {
+            logger.info(e.getMessage());
+            throw new ObjectStorageException("TODO");
+        }
     }
 
     // Should only create 1 bucket per tenant.
@@ -104,16 +106,15 @@ public class ObjectStorageService {
     }
 
     // WriteResponseObject contains versionId.
-    private void storeFile(final String bucket, final String path, final InputStream inputStream) throws ObjectStorageException {
+    private void storeObject(final String bucket, final String path, final InputStream inputStream) throws ObjectStorageException {
         try {
-            Objects.requireNonNull(minioClient.putObject(PutObjectArgs.builder()
+            minioClient.putObject(PutObjectArgs.builder()
                             .bucket(bucket)
                             .object(path)
                             .stream(inputStream, inputStream.available(), -1)
-//                    .contentType(MediaType.APPLICATION_PDF.toString())
-                            .build())
+                            .build()
             );
-        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException | NullPointerException e) {
+        } catch (InvalidKeyException | IOException | MinioException | NoSuchAlgorithmException e) {
             logger.info(e.getMessage());
             throw new ObjectStorageException("TODO");
         }

@@ -4,10 +4,13 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Table(schema = "sca")
 public class ClosingLegalPerson {
-    protected Long closing;
     protected Long legalPerson;
 
 //    Is the legal person validly represented? 2 Requirements.
 //    @Column(columnDefinition = "boolean default false")
-    private final Boolean status = Boolean.FALSE;
+    private Boolean status = Boolean.FALSE;
+
+    public Boolean getStatus() { return status; }
+
+    public void setStatus(Boolean status) { this.status = status; }
 }
