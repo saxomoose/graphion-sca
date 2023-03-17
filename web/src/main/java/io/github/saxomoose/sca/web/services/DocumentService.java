@@ -1,17 +1,12 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.repositories.DocumentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -29,39 +24,27 @@ public class DocumentService {
         this.objectStorageService = objectStorageService;
     }
 
+    public Boolean exists(final Long tenant, final UUID fileUUID) {
+        final var path = generatePath(fileUUID);
+        return documentRepository.exists(tenant, path);
+    }
+
     public Set<Document> getDocuments(final Long tenantId) {
         final var documents = documentRepository.findAllByTenant(tenantId);
         return new HashSet<>(documents);
     }
 
-    public void store(
-            final Tenant tenant,
-            final String filename,
-            Long clientSideFileSize, final InputStream inputStream
-            ) throws ObjectStorageException, BusinessLogicException {
-        final var name = UUID.nameUUIDFromBytes(filename.getBytes());
-        final var path = String.format("/documents/%s", name);
-        // check uniqueness
-        if(documentExists(tenant.getId(), name)) {
-            logger.info(String.format("Document not created. filename %s already exists for tenant %d.",filename, tenant.getId()));
-            throw new BusinessLogicException("document.filename.duplicate");
-        }
-        objectStorageService.storeFile(tenant.getBucket(), path, clientSideFileSize, inputStream);
-        final var document = Document.of(filename, path, tenant.getId());
-        documentRepository.save(document);
-    }
-
-    public Document getDocument(Long tenant, UUID documentName) {
-        final var path = String.format("/documents/%s", documentName);
+    public Document getDocument(final Long tenant, final UUID fileUUID) {
+        final var path = generatePath(fileUUID);
         return documentRepository.find(tenant, path);
     }
 
-    public InputStreamResource getFile(String bucket, String path) throws ObjectStorageException {
-        return new InputStreamResource(objectStorageService.getObjectAsStream(bucket, path));
+    public void insert(final Long tenantId, final String filename, final String path){
+        final var document = Document.of(filename, path, tenantId);
+        documentRepository.save(document);
     }
 
-    private Boolean documentExists(Long tenant, UUID documentName) {
-        final var path = String.format("/documents/%s", documentName);
-        return documentRepository.exists(tenant, path);
+    public String generatePath(final UUID fileUUID) {
+        return String.format("/files/%s", fileUUID);
     }
 }

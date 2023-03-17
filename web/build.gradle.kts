@@ -1,3 +1,4 @@
+import java.io.ByteArrayOutputStream
 import com.github.gradle.node.npm.task.NpmTask
 import org.flywaydb.gradle.task.FlywayCleanTask
 import org.flywaydb.gradle.task.FlywayMigrateTask
@@ -48,7 +49,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 }
 
-// dev
+// jvm
 tasks.bootRun {
     systemProperty("spring.profiles.active", "dev")
 }
@@ -61,20 +62,11 @@ tasks.withType<JavaExec>().configureEach {
     jvmArgs("--enable-preview")
 }
 
-tasks.processResources {
-    dependsOn(tasks.findByName("npmRunBuild"))
-//    dependsOn(tasks.findByName("npmRunBuildProd"))
-}
-
 // test
 tasks.test {
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
-//    dependsOn(tasks.findByName("dockerComposeUp"))
-//    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
-//    doLast {
-//        tasks.findByName("dockerComposeDown")
-//    }
+    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
 }
 
 tasks.withType<Test>().configureEach {
@@ -82,13 +74,7 @@ tasks.withType<Test>().configureEach {
 }
 
 // docker
-tasks.register<Exec>("dockerComposeUp") {
-    commandLine("docker", "compose", "-f", "/home/ubuntu/code/graphion/containers/docker-compose-test.yml", "up", "-d")
-}
 
-tasks.register<Exec>("dockerComposeDown") {
-    commandLine("compose", "-f", "/home/ubuntu/code/graphion/containers/docker-compose-test.yml", "down", "--volumes")
-}
 
 // flyway
 flyway {
@@ -115,7 +101,6 @@ tasks.register<Task>("flywayCleanMigrate") {
 }
 
 tasks.register<FlywayMigrateTask>("flywayMigrateTest") {
-    dependsOn(tasks.classes)
     url = "${project.extra["graphion.db.test.url"]}"
 }
 
@@ -124,8 +109,8 @@ tasks.register<FlywayCleanTask>("flywayCleanTest") {
 }
 
 tasks.register<Task>("flywayCleanMigrateTest") {
-    dependsOn(tasks.findByName("flywayMigrateTest"))
     dependsOn(tasks.findByName("flywayCleanTest"))
+    dependsOn(tasks.findByName("flywayMigrateTest"))
 }
 
 // node
@@ -156,5 +141,10 @@ tasks.register<NpmTask>("npmRunBuildProd") {
     inputs.file("package.json")
     inputs.file("webpack.config.js")
     outputs.dir("$buildDir/resources/main/static")
+}
+
+tasks.processResources {
+    dependsOn(tasks.findByName("npmRunBuild"))
+//    dependsOn(tasks.findByName("npmRunBuildProd"))
 }
 

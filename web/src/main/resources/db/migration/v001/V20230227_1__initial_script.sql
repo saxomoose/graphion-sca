@@ -123,12 +123,12 @@ CREATE TABLE sca.closing_signatory (
     CONSTRAINT fk_4dpb1t6xryd3m4dsr65cs9e8e FOREIGN KEY (signatory) REFERENCES sca.signatory(id)
 );
 
-ALTER TABLE sca.closing OWNER TO graphionscaweb;
-ALTER TABLE sca.closing_legal_person OWNER TO graphionscaweb;
-ALTER TABLE sca.closing_signatory OWNER TO graphionscaweb;
-ALTER TABLE sca.document OWNER TO graphionscaweb;
-ALTER TABLE sca.legal_person OWNER TO graphionscaweb;
-ALTER TABLE sca.officer OWNER TO graphionscaweb;
-ALTER TABLE sca.signatory OWNER TO graphionscaweb;
 ALTER TABLE sca.tenant OWNER TO graphionscaweb;
 ALTER TABLE sca.user OWNER TO graphionscaweb;
+ALTER TABLE sca.signatory OWNER TO graphionscaweb;
+ALTER TABLE sca.legal_person OWNER TO graphionscaweb;
+ALTER TABLE sca.closing OWNER TO graphionscaweb;
+ALTER TABLE sca.document OWNER TO graphionscaweb;
+ALTER TABLE sca.closing_legal_person OWNER TO graphionscaweb;
+ALTER TABLE sca.officer OWNER TO graphionscaweb;
+ALTER TABLE sca.closing_signatory OWNER TO graphionscaweb;
