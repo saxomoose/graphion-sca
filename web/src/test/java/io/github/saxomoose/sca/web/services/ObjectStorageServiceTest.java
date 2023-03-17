@@ -28,9 +28,9 @@ public class ObjectStorageServiceTest {
 
     @BeforeAll
     public void setup() {
-        bucket = "sca";
+        bucket = "sca-test";
         final var name = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
-        path = String.format("/documents/%s", name);
+        path = String.format("/files/%s", name);
         try {
             inputStream = new FileInputStream(new ClassPathResource("objectstorage/20230308-test-document.pdf").getFile());
         } catch (IOException e) {

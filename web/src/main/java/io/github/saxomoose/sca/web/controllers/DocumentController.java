@@ -6,11 +6,14 @@ import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
+import io.github.saxomoose.sca.web.services.ObjectStorageService;
 import io.github.saxomoose.sca.web.services.TenantService;
+import io.github.saxomoose.sca.web.services.ValidationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
@@ -29,20 +32,22 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Controller
 public class DocumentController {
     private final HttpSession httpSession;
+    private final ValidationService validationService;
     private final TenantService tenantService;
     private final DocumentService documentService;
-
+    private final ObjectStorageService objectStorageService;
 
     @Autowired
-    public DocumentController(HttpSession httpSession, TenantService tenantService, DocumentService documentService) {
+    public DocumentController(HttpSession httpSession, ValidationService validationService, TenantService tenantService, DocumentService documentService, ObjectStorageService objectStorageService) {
         this.httpSession = httpSession;
+        this.validationService = validationService;
         this.tenantService = tenantService;
         this.documentService = documentService;
+        this.objectStorageService = objectStorageService;
     }
 
     @GetMapping("/documents")
@@ -59,7 +64,6 @@ public class DocumentController {
         }
         return modelAndView;
     }
-
 
     @GetMapping("/documents/create")
     public ModelAndView create(
@@ -80,7 +84,7 @@ public class DocumentController {
     public RedirectView store(
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes
-            ) throws BusinessLogicException, IOException, ObjectStorageException, ServletException, BusinessLogicException {
+            ) throws BusinessLogicException, IOException, ObjectStorageException, ServletException {
         final var parts = request.getParts();
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -97,7 +101,6 @@ public class DocumentController {
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
             } else if (part.getName().equals("filename")) {
                 filename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-                Validator.validateFilename(filename);
             } else if (part.getName().equals("file")) {
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
                     throw new BusinessLogicException("document.file.unsupportedfileformat");
@@ -111,7 +114,10 @@ public class DocumentController {
         Objects.requireNonNull(filename);
         Objects.requireNonNull(fileInputStream);
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        documentService.store(tenant, filename, clientSideFileSize, fileInputStream);
+        final var fileUUID = validationService.validateFilename(tenant.getId(), filename);
+        final var path = documentService.generatePath(fileUUID);
+        objectStorageService.storeFile(tenant.getBucket(), path, clientSideFileSize, fileInputStream);
+        documentService.insert(tenant.getId(), filename, path);
         redirectAttributes.addFlashAttribute(
                 "notifications",
                 List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));
@@ -119,17 +125,19 @@ public class DocumentController {
     }
 
     @GetMapping(
-            value = "/files/{tenantId}/{file}",
+            value = "/files/{tenantId}/{rawFileUUID}",
             produces = "application/pdf")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(
             @PathVariable final Long tenantId,
-            @PathVariable final UUID file,
+            @PathVariable final String rawFileUUID,
             @RequestParam final Boolean download
-    ) throws ObjectStorageException {
+    ) throws BusinessLogicException, ObjectStorageException  {
+        final var fileUUID = validationService.validateUUID(rawFileUUID);
+        // validate tenantId (uuid)
         final var tenant = tenantService.getTenant(tenantId);
-        final var document = documentService.getDocument(tenant.getId(), file);
-        final var inputStreamResource = documentService.getFile(tenant.getBucket(), document.getPath());
+        final var document = documentService.getDocument(tenant.getId(), fileUUID);
+        final var inputStreamResource = new InputStreamResource(objectStorageService.getObjectAsStream(tenant.getBucket(), document.getPath()));
         return ResponseEntity.ok()
                 .headers(httpHeaders -> {
                     httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -152,9 +160,6 @@ public class DocumentController {
             final Exception exception,
             final RedirectAttributes redirectAttributes
     ) throws Exception {
-        if (!request.getServletPath().equals("/documents")) {
-            throw exception;
-        }
         List<Notification> notifications;
         switch (exception) {
             case BusinessLogicException businessLogicException -> notifications = List.of(new Notification(
