@@ -11,7 +11,7 @@ public class ValidationError {
         this.notification = new Notification(NotificationType.ERROR, "notification.error.validation", code);
     }
 
-    public String getField() { return field; }
+    public String field() { return field; }
 
-    public Notification getNotification() { return notification; }
+    public Notification notification() { return notification; }
 }

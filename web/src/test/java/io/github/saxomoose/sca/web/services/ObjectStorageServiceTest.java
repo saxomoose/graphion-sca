@@ -57,14 +57,14 @@ public class ObjectStorageServiceTest {
     @Test
     @Order(2)
     public void statObject() throws ObjectStorageException {
-        final var statObjectResponse = objectStorageService.statObject(bucket, path);
+        final var statObjectResponse = objectStorageService.stat(bucket, path);
     }
 
     @Test
     @Order(3)
     public void getObjectAsStream() {
         try {
-            final var objectInputStream = objectStorageService.getObjectAsStream(bucket, path);
+            final var objectInputStream = objectStorageService.readAsStream(bucket, path);
         } catch (ObjectStorageException e) {
             logger.info(e.getMessage());
         }
@@ -74,7 +74,7 @@ public class ObjectStorageServiceTest {
     @Order(4)
     public void deleteObject() {
         try {
-            objectStorageService.deleteObject(bucket, path);
+            objectStorageService.delete(bucket, path);
         } catch (ObjectStorageException e) {
             logger.info(e.getMessage());
         }

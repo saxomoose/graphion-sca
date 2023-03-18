@@ -45,13 +45,21 @@ public class Closing {
         this.tenant = tenant;
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
-    public String getName() { return name; }
-    public ZoneId getZoneId() { return zoneId; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public Long getTenant() { return tenant; }
+    public String name() {
+        return name;
+    }
+    public ZoneId zoneId() {
+        return zoneId;
+    }
+    public LocalDateTime timestamp() {
+        return timestamp;
+    }
+    public Long tenant() {
+        return tenant;
+    }
 
     public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories) { this.naturalPersonSignatories = naturalPersonSignatories; }
     public void setLegalPersonSignatories(Set<ClosingLegalPerson> legalPersonSignatories) { this.legalPersonSignatories = legalPersonSignatories; }

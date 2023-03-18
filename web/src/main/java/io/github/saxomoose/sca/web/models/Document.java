@@ -37,12 +37,12 @@ public class Document {
         this.tenant = tenant;
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
-    public String getFilename() { return filename; }
-    public String getPath() { return path; }
-    public Long getTenant() { return tenant; }
+    public String filename() { return filename; }
+    public String path() { return path; }
+    public Long tenant() { return tenant; }
 
     @Override
     public boolean equals(Object o) {

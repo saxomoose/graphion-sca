@@ -27,10 +27,10 @@ public class AuthenticationSuccessHandler implements org.springframework.securit
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        final var userId = userRepository.findByUsername(authentication.getName()).getId();
+        final var userId = userRepository.findByUsername(authentication.getName()).id();
         final var tenant = tenantRepository.findById(userId).orElseThrow();
         httpSession.setAttribute("tenant", tenant);
-//        final var uri = UriComponentsBuilder.fromPath("/documents").queryParam("tenant", tenant.getId()).toUriString();
+//        final var uri = UriComponentsBuilder.fromPath("/documents").queryParam("tenant", tenant.id()).toUriString();
         response.sendRedirect("/documents");
     }
 }

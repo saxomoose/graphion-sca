@@ -8,7 +8,7 @@ public class LegalPersonFunction extends Function implements Serializable {
     @SerializedName("permanent_representative")
     private NaturalPersonOfficer permanentRepresentative;
 
-    public NaturalPersonOfficer getPermanentRepresentative() {
+    public NaturalPersonOfficer permanentRepresentative() {
         return permanentRepresentative;
     }
 

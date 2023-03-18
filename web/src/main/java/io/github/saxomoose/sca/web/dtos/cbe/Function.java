@@ -11,18 +11,16 @@ public class Function implements Serializable {
     @SerializedName("start_date")
     private LocalDate startDate;
 
-    public io.github.saxomoose.sca.web.enums.Function getFunctionEnum() {
+    public io.github.saxomoose.sca.web.enums.Function functionEnum() {
         return function;
+    }
+    public LocalDate startDate() {
+        return startDate;
     }
 
     public void setFunctionEnum(io.github.saxomoose.sca.web.enums.Function function) {
         this.function = function;
     }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }

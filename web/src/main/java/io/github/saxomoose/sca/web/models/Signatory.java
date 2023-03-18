@@ -45,15 +45,15 @@ public class Signatory {
         this.tenant = tenant;
     }
 
-    public Long getId() { return id; }
-    public Long getNationalRegistrationNumber() {
+    public Long id() { return id; }
+    public Long nationalRegistrationNumber() {
         return nationalRegistrationNumber;
     }
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-    public String getEmail() { return email; }
-    public Boolean getConsent() { return consent; }
-    public Long getTenant() { return this.tenant; }
+    public String firstName() { return firstName; }
+    public String lastName() { return lastName; }
+    public String email() { return email; }
+    public Boolean consent() { return consent; }
+    public Long tenant() { return this.tenant; }
 
     @Override
     public boolean equals(Object o) {

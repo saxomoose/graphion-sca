@@ -14,9 +14,9 @@ public class TenantService {
         this.tenantRepository = tenantRepository;
     }
 
-    public Tenant getTenant(Long tenantId) {
+    public Tenant readByTenantId(Long tenantId) {
         return tenantRepository.findById(tenantId).orElseThrow();
     }
-    public Tenant getTenantByUser(Long userId) { return tenantRepository.findByUserId(userId); }
-    public Tenant getTenantByUsername(String username) { return tenantRepository.findByUsername(username); }
+    public Tenant readByUserUserId(Long userId) { return tenantRepository.select(userId); }
+    public Tenant read(String username) { return tenantRepository.select(username); }
 }

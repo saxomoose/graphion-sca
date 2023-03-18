@@ -10,7 +10,7 @@ public class ClosingSignatory {
     protected Long document;
     private Instant signatureTimestamp;
 
-    public Instant getSignatureTimestamp() { return signatureTimestamp; }
+    public Instant signatureTimestamp() { return signatureTimestamp; }
 
     public void setSignatureTimestamp(Instant timestamp) { this.signatureTimestamp = timestamp; }
 }

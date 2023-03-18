@@ -16,6 +16,6 @@ public class JDBCUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        return userService.getUser(username);
+        return userService.read(username);
     }
 }

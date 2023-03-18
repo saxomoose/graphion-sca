@@ -10,18 +10,16 @@ public class NaturalPersonOfficer extends Officer implements Serializable {
     @SerializedName("last_name")
     private String lastName;
 
-    public String getFirstName() {
+    public String firstName() {
         return firstName;
+    }
+    public String lastName() {
+        return lastName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
-
-    public String getLastName() {
-        return lastName;
-    }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }

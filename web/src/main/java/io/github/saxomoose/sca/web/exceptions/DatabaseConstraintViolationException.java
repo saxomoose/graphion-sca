@@ -9,5 +9,5 @@ public class DatabaseConstraintViolationException extends Exception {
         this.databaseConstraint = databaseConstraint;
     }
 
-    public DatabaseConstraint getDatabaseConstraint() { return databaseConstraint; }
+    public DatabaseConstraint databaseConstraint() { return databaseConstraint; }
 }

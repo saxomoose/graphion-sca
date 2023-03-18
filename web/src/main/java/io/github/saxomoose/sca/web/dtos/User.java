@@ -15,10 +15,10 @@ public class User {
     @Pattern(regexp = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,128}$")
     private String password;
 
-    public String getUsername() {
+    public String username() {
         return username;
     }
-    public String getPassword() { return password; }
+    public String password() { return password; }
 
     public void setUsername(String username) { this.username = username; }
     public void setPassword(String password) { this.password = password; }

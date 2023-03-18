@@ -10,7 +10,7 @@ import java.time.Instant;
 
 public interface ClosingRepository extends CrudRepository<Closing, Long> {
     @Query("SELECT *  FROM sca.closing LIMIT 1")
-    Closing findFirst();
+    Closing select();
 
     @Modifying
     @Query("""
@@ -18,5 +18,5 @@ public interface ClosingRepository extends CrudRepository<Closing, Long> {
         SET signature_timestamp = :signature_timestamp
         WHERE closing = :closing AND signatory = :signatory
     """)
-    boolean setSignatureTimestamp(@Param("closing") Long closing, @Param("signatory") Long signatory, @Param("signature_timestamp") Instant timestamp);
+    boolean update(@Param("closing") Long closing, @Param("signatory") Long signatory, @Param("signature_timestamp") Instant timestamp);
 }

@@ -7,5 +7,5 @@ public class ObjectStorageException extends Exception {
         this.messageKey = messageKey;
     }
 
-    public String getMessageKey() { return messageKey; }
+    public String messageKey() { return messageKey; }
 }
