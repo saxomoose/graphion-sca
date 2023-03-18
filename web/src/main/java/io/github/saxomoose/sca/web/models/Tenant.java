@@ -36,9 +36,9 @@ public class Tenant {
         this.bucket = bucket;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getBucket() { return bucket; }
+    public Long id() { return id; }
+    public String name() { return name; }
+    public String bucket() { return bucket; }
 
     @Override
     public boolean equals(Object o) {

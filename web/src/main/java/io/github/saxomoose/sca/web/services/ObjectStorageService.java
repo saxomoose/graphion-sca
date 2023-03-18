@@ -37,7 +37,7 @@ public class ObjectStorageService {
 //        }
 //    }
 
-    public StatObjectResponse statObject(final String bucket, final String path) throws ObjectStorageException {
+    public StatObjectResponse stat(final String bucket, final String path) throws ObjectStorageException {
         try {
             return minioClient.statObject(StatObjectArgs
                     .builder()
@@ -51,7 +51,7 @@ public class ObjectStorageService {
         }
     }
 
-    public InputStream getObjectAsStream(final String bucket, final String path) throws ObjectStorageException {
+    public InputStream readAsStream(final String bucket, final String path) throws ObjectStorageException {
         // Handle exception if file does not exist.
         try {
             return minioClient.getObject(GetObjectArgs.builder()
@@ -68,13 +68,13 @@ public class ObjectStorageService {
 
     public void storeFile(final String bucket, final String path, final Long clientSideFileSize, final InputStream inputStream) throws ObjectStorageException {
         configureBucket(bucket);
-        storeObject(bucket, path, inputStream);
-        if (statObject(bucket, path).size() != clientSideFileSize) {
+        store(bucket, path, inputStream);
+        if (stat(bucket, path).size() != clientSideFileSize) {
             throw new ObjectStorageException("TODO");
         }
     }
 
-    public void deleteObject(final String bucket, final String path) throws ObjectStorageException {
+    public void delete(final String bucket, final String path) throws ObjectStorageException {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
                     .bucket(bucket)
@@ -106,7 +106,7 @@ public class ObjectStorageService {
     }
 
     // WriteResponseObject contains versionId.
-    private void storeObject(final String bucket, final String path, final InputStream inputStream) throws ObjectStorageException {
+    private void store(final String bucket, final String path, final InputStream inputStream) throws ObjectStorageException {
         try {
             minioClient.putObject(PutObjectArgs.builder()
                             .bucket(bucket)

@@ -57,7 +57,7 @@ public class User implements UserDetails {
         this.tenant = tenant;
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
     @Override
@@ -89,8 +89,8 @@ public class User implements UserDetails {
 
         return authList;
     }
-    public Role getRole() { return role; }
-    public Long getTenant() { return tenant; }
+    public Role role() { return role; }
+    public Long tenant() { return tenant; }
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;

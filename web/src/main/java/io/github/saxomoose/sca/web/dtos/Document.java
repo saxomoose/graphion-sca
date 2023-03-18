@@ -24,5 +24,5 @@ public class Document {
         this.filename = filename;
     }
 
-    public String getFilename() { return filename; }
+    public String filename() { return filename; }
 }

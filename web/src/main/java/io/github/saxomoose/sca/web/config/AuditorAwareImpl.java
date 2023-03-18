@@ -16,6 +16,6 @@ public class AuditorAwareImpl implements AuditorAware<Long> {
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
-                .map(User::getId);
+                .map(User::id);
     }
 }

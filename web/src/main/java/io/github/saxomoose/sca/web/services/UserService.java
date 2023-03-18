@@ -24,13 +24,13 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User getUser(String username) {
+    public User read(String username) {
         return userRepository.findByUsername(username);
     }
 
     public void create(io.github.saxomoose.sca.web.dtos.User userDTO) throws DatabaseConstraintViolationException {
-        final var password = passwordEncoder.encode(userDTO.getPassword());
-        var user = User.of(userDTO.getUsername(), password);
+        final var password = passwordEncoder.encode(userDTO.password());
+        var user = User.of(userDTO.username(), password);
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {

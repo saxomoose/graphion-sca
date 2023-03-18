@@ -10,7 +10,9 @@ public class ClosingLegalPerson {
 //    @Column(columnDefinition = "boolean default false")
     private Boolean status = Boolean.FALSE;
 
-    public Boolean getStatus() { return status; }
+    public Boolean status() {
+        return status;
+    }
 
     public void setStatus(Boolean status) { this.status = status; }
 }

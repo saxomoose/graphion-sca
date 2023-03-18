@@ -8,7 +8,7 @@ public class LegalPersonOfficer extends Officer implements Serializable {
     @SerializedName("enterprise_number")
     private Integer enterpriseNumber;
 
-    public Integer getEnterpriseNumber() {
+    public Integer enterpriseNumber() {
         return enterpriseNumber;
     }
 

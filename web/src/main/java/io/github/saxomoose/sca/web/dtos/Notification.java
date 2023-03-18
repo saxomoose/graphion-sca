@@ -13,7 +13,7 @@ public class Notification {
         this.body = body;
     }
 
-    public NotificationType getNotificationType() { return notificationType; }
-    public String getHeader() { return header; }
-    public String getBody() { return body; }
+    public NotificationType notificationType() { return notificationType; }
+    public String header() { return header; }
+    public String body() { return body; }
 }

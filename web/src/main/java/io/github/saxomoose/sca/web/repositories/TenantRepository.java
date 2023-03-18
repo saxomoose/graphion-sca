@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface TenantRepository extends CrudRepository<Tenant, Long> {
     @Query("SELECT *  FROM sca.tenant LIMIT 1")
-    Tenant findFirst();
+    Tenant select();
 
     @Query("""
             SELECT *
@@ -17,7 +17,7 @@ public interface TenantRepository extends CrudRepository<Tenant, Long> {
                 WHERE id = :userId
             )
     """)
-    Tenant findByUserId(Long userId);
+    Tenant select(Long userId);
 
     @Query("""
             SELECT *
@@ -28,5 +28,5 @@ public interface TenantRepository extends CrudRepository<Tenant, Long> {
                 WHERE username = :username
             )
     """)
-    Tenant findByUsername(String username);
+    Tenant select(String username);
 }

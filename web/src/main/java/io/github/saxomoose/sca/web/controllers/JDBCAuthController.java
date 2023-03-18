@@ -93,8 +93,6 @@ public class JDBCAuthController {
         final var modelAndView = new ModelAndView();
         if (principal == null) {
             modelAndView.setViewName("auth/login");
-            final var userDTO = new io.github.saxomoose.sca.web.dtos.User();
-            modelAndView.addObject("user", userDTO);
             // On failed login.
             final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
             if (inputFlashMap != null) {

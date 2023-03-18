@@ -40,9 +40,9 @@ public class LegalPerson {
         this.tenant = tenant;
     }
 
-    public Long getId() { return id; }
-    public Long getEnterpriseNumber() { return enterpriseNumber; }
-    public Long getTenant() { return tenant; }
+    public Long id() { return id; }
+    public Long enterpriseNumber() { return enterpriseNumber; }
+    public Long tenant() { return tenant; }
 
     public void setOfficers(Set<Officer> officers) { this.officers = officers; }
 

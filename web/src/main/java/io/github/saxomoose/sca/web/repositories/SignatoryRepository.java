@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface SignatoryRepository extends CrudRepository<Signatory, Long> {
     @Query("SELECT *  FROM sca.signatory LIMIT 1")
-    Signatory findFirst();
+    Signatory select();
 }

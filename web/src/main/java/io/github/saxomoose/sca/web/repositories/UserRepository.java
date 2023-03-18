@@ -10,7 +10,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     User findByUsername(String username);
 
     @Query("SELECT *  FROM sca.user LIMIT 1")
-    User findFirst();
+    User select();
 
     Collection<User> findAllByTenant(Long tenantId);
 }

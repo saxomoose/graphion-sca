@@ -38,43 +38,43 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (tenantRepository.count() == 0) {
             var tenant = Tenant.of("sca");
             tenantRepository.save(tenant);
-            tenant = tenantRepository.findFirst();
+            tenant = tenantRepository.select();
 
             var user = User.of(environment.getProperty("seeder.adminusername"), environment.getProperty("seeder.adminpassword"));
             userRepository.save(user);
-            user = userRepository.findFirst();
+            user = userRepository.select();
 
 //            var mutableUser = MutableUser.of(user);
 //            mutableUser.setEnabled(Boolean.FALSE);
 //            mutableUserRepository.save(mutableUser);
 
-            var signatory = Signatory.of(1111111111L, "FirstName", "LastName", "firstname.lastname@sca.test", tenant.getId());
+            var signatory = Signatory.of(1111111111L, "FirstName", "LastName", "firstname.lastname@sca.test", tenant.id());
             signatoryRepository.save(signatory);
-            signatory = signatoryRepository.findFirst();
+            signatory = signatoryRepository.select();
 
             // signatoryRepository.delete(signatory);
 
-            var document = Document.of("demo_document_1", "/documents/", tenant.getId());
+            var document = Document.of("demo_document_1", "/documents/", tenant.id());
             documentRepository.save(document);
-            document = documentRepository.findFirst();
+            document = documentRepository.select();
 
-            var closing = Closing.of("demo_closing_1", ZoneId.of("Europe/Brussels"), LocalDateTime.now(), tenant.getId());
-            closing.addNaturalPersonSignatory(signatory.getId(), document.getId());
+            var closing = Closing.of("demo_closing_1", ZoneId.of("Europe/Brussels"), LocalDateTime.now(), tenant.id());
+            closing.addNaturalPersonSignatory(signatory.id(), document.id());
             closingRepository.save(closing);
-            closing = closingRepository.findFirst();
+            closing = closingRepository.select();
 
-            closingRepository.setSignatureTimestamp(closing.getId(), signatory.getId(), Instant.now());
+            closingRepository.update(closing.id(), signatory.id(), Instant.now());
             closingRepository.save(closing);
 
-            var legalPerson = LegalPerson.of(1111111111L, tenant.getId());
-            legalPerson.addOfficer(signatory.getId(), Function.DIRECTOR, null);
+            var legalPerson = LegalPerson.of(1111111111L, tenant.id());
+            legalPerson.addOfficer(signatory.id(), Function.DIRECTOR, null);
             legalPersonRepository.save(legalPerson);
-            legalPerson = legalPersonRepository.findFirst();
+            legalPerson = legalPersonRepository.select();
 
-            closing.addLegalPersonSignatory(legalPerson.getId());
+            closing.addLegalPersonSignatory(legalPerson.id());
             closingRepository.save(closing);
 
-            var updatedClosing = closingRepository.findFirst();
+            var updatedClosing = closingRepository.select();
         }
     }
 }
