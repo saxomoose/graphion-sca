@@ -5,7 +5,6 @@ import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
 import io.github.saxomoose.sca.web.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +56,6 @@ public class JDBCAuthController {
 
     @PostMapping(value = "/register")
     public RedirectView register(
-            @Valid
             @ModelAttribute final io.github.saxomoose.sca.web.dtos.User userDTO,
             final BindingResult bindingResult,
             final RedirectAttributes redirectAttributes) {

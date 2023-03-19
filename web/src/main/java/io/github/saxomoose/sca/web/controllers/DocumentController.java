@@ -72,11 +72,11 @@ public class DocumentController {
             @PathVariable final String rawFileUUID,
             @RequestParam final Boolean download
     ) throws BusinessLogicException, ObjectStorageException  {
-        final var fileUUID = documentService.convertToFileUUID(rawFileUUID);
+        final var path = documentService.convertToValidArgs(rawFileUUID);
         // TODO validate tenantId (uuid)
         final var tenant = tenantService.readByTenantId(tenantId);
-        final var document = documentService.read(tenant.id(), fileUUID);
-        final var inputStreamResource = new InputStreamResource(objectStorageService.readAsStream(tenant.bucket(), document.path()));
+        final var document = documentService.read(tenant.id(), path);
+        final Resource inputStreamResource = new InputStreamResource(objectStorageService.readAsStream(tenant.bucket(), document.path()));
         return ResponseEntity.ok()
                 .headers(httpHeaders -> {
                     httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -115,9 +115,9 @@ public class DocumentController {
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        String filename = null;
+        String rawFilename = null;
         Long clientSideFileSize = null;
-        InputStream fileInputStream = null;
+        InputStream rawFileInputStream = null;
         for (var part: parts) {
             if (part.getName().equals("fileSize")) {
                 final var bytes = part.getInputStream().readAllBytes();
@@ -126,25 +126,24 @@ public class DocumentController {
                 }
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
             } else if (part.getName().equals("filename")) {
-                filename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                rawFilename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             } else if (part.getName().equals("file")) {
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
                     throw new BusinessLogicException("document.file.unsupportedfileformat");
                 } else if (part.getSize() != clientSideFileSize) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
                 }
-                fileInputStream = part.getInputStream();
+                rawFileInputStream = part.getInputStream();
             }
         }
         Objects.requireNonNull(clientSideFileSize);
-        Objects.requireNonNull(filename);
-        Objects.requireNonNull(fileInputStream);
+        Objects.requireNonNull(rawFilename);
+        Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        final var fileUUID = documentService.convertToFileUUID(tenant.id(), filename);
-        final var path = documentService.generatePath(fileUUID);
-        objectStorageService.storeFile(tenant.bucket(), path, clientSideFileSize, fileInputStream);
-        documentService.create(tenant.id(), filename, path);
+        final var tuple = documentService.converToValidArgs(tenant.id(), rawFilename);
+        objectStorageService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize, rawFileInputStream);
+        documentService.create(tenant.id(), tuple.filename(), tuple.path());
         redirectAttributes.addFlashAttribute(
                 "notifications",
                 List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));

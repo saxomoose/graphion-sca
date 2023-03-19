@@ -48,17 +48,17 @@ public class DatabaseSeeder implements CommandLineRunner {
 //            mutableUser.setEnabled(Boolean.FALSE);
 //            mutableUserRepository.save(mutableUser);
 
-            var signatory = Signatory.of(1111111111L, "FirstName", "LastName", "firstname.lastname@sca.test", tenant.id());
+            var signatory = Signatory.of(tenant.id(), 1111111111L, "FirstName", "LastName", "firstname.lastname@sca.test");
             signatoryRepository.save(signatory);
             signatory = signatoryRepository.select();
 
             // signatoryRepository.delete(signatory);
 
-            var document = Document.of("demo_document_1", "/documents/", tenant.id());
+            var document = Document.of(tenant.id(), "demo_document_1", "/documents/");
             documentRepository.save(document);
             document = documentRepository.select();
 
-            var closing = Closing.of("demo_closing_1", ZoneId.of("Europe/Brussels"), LocalDateTime.now(), tenant.id());
+            var closing = Closing.of(tenant.id(), "demo_closing_1", ZoneId.of("Europe/Brussels"), LocalDateTime.now());
             closing.addNaturalPersonSignatory(signatory.id(), document.id());
             closingRepository.save(closing);
             closing = closingRepository.select();
@@ -66,7 +66,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             closingRepository.update(closing.id(), signatory.id(), Instant.now());
             closingRepository.save(closing);
 
-            var legalPerson = LegalPerson.of(1111111111L, tenant.id());
+            var legalPerson = LegalPerson.of(tenant.id(), 1111111111L);
             legalPerson.addOfficer(signatory.id(), Function.DIRECTOR, null);
             legalPersonRepository.save(legalPerson);
             legalPerson = legalPersonRepository.select();

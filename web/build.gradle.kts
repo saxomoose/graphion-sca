@@ -41,7 +41,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     runtimeOnly("org.postgresql:postgresql")
@@ -59,7 +58,12 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.withType<JavaExec>().configureEach {
-    jvmArgs("--enable-preview")
+    jvmArgs(
+            "--enable-preview",
+            // Colored output in console.
+            "-Dspring.output.ansi.enabled=ALWAYS",
+            // Startup time optimization
+    )
 }
 
 // test
@@ -70,7 +74,12 @@ tasks.test {
 }
 
 tasks.withType<Test>().configureEach {
-    jvmArgs("--enable-preview")
+    jvmArgs(
+            "--enable-preview",
+            // Colored output in console.
+            "-Dspring.output.ansi.enabled=ALWAYS",
+            // Startup time optimization
+    )
 }
 
 // docker
