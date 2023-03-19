@@ -8,12 +8,11 @@ import java.util.Objects;
 
 @Table(schema = "sca")
 public class Document {
+    private final Long tenant;
     @Id
     private final Long id;
     private final String filename;
     private final String path;
-
-    private final Long tenant;
 
     @Version
     private Long version;
@@ -26,23 +25,23 @@ public class Document {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Document of(String filename, String path, Long tenant) {
-        return new Document(null, filename, path, tenant);
+    public static Document of(Long tenantId, String filename, String path) {
+        return new Document(tenantId, null, filename, path);
     }
 
-    public Document(Long id, String filename, String path, Long tenant) {
+    public Document(Long tenant, Long id, String filename, String path) {
+        this.tenant = tenant;
         this.id = id;
         this.filename = filename;
         this.path = path;
-        this.tenant = tenant;
     }
 
+    public Long tenantId() { return tenant; }
     public Long id() {
         return id;
     }
     public String filename() { return filename; }
     public String path() { return path; }
-    public Long tenant() { return tenant; }
 
     @Override
     public boolean equals(Object o) {

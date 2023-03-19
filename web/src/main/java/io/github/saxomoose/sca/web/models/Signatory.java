@@ -8,17 +8,15 @@ import java.util.Objects;
 
 @Table(schema = "sca")
 public class Signatory {
+    private final Long tenant;
     @Id
     private final Long id;
-
     private final Long nationalRegistrationNumber;
     private final String firstName;
     private final String lastName;
     private final String email;
     // Art. 1:5 New Belgian Civil Code.
     private final Boolean consent;
-
-    private final Long tenant;
 
     @Version
     private Long version;
@@ -31,20 +29,21 @@ public class Signatory {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Signatory of(Long nationalRegistrationNumber, String firstName, String lastName, String email, Long tenant) {
-        return new Signatory(null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE, tenant);
+    public static Signatory of(Long tenantId, Long nationalRegistrationNumber, String firstName, String lastName, String email) {
+        return new Signatory(tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
     }
 
-    public Signatory(Long id, Long nationalRegistrationNumber, String firstName, String lastName, String email, Boolean consent, Long tenant) {
+    public Signatory(Long tenant, Long id, Long nationalRegistrationNumber, String firstName, String lastName, String email, Boolean consent) {
+        this.tenant = tenant;
         this.id = id;
         this.nationalRegistrationNumber = nationalRegistrationNumber;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.consent = consent;
-        this.tenant = tenant;
     }
 
+    public Long tenantId() { return this.tenant; }
     public Long id() { return id; }
     public Long nationalRegistrationNumber() {
         return nationalRegistrationNumber;
@@ -53,7 +52,6 @@ public class Signatory {
     public String lastName() { return lastName; }
     public String email() { return email; }
     public Boolean consent() { return consent; }
-    public Long tenant() { return this.tenant; }
 
     @Override
     public boolean equals(Object o) {

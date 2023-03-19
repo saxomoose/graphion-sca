@@ -12,12 +12,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
 @EnableJdbcRepositories(basePackages = "io.github.saxomoose.sca.web.repositories")
 @EnableJdbcAuditing
+@EnableTransactionManagement
 public class PersistenceConfiguration extends AbstractJdbcConfiguration {
     @Bean
     AuditorAware<Long> auditorProvider() {

@@ -15,6 +15,7 @@ import java.util.Objects;
 
 @Table(schema = "sca")
 public class User implements UserDetails {
+    private final Long tenant;
     @Id
     private final Long id;
     private final String username;
@@ -23,7 +24,6 @@ public class User implements UserDetails {
     private Boolean enabled;
     private final Role role;
 
-    private final Long tenant;
 
     @Version
     private Long version;
@@ -38,25 +38,26 @@ public class User implements UserDetails {
 
     // TODO: remove.
     public static User of(String username, String password) {
-        return new User(null, username, password, Boolean.TRUE, Role.ROLE_ADMIN, 1L);
+        return new User(1L, null, username, password, Boolean.TRUE, Role.ROLE_ADMIN);
     }
-    public static User of(String username, String password, Long tenant) {
+    public static User of(Long tenantId, String username, String password) {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
-        return new User(null, username, password, Boolean.TRUE, Role.ROLE_ADMIN, tenant);
+        return new User(tenantId, null, username, password, Boolean.TRUE, Role.ROLE_ADMIN);
     }
 
     // remove public?
-    public User(Long id, String username, String password, Boolean enabled, Role role, Long tenant) {
+    public User(Long tenant, Long id, String username, String password, Boolean enabled, Role role) {
+        this.tenant = tenant;
         this.id = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.role = role;
-        this.tenant = tenant;
     }
 
+    public Long tenantId() { return tenant; }
     public Long id() {
         return id;
     }
@@ -90,7 +91,6 @@ public class User implements UserDetails {
         return authList;
     }
     public Role role() { return role; }
-    public Long tenant() { return tenant; }
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
