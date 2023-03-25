@@ -1,7 +1,7 @@
 package io.github.saxomoose.sca.web.services;
 
 import io.github.saxomoose.sca.web.models.Tenant;
-import io.github.saxomoose.sca.web.repositories.TenantRepository;
+import io.github.saxomoose.sca.web.repositories.jdbc.TenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

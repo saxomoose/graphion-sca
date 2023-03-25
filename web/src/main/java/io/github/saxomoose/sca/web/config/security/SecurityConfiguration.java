@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 
 @Configuration
 @EnableWebSecurity
@@ -41,23 +43,26 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
             .authorizeHttpRequests()
-                .requestMatchers("/", "/register").permitAll()
+                .requestMatchers("/", "/login", "/logout", "/register", "/ping").permitAll()
                 // Deactivate basic auth.
 //                    .requestMatchers("/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
-                .loginPage("/login").permitAll()
+                .loginPage("/login")
                 // Redirect to closings
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
                 .and()
             .logout()
-                .logoutUrl("/logout").permitAll()
+                .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .and()
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
+                // Spring Security uses session created by redis integration.
             .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
         return http.build();
     }

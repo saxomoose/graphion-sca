@@ -1,7 +1,6 @@
 package io.github.saxomoose.sca.web.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
@@ -9,7 +8,6 @@ import org.thymeleaf.templateresolver.FileTemplateResolver;
 import java.io.IOException;
 
 @Configuration
-@Profile("dev")
 public class DevConfiguration {
     public DevConfiguration(final TemplateEngine templateEngine) throws IOException {
         var sourceRoot = new ClassPathResource("application.yml").getFile().getParentFile();

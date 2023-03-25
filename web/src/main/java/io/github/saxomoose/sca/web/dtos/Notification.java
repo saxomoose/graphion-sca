@@ -2,7 +2,9 @@ package io.github.saxomoose.sca.web.dtos;
 
 import io.github.saxomoose.sca.web.enums.NotificationType;
 
-public class Notification {
+import java.io.Serializable;
+
+public class Notification implements Serializable {
     private final NotificationType notificationType;
     private final String header;
     private final String body;

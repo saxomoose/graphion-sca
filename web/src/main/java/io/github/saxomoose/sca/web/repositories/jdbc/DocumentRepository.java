@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.repositories;
+package io.github.saxomoose.sca.web.repositories.jdbc;
 
 import io.github.saxomoose.sca.web.models.Document;
 import org.springframework.data.jdbc.repository.query.Query;

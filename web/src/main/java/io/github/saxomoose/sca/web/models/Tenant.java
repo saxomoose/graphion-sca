@@ -6,11 +6,12 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Table(schema = "sca")
-public class Tenant {
+public class Tenant implements Serializable {
     @Id
     private final Long id;
     // Enforces bucket naming rules.
