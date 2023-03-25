@@ -1,7 +1,7 @@
 package io.github.saxomoose.sca.web.config.security;
 
-import io.github.saxomoose.sca.web.repositories.TenantRepository;
-import io.github.saxomoose.sca.web.repositories.UserRepository;
+import io.github.saxomoose.sca.web.repositories.jdbc.TenantRepository;
+import io.github.saxomoose.sca.web.repositories.jdbc.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

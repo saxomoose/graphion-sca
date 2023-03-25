@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@EnableJdbcRepositories(basePackages = "io.github.saxomoose.sca.web.repositories")
+@EnableJdbcRepositories(basePackages = "io.github.saxomoose.sca.web.repositories.jdbc")
 @EnableJdbcAuditing
 @EnableTransactionManagement
 public class PersistenceConfiguration extends AbstractJdbcConfiguration {

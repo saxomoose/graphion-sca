@@ -31,17 +31,19 @@ repositories {
 }
 
 dependencies {
-    compileOnly(libs.flyway.core)
+    compileOnly(libs.flywaycore)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation(libs.javafaker)
     implementation(libs.gson)
     implementation(libs.guava)
     implementation(libs.minio)
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -27,4 +27,9 @@ public class IndexController {
         modelAndView.setViewName("index");
         return modelAndView;
     }
+
+    @GetMapping("/ping")
+    public ModelAndView ping() {
+        return new ModelAndView("ping");
+    }
 }

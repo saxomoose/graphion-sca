@@ -12,7 +12,6 @@ import java.util.Locale;
 
 @Configuration
 public class WebApplicationConfiguration implements WebMvcConfigurer {
-
     @Bean
     public MessageSource messageSource() {
         final var messageSource = new ReloadableResourceBundleMessageSource();
@@ -28,6 +27,8 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
 //        sessionLocaleResolver.setLocaleAttributeName("session.current.locale");
         return sessionLocaleResolver;
     }
+
+
 
 //    @Bean
 //    public LocaleChangeInterceptor localeChangeInterceptor() {

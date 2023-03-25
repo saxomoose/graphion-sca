@@ -2,7 +2,7 @@ package io.github.saxomoose.sca.web.services;
 
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.repositories.DocumentRepository;
+import io.github.saxomoose.sca.web.repositories.jdbc.DocumentRepository;
 import io.github.saxomoose.sca.web.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class DocumentService {
     }
 
     // Validation
-    public Tuple converToValidArgs(final Long tenantId, final String filename) throws BusinessLogicException {
+    public Tuple<String, String> converToValidArgs(final Long tenantId, final String filename) throws BusinessLogicException {
         final var messageKey = "document.filename.invalid";
         if (filename.isBlank()) {
             throw new BusinessLogicException(messageKey);
