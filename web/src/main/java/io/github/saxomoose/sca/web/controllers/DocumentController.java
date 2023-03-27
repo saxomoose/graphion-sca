@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.controllers;
 
-import io.github.saxomoose.sca.web.dtos.Notification;
+import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;

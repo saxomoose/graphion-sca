@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.config.security;
 
-import io.github.saxomoose.sca.web.dtos.Notification;
+import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.enums.NotificationType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

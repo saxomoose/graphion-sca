@@ -1,4 +1,3 @@
-import java.io.ByteArrayOutputStream
 import com.github.gradle.node.npm.task.NpmTask
 import org.flywaydb.gradle.task.FlywayCleanTask
 import org.flywaydb.gradle.task.FlywayMigrateTask
@@ -33,9 +32,6 @@ repositories {
 dependencies {
     compileOnly(libs.flywaycore)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation(libs.javafaker)
-    implementation(libs.gson)
-    implementation(libs.guava)
     implementation(libs.minio)
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -45,6 +41,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation(project(":lib"))
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -70,18 +67,15 @@ tasks.withType<JavaExec>().configureEach {
 
 // test
 tasks.test {
-    systemProperty("spring.profiles.active", "test")
-    useJUnitPlatform()
-    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
-}
-
-tasks.withType<Test>().configureEach {
     jvmArgs(
             "--enable-preview",
             // Colored output in console.
             "-Dspring.output.ansi.enabled=ALWAYS",
             // Startup time optimization
     )
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform()
+    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
 }
 
 // docker

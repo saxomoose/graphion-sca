@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.controllers;
 
-import io.github.saxomoose.sca.web.repositories.jdbc.ClosingRepository;
+import io.github.saxomoose.sca.web.repositories.db.ClosingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
