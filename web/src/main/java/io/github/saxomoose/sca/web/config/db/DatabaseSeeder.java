@@ -2,7 +2,7 @@ package io.github.saxomoose.sca.web.config.db;
 
 import io.github.saxomoose.sca.web.enums.Function;
 import io.github.saxomoose.sca.web.models.*;
-import io.github.saxomoose.sca.web.repositories.jdbc.*;
+import io.github.saxomoose.sca.web.repositories.db.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;

@@ -3,7 +3,7 @@ package io.github.saxomoose.sca.web.services;
 import io.github.saxomoose.sca.web.enums.DatabaseConstraint;
 import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.repositories.jdbc.UserRepository;
+import io.github.saxomoose.sca.web.repositories.db.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

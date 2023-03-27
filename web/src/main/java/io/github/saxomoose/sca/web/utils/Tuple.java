@@ -4,7 +4,7 @@ public class Tuple<X, Y> {
     final X first;
     final Y second;
 
-    public static Tuple<String, String> documentArgs(String filename, String path) {
+    public static Tuple<String, String> of(String filename, String path) {
         return new Tuple<>(filename, path);
     }
 
@@ -20,6 +20,5 @@ public class Tuple<X, Y> {
     public String path() {
         return (String) second;
     }
-
 
 }

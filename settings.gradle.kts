@@ -1,5 +1,5 @@
 rootProject.name = "sca"
-include("web")
+include("lib", "web", "worker")
 
 dependencyResolutionManagement {
     versionCatalogs {

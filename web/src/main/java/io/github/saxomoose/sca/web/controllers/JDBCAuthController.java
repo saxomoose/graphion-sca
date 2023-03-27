@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.controllers;
 
-import io.github.saxomoose.sca.web.dtos.Notification;
+import io.github.saxomoose.sca.web.utils.Notification;
+import io.github.saxomoose.sca.web.dtos.User;
 import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
 import io.github.saxomoose.sca.web.services.UserService;
@@ -40,7 +41,7 @@ public class JDBCAuthController {
         final var modelAndView = new ModelAndView();
         if (principal == null) {
             modelAndView.setViewName("auth/register");
-            final var userDTO = new io.github.saxomoose.sca.web.dtos.User();
+            final var userDTO = new User();
             modelAndView.addObject("user", userDTO);
 
             final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
@@ -56,7 +57,7 @@ public class JDBCAuthController {
 
     @PostMapping(value = "/register")
     public RedirectView register(
-            @ModelAttribute final io.github.saxomoose.sca.web.dtos.User userDTO,
+            @ModelAttribute final User userDTO,
             final BindingResult bindingResult,
             final RedirectAttributes redirectAttributes) {
         final var redirectView = new RedirectView();

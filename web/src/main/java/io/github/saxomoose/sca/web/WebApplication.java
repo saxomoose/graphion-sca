@@ -4,25 +4,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
-import org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(
         exclude = {
                 AopAutoConfiguration.class,
-                JacksonAutoConfiguration.class,
                 RedisReactiveAutoConfiguration.class,
-                TaskExecutionAutoConfiguration.class,
-                TaskSchedulingAutoConfiguration.class
         }
 )
 @ComponentScan(
         basePackages = {
+                "io.github.saxomoose.sca.lib.services",
                 "io.github.saxomoose.sca.web.config",
                 "io.github.saxomoose.sca.web.controllers",
-                "io.github.saxomoose.sca.web.repositories",
                 "io.github.saxomoose.sca.web.services"
         }
 )

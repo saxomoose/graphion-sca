@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Table(schema = "sca")
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
     private final Long tenant;
     @Id
     private final Long id;
@@ -22,8 +23,7 @@ public class User implements UserDetails {
     private final String password;
     // Required by UserDetails interface.
     private Boolean enabled;
-    private final Role role;
-
+    private Role role;
 
     @Version
     private Long version;
@@ -90,7 +90,6 @@ public class User implements UserDetails {
 
         return authList;
     }
-    public Role role() { return role; }
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;

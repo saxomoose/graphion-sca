@@ -2,7 +2,7 @@ package io.github.saxomoose.sca.web.services;
 
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.repositories.jdbc.DocumentRepository;
+import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
 import io.github.saxomoose.sca.web.utils.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class DocumentService {
         if (exists(tenantId, path)) {
             throw new BusinessLogicException("document.filename.duplicate");
         }
-        return Tuple.documentArgs(filename, path);
+        return Tuple.of(filename, path);
     }
 
     public String convertToValidArgs(String uuid) throws BusinessLogicException {

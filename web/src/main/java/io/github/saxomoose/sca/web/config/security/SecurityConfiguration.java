@@ -43,27 +43,31 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .exceptionHandling()
+            .authenticationEntryPoint(authenticationEntryPoint)
+            .and()
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+            // Spring Security uses session created by redis integration.
+            .sessionManagement((session) -> session
+                .sessionFixation().changeSessionId()
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .authorizeHttpRequests()
-                .requestMatchers("/", "/login", "/logout", "/register", "/ping").permitAll()
+                .requestMatchers("/", "/register", "/ping").permitAll()
                 // Deactivate basic auth.
 //                    .requestMatchers("/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
+
             .formLogin()
-                .loginPage("/login")
+                .loginPage("/login").permitAll()
                 // Redirect to closings
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
                 .and()
             .logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .and()
-            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
-                // Spring Security uses session created by redis integration.
-            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
+                .logoutUrl("/logout").permitAll()
+                .logoutSuccessUrl("/");
         return http.build();
     }
 }
