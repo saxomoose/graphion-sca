@@ -50,6 +50,7 @@ dependencies {
 // jvm
 tasks.bootRun {
     systemProperty("spring.profiles.active", "dev")
+
 }
 
 tasks.withType<JavaCompile>().configureEach {

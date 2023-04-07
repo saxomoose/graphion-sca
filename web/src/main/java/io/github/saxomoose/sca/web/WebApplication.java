@@ -2,13 +2,11 @@ package io.github.saxomoose.sca.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(
         exclude = {
-                AopAutoConfiguration.class,
                 RedisReactiveAutoConfiguration.class,
         }
 )
