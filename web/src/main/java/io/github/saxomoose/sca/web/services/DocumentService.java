@@ -31,8 +31,8 @@ public class DocumentService {
         return new HashSet<>(documents);
     }
 
-    public Document read(final Long tenant, final String path) {
-        return documentRepository.select(tenant, path);
+    public Document read(final Long tenantId, final String path) {
+        return documentRepository.select(tenantId, path);
     }
 
     public void create(final Long tenantId, final String filename, final String path){
@@ -40,8 +40,8 @@ public class DocumentService {
         documentRepository.save(document);
     }
 
-    private Boolean exists(final Long tenant, final String path) {
-        return documentRepository.exists(tenant, path);
+    private Boolean exists(final Long tenantId, final String path) {
+        return documentRepository.exists(tenantId, path);
     }
 
     // Validation

@@ -1,16 +1,33 @@
 package io.github.saxomoose.sca.web.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.saxomoose.sca.web.models.Tenant;
+import jakarta.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RedisServiceTest {
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private HttpSession httpSession;
+
+    @BeforeAll
+    public void setup() {
+        httpSession.setAttribute("tenant", new Tenant(1L, null, null));
+    }
 
     @Test
     public void submitUploadJob() {
-        redisService.submitUploadJob();
+        try {
+            redisService.submitUploadJob();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
