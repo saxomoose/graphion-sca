@@ -1,13 +1,13 @@
 package io.github.saxomoose.sca.web.controllers;
 
-import io.github.saxomoose.sca.web.utils.Notification;
-import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
+import io.github.saxomoose.sca.web.exceptions.MinIOServiceException;
+import io.github.saxomoose.sca.web.exceptions.RedisServiceException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
-import io.github.saxomoose.sca.web.services.ObjectStorageService;
+import io.github.saxomoose.sca.web.services.MinIOService;
 import io.github.saxomoose.sca.web.services.TenantService;
+import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -37,14 +37,14 @@ public class DocumentController {
     private final HttpSession httpSession;
     private final TenantService tenantService;
     private final DocumentService documentService;
-    private final ObjectStorageService objectStorageService;
+    private final MinIOService minIOService;
 
     @Autowired
-    public DocumentController(HttpSession httpSession, TenantService tenantService, DocumentService documentService, ObjectStorageService objectStorageService) {
+    public DocumentController(HttpSession httpSession, TenantService tenantService, DocumentService documentService, MinIOService minIOService) {
         this.httpSession = httpSession;
         this.tenantService = tenantService;
         this.documentService = documentService;
-        this.objectStorageService = objectStorageService;
+        this.minIOService = minIOService;
     }
 
     // Read
@@ -71,12 +71,12 @@ public class DocumentController {
             @PathVariable final Long tenantId,
             @PathVariable final String rawFileUUID,
             @RequestParam final Boolean download
-    ) throws BusinessLogicException, ObjectStorageException  {
+    ) throws BusinessLogicException, MinIOServiceException {
         final var path = documentService.convertToValidArgs(rawFileUUID);
         // TODO validate tenantId (uuid)
         final var tenant = tenantService.readByTenantId(tenantId);
         final var document = documentService.read(tenant.id(), path);
-        final Resource inputStreamResource = new InputStreamResource(objectStorageService.readAsStream(tenant.bucket(), document.path()));
+        final Resource inputStreamResource = new InputStreamResource(minIOService.readAsStream(tenant.bucket(), document.path()));
         return ResponseEntity.ok()
                 .headers(httpHeaders -> {
                     httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -110,7 +110,7 @@ public class DocumentController {
     public RedirectView store(
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes
-    ) throws BusinessLogicException, IOException, ObjectStorageException, ServletException {
+    ) throws BusinessLogicException, IOException, MinIOServiceException, ServletException {
         final var parts = request.getParts();
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -142,18 +142,19 @@ public class DocumentController {
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
         final var tuple = documentService.converToValidArgs(tenant.id(), rawFilename);
-        objectStorageService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize, rawFileInputStream);
+        minIOService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize, rawFileInputStream);
         documentService.create(tenant.id(), tuple.filename(), tuple.path());
         redirectAttributes.addFlashAttribute(
                 "notifications",
-                List.of(new Notification(NotificationType.SUCCESS, "notification.success", "documents.create.success")));
+                List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "documents.create.success")));
         return new RedirectView("/documents");
     }
 
     // Exception handling
     @ExceptionHandler(value = {
             BusinessLogicException.class,
-            ObjectStorageException.class
+            MinIOServiceException.class,
+            RedisServiceException.class
     })
     public RedirectView handle(
             final HttpServletRequest request,
@@ -163,15 +164,15 @@ public class DocumentController {
         List<Notification> notifications;
         switch (exception) {
             case BusinessLogicException businessLogicException -> notifications = List.of(new Notification(
-                    NotificationType.ERROR,
+                    Notification.Type.ERROR,
                     "notification.error.validation",
                     businessLogicException.messageKey())
             );
-            case ObjectStorageException objectStorageException -> notifications = List.of(new Notification(
-                    NotificationType.ERROR,
+            case MinIOServiceException minIOServiceException -> notifications = List.of(new Notification(
+                    Notification.Type.ERROR,
                     "notification.error",
-                    objectStorageException.messageKey())
-            );
+                    "TODO"
+            ));
             default -> throw exception;
         }
         redirectAttributes.addFlashAttribute("notifications", notifications);

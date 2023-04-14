@@ -1,21 +1,25 @@
 package io.github.saxomoose.sca.web.utils;
 
-import io.github.saxomoose.sca.web.enums.NotificationType;
-
 import java.io.Serializable;
 
 public class Notification implements Serializable {
-    private final NotificationType notificationType;
+    private final Type type;
     private final String header;
     private final String body;
 
-    public Notification(NotificationType notificationType, String header, String body) {
-        this.notificationType = notificationType;
+    public Notification(Type type, String header, String body) {
+        this.type = type;
         this.header = header;
         this.body = body;
     }
 
-    public NotificationType notificationType() { return notificationType; }
+    public Type type() { return type; }
     public String header() { return header; }
     public String body() { return body; }
+
+    public enum Type {
+        ERROR,
+        INFORMATION,
+        SUCCESS
+    }
 }

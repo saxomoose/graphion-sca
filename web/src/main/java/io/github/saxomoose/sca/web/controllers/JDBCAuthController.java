@@ -1,10 +1,9 @@
 package io.github.saxomoose.sca.web.controllers;
 
-import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.dtos.User;
-import io.github.saxomoose.sca.web.enums.NotificationType;
 import io.github.saxomoose.sca.web.exceptions.DatabaseConstraintViolationException;
 import io.github.saxomoose.sca.web.services.UserService;
+import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +68,7 @@ public class JDBCAuthController {
             }
             if (!bindingResult.hasErrors()) {
                 redirectView.setUrl("/");
-                redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(NotificationType.SUCCESS, "notification.success", "register.success")));
+                redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "register.success")));
             }
         }
         if (bindingResult.hasErrors()) {
@@ -77,7 +76,7 @@ public class JDBCAuthController {
             final var validationErrors = new ArrayList<Notification>();
             for (final var fieldError : bindingResult.getFieldErrors()) {
                 //noinspection DataFlowIssue
-                validationErrors.add(new Notification(NotificationType.ERROR, "notification.error.validation", fieldError.getCodes()[0]));
+                validationErrors.add(new Notification(Notification.Type.ERROR, "notification.error.validation", fieldError.getCodes()[0]));
             }
             redirectAttributes.addFlashAttribute("notifications", validationErrors);
         }
