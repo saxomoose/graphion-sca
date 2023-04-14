@@ -1,0 +1,21 @@
+package io.github.saxomoose.sca.worker;
+
+public class Redis {
+    public enum Queue {
+        KEY("graphionscaweb:jobs"),
+        STANDARD_CONSUMER_GROUP("standardgroup"),
+        STANDARD_CONSUMER("standardconsumer");
+
+
+        private final String key;
+
+        Queue(String key) {
+            this.key = key;
+        }
+
+        @Override
+        public String toString() {
+            return key;
+        }
+    }
+}

@@ -76,7 +76,7 @@ tasks.test {
     )
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
-    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
+//    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
 }
 
 // docker

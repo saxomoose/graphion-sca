@@ -1,31 +1,36 @@
 package io.github.saxomoose.sca.web.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.enums.RedisKey;
+import io.github.saxomoose.sca.web.enums.Redis;
+import io.github.saxomoose.sca.web.exceptions.RedisServiceException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.utils.Job;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisStreamCommands;
+import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class RedisService {
+    private static final Logger logger = LoggerFactory.getLogger(RedisService.class);
+
     private final StringRedisTemplate stringRedisTemplate;
     private final RedisScript<String> script;
     private final ObjectMapper objectMapper;
     private final HttpSession httpSession;
     private final RedisConnection redisConnection;
 
-
-    // Replace with stringredistemplate
     @Autowired
     public RedisService(StringRedisTemplate redisTemplate, RedisScript<String> script, ObjectMapper objectMapper, HttpSession httpSession, RedisConnection redisConnection) {
         this.stringRedisTemplate = redisTemplate;
@@ -35,21 +40,39 @@ public class RedisService {
         this.redisConnection = redisConnection;
     }
 
-    public void submitUploadJob() throws JsonProcessingException {
+    public void sendUploadJobToQueue() throws RedisServiceException {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var redisStreamKey = String.format("%s:%s", RedisKey.JOBS, tenantId);
         final var job = new Job(tenantId);
-        final var serializedJob = objectMapper.writeValueAsString(job);
+        String serializedJob;
+        try {
+            serializedJob = objectMapper.writeValueAsString(job);
+            Objects.requireNonNull(serializedJob);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RedisServiceException();
+        }
         final var record = StreamRecords
                 .rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
-                .withStreamKey(redisStreamKey.getBytes());
-        redisConnection.multi();
-        redisConnection.streamCommands().xAdd(
-                record,
-                RedisStreamCommands.XAddOptions.maxlen(50).approximateTrimming(Boolean.TRUE)
-        );
-        redisConnection.listCommands().lPush(RedisKey.JOBS.toString().getBytes(), serializedJob.getBytes());
-        redisConnection.exec();
+                .withStreamKey(Redis.Queue.KEY.toString().getBytes());
+        RecordId recordId;
+         try {
+             recordId = redisConnection.streamCommands().xAdd(
+                     record,
+                     RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE)
+             );
+             Objects.requireNonNull(recordId);
+         } catch (Exception e) {
+             logger.error(e.getMessage());
+             throw new RedisServiceException();
+         }
+        final var outputStringKey = String.format("%s:%s:%s", Redis.Queue.KEY, tenantId, recordId);
+        try {
+            stringRedisTemplate.opsForValue().setIfAbsent(outputStringKey, serializedJob, Duration.ofDays(1));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RedisServiceException();
+        }
+//        redisConnection.listCommands().lPush(RedisKey.JOBS.toString().getBytes(), serializedJob.getBytes());
     }
 
 //    public void consumeUploadJobs() {

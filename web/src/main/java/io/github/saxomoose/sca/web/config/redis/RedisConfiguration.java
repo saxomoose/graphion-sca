@@ -1,7 +1,5 @@
 package io.github.saxomoose.sca.web.config.redis;
 
-import io.github.saxomoose.sca.web.services.RedisSubService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -13,23 +11,25 @@ import org.springframework.scripting.support.ResourceScriptSource;
 
 @Configuration
 public class RedisConfiguration {
-    private final RedisConnectionFactory redisConnectionFactory;
-    private final RedisSubService redisSubService;
-
-    @Autowired
-    public RedisConfiguration(RedisConnectionFactory redisConnectionFactory, RedisSubService redisSubService) {
-        this.redisConnectionFactory = redisConnectionFactory;
-        this.redisSubService = redisSubService;
-    }
-
+//    @Bean
+//    public RedisConnectionFactory redisConnectionFactory() {
+//        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration("server", 6379);
+//        return new LettuceConnectionFactory();
+//    }
     @Bean
-    public RedisConnection redisConnection() {
+    public RedisConnection redisConnection(RedisConnectionFactory redisConnectionFactory) {
         return redisConnectionFactory.getConnection();
     }
-
+//    @Bean
+//    public StatefulRedisConnection<String, String> statefulRedisConnection(RedisConnection redisConnection) {
+//        return ((RedisAsyncCommandsImpl) redisConnection.getNativeConnection()).getStatefulConnection();
+//    }
+//    @Bean
+//    public RedisCommands<String, String> syncCommands(StatefulRedisConnection<String, String> statefulRedisConnection) {
+//        return statefulRedisConnection.sync();
+//    }
     @Bean
     public RedisScript<String> script() {
-
         final var scriptSource = new ResourceScriptSource(new ClassPathResource("redis/job-id.lua")).getResource();
         return RedisScript.of(scriptSource, String.class);
     }

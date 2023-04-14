@@ -1,17 +1,15 @@
 package io.github.saxomoose.sca.web.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.saxomoose.sca.web.enums.JobStatus;
 
 public class Job {
     private Long tenantId;
-    private String id;
-    private JobStatus jobStatus;
+    private Status status;
 
     public Job() {}
     public Job(Long tenantId) {
         this.tenantId = tenantId;
-        this.jobStatus = JobStatus.IN_PROGRESS;
+        this.status = Status.IN_PROGRESS;
     }
 
     @JsonProperty("tenant_id")
@@ -23,21 +21,21 @@ public class Job {
         this.tenantId = tenantId;
     }
 
-    @JsonProperty("id")
-    public String id() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @JsonProperty("job_status")
-    public JobStatus jobStatus() {
-        return jobStatus;
+    public Status status() {
+        return status;
     }
 
-    public void setJobStatus(JobStatus jobStatus) {
-        this.jobStatus = jobStatus;
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public enum Status {
+        FAILED,
+        IN_PROGRESS,
+        SUCCESSFUL
+    }
+    public enum Type {
+        UPLOAD
     }
 }

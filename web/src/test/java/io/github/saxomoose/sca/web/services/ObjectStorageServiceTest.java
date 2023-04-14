@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.exceptions.ObjectStorageException;
+import io.github.saxomoose.sca.web.exceptions.MinIOServiceException;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class ObjectStorageServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(ObjectStorageServiceTest.class);
 
     @Autowired
-    private ObjectStorageService objectStorageService;
+    private MinIOService minIOService;
     private String bucket;
     private String path;
     private Long clientSideFileSize;
@@ -47,8 +47,8 @@ public class ObjectStorageServiceTest {
     @Order(1)
     public void storeObject() {
         try {
-            objectStorageService.storeFile(bucket, path, clientSideFileSize, inputStream);
-        } catch (ObjectStorageException e) {
+            minIOService.storeFile(bucket, path, clientSideFileSize, inputStream);
+        } catch (MinIOServiceException e) {
             logger.info(e.getMessage());
         }
     }
@@ -56,16 +56,16 @@ public class ObjectStorageServiceTest {
     // given → when → then
     @Test
     @Order(2)
-    public void statObject() throws ObjectStorageException {
-        final var statObjectResponse = objectStorageService.stat(bucket, path);
+    public void statObject() throws MinIOServiceException {
+        final var statObjectResponse = minIOService.stat(bucket, path);
     }
 
     @Test
     @Order(3)
     public void getObjectAsStream() {
         try {
-            final var objectInputStream = objectStorageService.readAsStream(bucket, path);
-        } catch (ObjectStorageException e) {
+            final var objectInputStream = minIOService.readAsStream(bucket, path);
+        } catch (MinIOServiceException e) {
             logger.info(e.getMessage());
         }
     }
@@ -74,8 +74,8 @@ public class ObjectStorageServiceTest {
     @Order(4)
     public void deleteObject() {
         try {
-            objectStorageService.delete(bucket, path);
-        } catch (ObjectStorageException e) {
+            minIOService.delete(bucket, path);
+        } catch (MinIOServiceException e) {
             logger.info(e.getMessage());
         }
     }

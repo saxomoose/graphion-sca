@@ -1,6 +1,5 @@
 package io.github.saxomoose.sca.web.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,8 +24,8 @@ public class RedisServiceTest {
     @Test
     public void submitUploadJob() {
         try {
-            redisService.submitUploadJob();
-        } catch (JsonProcessingException e) {
+            redisService.sendUploadJobToQueue();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
