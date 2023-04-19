@@ -44,7 +44,9 @@ public class DocumentService {
         return documentRepository.exists(tenantId, path);
     }
 
-    // Validation
+    /**
+     * Validation
+      */
     public Tuple<String, String> converToValidArgs(final Long tenantId, final String filename) throws BusinessLogicException {
         final var messageKey = "document.filename.invalid";
         if (filename.isBlank()) {

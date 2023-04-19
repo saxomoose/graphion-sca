@@ -1,9 +1,15 @@
 plugins {
     id("java")
     @Suppress("DSL_SCOPE_VIOLATION")
-    alias(libs.plugins.springboot)
+    alias(libs.plugins.springboot).apply(false)
     @Suppress("DSL_SCOPE_VIOLATION")
     alias(libs.plugins.springdependencymanagement)
+}
+
+dependencyManagement {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
 }
 
 group = "io.github.saxomoose"
@@ -23,20 +29,4 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-json")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
-
-tasks.bootRun {
-    enabled = false
-}
-
-tasks.bootJar {
-    enabled = false
-}
-
-tasks.bootBuildImage {
-    enabled = false
-}
-
-tasks.jar {
-    enabled = true
 }

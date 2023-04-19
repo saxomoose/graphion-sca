@@ -2,6 +2,8 @@ package io.github.saxomoose.sca.worker;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.saxomoose.sca.lib.enums.Redis;
+import io.github.saxomoose.sca.lib.utils.Job;
 import io.github.saxomoose.sca.worker.services.ExceptionHandlerService;
 import io.lettuce.core.RedisBusyException;
 import org.slf4j.Logger;
@@ -9,9 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -21,42 +22,55 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 
 @Component
-public class Runner implements ApplicationListener<ApplicationStartedEvent>, DisposableBean {
+public class Runner implements DisposableBean {
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     private final Environment environment;
-    private final StringRedisTemplate stringRedisTemplate;
     private final RedisConnection redisConnection;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final StringRedisSerializer stringRedisSerializer;
     private final ObjectMapper objectMapper;
     private final ExceptionHandlerService exceptionHandlerService;
     private volatile Boolean flag = Boolean.TRUE;
 
     @Autowired
-    public Runner(Environment environment, StringRedisTemplate stringRedisTemplate, RedisConnection redisConnection, ObjectMapper objectMapper, ExceptionHandlerService exceptionHandlerService) {
+    public Runner(Environment environment, RedisConnection redisConnection, StringRedisTemplate stringRedisTemplate, StringRedisSerializer stringRedisSerializer, ObjectMapper objectMapper, ExceptionHandlerService exceptionHandlerService) {
         this.environment = environment;
-        this.stringRedisTemplate = stringRedisTemplate;
         this.redisConnection = redisConnection;
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.stringRedisSerializer = stringRedisSerializer;
         this.objectMapper = objectMapper;
         this.exceptionHandlerService = exceptionHandlerService;
     }
 
-    @Override
-    public void onApplicationEvent(ApplicationStartedEvent ignored) {
+    /**
+     * If consumer group already exists, continue. It should be possible to restart worker without deleting the queue.
+     */
+    @EventListener
+    public void onApplicationStartedEvent(ApplicationStartedEvent ignored) {
         // Replace 2nd argument by injected env variable.
 //        final var secondaryQueueKey = String.format("%s:%s", RedisKey.JOBS, environment.getProperty("spring.application.name"));
-        createQueueWithConsumerGroup();
-            do {
-                try {
-                    final var mapRecord = readMessageFromQueue();
-                    final var processedJob = processJob(mapRecord);
-                    if (processedJob.status().equals(Job.Status.SUCCESSFUL)) {
-                        acknowledgeMessage(mapRecord.getId());
-                    }
-                    sendResultToOutputString(mapRecord, processedJob);
-                } catch (Throwable throwable) {
-                    exceptionHandlerService.handle(throwable);
+        try {
+            createQueueWithConsumerGroup();
+        } catch (Throwable throwable) {
+            if (throwable.getCause() instanceof RedisBusyException) {
+                logger.info(throwable.getCause().getMessage());
+            } else {
+                exceptionHandlerService.handle(throwable);
+            }
+        }
+        do {
+            try {
+                final var mapRecord = readMessageFromQueue();
+                final var processedJob = processJob(mapRecord);
+                if (processedJob.status().equals(Job.Status.SUCCESSFUL)) {
+                    acknowledgeMessage(mapRecord.getId());
                 }
-            } while (flag);
+                sendResultToOutputString(mapRecord, processedJob);
+            } catch (Throwable throwable) {
+                exceptionHandlerService.handle(throwable);
+            }
+        } while (flag);
     }
 
     @Override
@@ -64,33 +78,32 @@ public class Runner implements ApplicationListener<ApplicationStartedEvent>, Dis
         flag = Boolean.FALSE;
     }
 
+    /**
+     * XGROUP CREATE graphionscaweb:jobs standardgroup 0-0 MKSTREAM
+     */
     private void createQueueWithConsumerGroup() {
-        // XGROUP CREATE graphionscaweb:jobs standardgroup 0-0 MKSTREAM
-        try {
-            redisConnection.streamCommands().xGroupCreate(
-                    Redis.Queue.KEY.toString().getBytes(),
-                    Redis.Queue.STANDARD_CONSUMER_GROUP.toString(),
-                    ReadOffset.from(RecordId.of("0-0")),
-                    Boolean.TRUE
-
-            );
-        } catch (RedisSystemException e) {
-            // If consumer group already exists, continue. It should be possible to restart worker without deleting the queue.
-            if (e.getCause() instanceof RedisBusyException) {
-             logger.info(e.getCause().getMessage());
-            }
-        }
+        final var createStream = !stringRedisTemplate.hasKey(Redis.Queue.KEY.toString());
+        redisConnection.streamCommands().xGroupCreate(
+                Redis.Queue.KEY.toString().getBytes(),
+                Redis.Queue.STANDARD_CONSUMER_GROUP.toString(),
+                ReadOffset.from(RecordId.of("0-0")),
+                createStream
+        );
     }
 
+    /**
+     * XREADGROUP GROUP standardgroup standardconsumer COUNT 1 STREAMS graphionscaweb:jobs >
+     * TODO: replace hard coded consumer name by injected env variable.
+     */
     private MapRecord<String, String, String> readMessageFromQueue() {
-        // XREADGROUP GROUP standardgroup standardconsumer COUNT 1 STREAMS graphionscaweb:jobs >
+        final var consumerName = String.format("%s-%s", environment.getProperty("spring.application.name"), 1);
         @SuppressWarnings("unchecked")
         final var records = redisConnection.streamCommands().xReadGroup(
-                    Consumer.from(Redis.Queue.STANDARD_CONSUMER_GROUP.toString(), Redis.Queue.STANDARD_CONSUMER.toString()),
+                    Consumer.from(Redis.Queue.STANDARD_CONSUMER_GROUP.toString(), consumerName),
                     StreamReadOptions.empty().count(1).block(Duration.ZERO),
                     StreamOffset.create(Redis.Queue.KEY.toString().getBytes(), ReadOffset.lastConsumed())
         );
-        return records.stream().findFirst().get().deserialize(new StringRedisSerializer());
+        return records.stream().findFirst().get().deserialize(stringRedisSerializer);
     }
 
     private Job processJob(MapRecord<String, String, String> mapRecord) throws JsonProcessingException {

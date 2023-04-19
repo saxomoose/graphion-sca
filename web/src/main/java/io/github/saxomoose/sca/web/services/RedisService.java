@@ -2,9 +2,9 @@ package io.github.saxomoose.sca.web.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.enums.Redis;
+import io.github.saxomoose.sca.web.utils.Job;
 import io.github.saxomoose.sca.web.exceptions.RedisServiceException;
 import io.github.saxomoose.sca.web.models.Tenant;
-import io.github.saxomoose.sca.web.utils.Job;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +40,22 @@ public class RedisService {
         this.redisConnection = redisConnection;
     }
 
-    public void sendUploadJobToQueue() throws RedisServiceException {
+    /**
+     * XADD graphionscaweb:jobs MAXLEN ~ 5 * "payload" "test1"
+     */
+    public void sendJobToQueue() throws RedisServiceException {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var job = new Job(tenantId);
+        final var job = new Job(
+                tenantId,
+                Job.Type.UPLOAD,
+                "message",
+                Map.of("", ""));
         String serializedJob;
         try {
             serializedJob = objectMapper.writeValueAsString(job);
             Objects.requireNonNull(serializedJob);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new RedisServiceException();
         }
         final var record = StreamRecords
@@ -61,15 +68,15 @@ public class RedisService {
                      RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE)
              );
              Objects.requireNonNull(recordId);
-         } catch (Exception e) {
-             logger.error(e.getMessage());
+         } catch (Exception exception) {
+             logger.error(exception.getMessage());
              throw new RedisServiceException();
          }
         final var outputStringKey = String.format("%s:%s:%s", Redis.Queue.KEY, tenantId, recordId);
         try {
             stringRedisTemplate.opsForValue().setIfAbsent(outputStringKey, serializedJob, Duration.ofDays(1));
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new RedisServiceException();
         }
 //        redisConnection.listCommands().lPush(RedisKey.JOBS.toString().getBytes(), serializedJob.getBytes());

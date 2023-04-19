@@ -128,6 +128,7 @@ public class DocumentController {
             } else if (part.getName().equals("filename")) {
                 rawFilename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             } else if (part.getName().equals("file")) {
+                final var test = part.getSize();
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
                     throw new BusinessLogicException("document.file.unsupportedfileformat");
                 } else if (part.getSize() != clientSideFileSize) {

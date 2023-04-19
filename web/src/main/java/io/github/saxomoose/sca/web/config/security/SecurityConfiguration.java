@@ -40,6 +40,9 @@ public class SecurityConfiguration {
         ;
     }
 
+    /**
+     * Spring Security uses session created by redis integration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -47,7 +50,6 @@ public class SecurityConfiguration {
             .authenticationEntryPoint(authenticationEntryPoint)
             .and()
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-            // Spring Security uses session created by redis integration.
             .sessionManagement((session) -> session
                 .sessionFixation().changeSessionId()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER))
@@ -58,7 +60,6 @@ public class SecurityConfiguration {
                 .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-
             .formLogin()
                 .loginPage("/login").permitAll()
                 // Redirect to closings

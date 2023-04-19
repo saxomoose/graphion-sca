@@ -5,6 +5,7 @@ flywaycore = { module = "org.flywaydb:flyway-core", version = "9.15.1" }
 minio = { module = "io.minio:minio", version = "8.5.2"}
 
 [plugins]
+docker = { id = "com.bmuschko.docker-remote-api", version = "9.3.1"}
 flyway = { id = "org.flywaydb.flyway", version = "9.15.1" }
 node = { id = "com.github.node-gradle.node", version = "3.5.1" }
 springboot = { id = "org.springframework.boot", version = "3.0.1" }

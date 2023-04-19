@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.objectstorage;
+package io.github.saxomoose.sca.web.config.minio;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class ObjectStorageConfiguration {
+public class MinIOConfiguration {
     @Value("${objectstorage.endpoint}")
     private String endpoint;
     @Value("${objectstorage.accesskey}")
@@ -23,4 +23,6 @@ public class ObjectStorageConfiguration {
                 .endpoint(endpoint)
                 .build();
     }
+
+
 }

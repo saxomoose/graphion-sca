@@ -1,5 +1,7 @@
 package io.github.saxomoose.sca.web.utils;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class Notification implements Serializable {
@@ -12,9 +14,17 @@ public class Notification implements Serializable {
         this.header = header;
         this.body = body;
     }
+    public Notification(Type type) {
+        this.type = type;
+        this.header = null;
+        this.body = null;
+    }
 
+    @JsonProperty("type")
     public Type type() { return type; }
+    @JsonProperty("header")
     public String header() { return header; }
+    @JsonProperty("body")
     public String body() { return body; }
 
     public enum Type {

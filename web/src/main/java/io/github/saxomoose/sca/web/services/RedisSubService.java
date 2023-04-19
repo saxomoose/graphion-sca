@@ -33,8 +33,8 @@ public class RedisSubService implements MessageListener, SubscriptionListener {
         Job job;
         try {
             job = objectMapper.readValue(message.toString(), Job.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        } catch (JsonProcessingException exception) {
+            throw new RuntimeException(exception);
         }
         System.out.println(message);
     }

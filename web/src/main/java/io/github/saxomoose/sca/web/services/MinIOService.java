@@ -41,8 +41,8 @@ public class MinIOService {
                     .object(path)
                     .build()
             );
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new MinIOServiceException();
         }
     }
@@ -56,8 +56,8 @@ public class MinIOService {
                     .build()
             );
 
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new MinIOServiceException();
         }
     }
@@ -78,13 +78,15 @@ public class MinIOService {
                     .object(path)
                     .build()
             );
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new MinIOServiceException();
         }
     }
 
-    // Should only create 1 bucket per tenant.
+    /**
+     * Should only create 1 bucket per tenant.
+      */
     private void configureBucket(String bucket) throws MinIOServiceException {
         try {
             final var bucketExists = minioClient.bucketExists(BucketExistsArgs.builder()
@@ -97,13 +99,15 @@ public class MinIOService {
                         .build()
                 );
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new MinIOServiceException();
         }
     }
 
-    // WriteResponseObject contains versionId.
+    /**
+     * WriteResponseObject contains versionId.
+      */
     private void store(final String bucket, final String path, final InputStream inputStream) throws MinIOServiceException {
         try {
             minioClient.putObject(PutObjectArgs.builder()
@@ -112,8 +116,8 @@ public class MinIOService {
                             .stream(inputStream, inputStream.available(), -1)
                             .build()
             );
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
             throw new MinIOServiceException();
         }
     }

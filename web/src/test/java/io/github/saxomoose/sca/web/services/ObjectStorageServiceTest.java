@@ -28,18 +28,18 @@ public class ObjectStorageServiceTest {
 
     @BeforeAll
     public void setup() {
-        bucket = "sca-test";
+        bucket = "graphion";
         final var name = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
         path = String.format("/files/%s", name);
         try {
-            inputStream = new FileInputStream(new ClassPathResource("objectstorage/20230308-test-document.pdf").getFile());
-        } catch (IOException e) {
-            logger.info(e.getMessage());
+            inputStream = new FileInputStream(new ClassPathResource("minio/20230308-test-document.pdf").getFile());
+        } catch (IOException exception) {
+            logger.info(exception.getMessage());
         }
         try {
             clientSideFileSize = (long) inputStream.available();
-        } catch (IOException e) {
-            logger.info(e.getMessage());
+        } catch (IOException exception) {
+            logger.info(exception.getMessage());
         }
     }
 
@@ -48,8 +48,8 @@ public class ObjectStorageServiceTest {
     public void storeObject() {
         try {
             minIOService.storeFile(bucket, path, clientSideFileSize, inputStream);
-        } catch (MinIOServiceException e) {
-            logger.info(e.getMessage());
+        } catch (MinIOServiceException exception) {
+            logger.info(exception.getMessage());
         }
     }
 
@@ -65,8 +65,8 @@ public class ObjectStorageServiceTest {
     public void getObjectAsStream() {
         try {
             final var objectInputStream = minIOService.readAsStream(bucket, path);
-        } catch (MinIOServiceException e) {
-            logger.info(e.getMessage());
+        } catch (MinIOServiceException exception) {
+            logger.info(exception.getMessage());
         }
     }
 
@@ -75,8 +75,8 @@ public class ObjectStorageServiceTest {
     public void deleteObject() {
         try {
             minIOService.delete(bucket, path);
-        } catch (MinIOServiceException e) {
-            logger.info(e.getMessage());
+        } catch (MinIOServiceException exception) {
+            logger.info(exception.getMessage());
         }
     }
 }

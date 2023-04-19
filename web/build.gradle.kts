@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.springboot)
     @Suppress("DSL_SCOPE_VIOLATION")
     alias(libs.plugins.springdependencymanagement)
+
 }
 
 group = "io.github.saxomoose"
@@ -32,6 +33,7 @@ repositories {
 dependencies {
     compileOnly(libs.flywaycore)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation(project(":lib"))
     implementation(libs.minio)
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
@@ -41,7 +43,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
-    implementation(project(":lib"))
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -79,7 +80,40 @@ tasks.test {
 //    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
 }
 
+tasks.register<Test>("targetTest") {
+//    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
+    outputs.upToDateWhen { false }
+    dependsOn(
+            tasks.findByName("resetDatabaseTest"),
+            tasks.findByName("redisFlushallTest"),
+            tasks.findByName("resetDefaultBucketTest")
+    )
+    jvmArgs(
+            "--enable-preview",
+            // Colored output in console.
+            "-Dspring.output.ansi.enabled=ALWAYS",
+//            "-Djava.net.preferIPv4Stack=true",
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:5005"
+    )
+    systemProperty("spring.profiles.active", "test")
+    useJUnitPlatform {
+        includeTags("target")
+    }
+}
+
 // docker
+tasks.register<Exec>("resetDatabaseTest") {
+    commandLine("docker", "exec", "graphion-test-postgres-1", "./scripts/reset.sh")
+}
+
+tasks.register<Exec>("redisFlushallTest") {
+    commandLine("docker", "exec", "graphion-test-redis-1", "redis-cli", "flushall")
+}
+
+tasks.register<Exec>("resetDefaultBucketTest") {
+    commandLine("docker", "exec", "graphion-test-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion")
+}
+
 
 
 // flyway

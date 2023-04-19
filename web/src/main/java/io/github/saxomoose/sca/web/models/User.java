@@ -36,10 +36,6 @@ public class User implements UserDetails, Serializable {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    // TODO: remove.
-    public static User of(String username, String password) {
-        return new User(1L, null, username, password, Boolean.TRUE, Role.ROLE_ADMIN);
-    }
     public static User of(Long tenantId, String username, String password) {
         // User should only be enabled after email verification.
         // Role should be set by seeder.

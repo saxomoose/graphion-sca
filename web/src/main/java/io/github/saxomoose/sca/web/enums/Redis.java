@@ -2,7 +2,10 @@ package io.github.saxomoose.sca.web.enums;
 
 public class Redis {
     public enum Queue {
-        KEY("graphionscaweb:jobs");
+        KEY("graphionscaweb:jobs"),
+        STANDARD_CONSUMER_GROUP("standardgroup"),
+        STANDARD_CONSUMER("standardconsumer");
+
 
         private final String key;
 

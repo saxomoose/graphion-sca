@@ -24,9 +24,9 @@ public class RedisServiceTest {
     @Test
     public void submitUploadJob() {
         try {
-            redisService.sendUploadJobToQueue();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            redisService.sendJobToQueue();
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
         }
     }
 }
