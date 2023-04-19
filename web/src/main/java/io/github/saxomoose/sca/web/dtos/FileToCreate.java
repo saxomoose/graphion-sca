@@ -17,7 +17,7 @@ public class FileToCreate {
             if (!mediaType.equals(MediaType.APPLICATION_PDF)) {
                 throw new IllegalArgumentException();
             }
-        } catch (NullPointerException | IllegalArgumentException e){
+        } catch (NullPointerException | IllegalArgumentException exception){
             throw new IllegalArgumentException();
         }
         byte[] bytes;
@@ -26,7 +26,7 @@ public class FileToCreate {
             if (bytes.length == 0) {
                 throw new IllegalArgumentException();
             }
-        } catch (NullPointerException | IllegalArgumentException | IOException e) {
+        } catch (NullPointerException | IllegalArgumentException | IOException exception) {
             throw new IllegalArgumentException();
         }
 

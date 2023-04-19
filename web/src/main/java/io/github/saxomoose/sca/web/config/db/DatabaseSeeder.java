@@ -36,11 +36,14 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private void load() {
         if (tenantRepository.count() == 0) {
-            var tenant = Tenant.of("sca");
+            var tenant = Tenant.of("graphion");
             tenantRepository.save(tenant);
             tenant = tenantRepository.select();
 
-            var user = User.of(environment.getProperty("seeder.adminusername"), environment.getProperty("seeder.adminpassword"));
+            var user = User.of(
+                    tenant.id(),
+                    environment.getProperty("seeder.adminusername"),
+                    environment.getProperty("seeder.adminpassword"));
             userRepository.save(user);
             user = userRepository.select();
 

@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":lib"))
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-json")
     runtimeOnly("org.postgresql:postgresql")
-//    implementation(project(":lib"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
