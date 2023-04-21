@@ -43,7 +43,6 @@ public class DocumentControllerTest {
     private User user;
     private Tenant tenant;
 
-
     @BeforeAll
     public void setUp() {
         mockMvc = MockMvcBuilders
@@ -55,7 +54,6 @@ public class DocumentControllerTest {
     }
 
     @Test
-    @Order(1)
     public void create() throws Exception {
         final var filePart = new MockPart("file", file());
         filePart.getHeaders().setContentType(MediaType.APPLICATION_PDF);
@@ -78,10 +76,8 @@ public class DocumentControllerTest {
 
 
     @Test
-    @Order(2)
     public void serveFile() throws Exception {
-        final var rawFileUUID = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
-//        final var test = UriComponentsBuilder.fromUriString("/files/{tenantId}/{rawFileUUID}").buildAndExpand(1, rawFileUUID).encode().toUri();
+        final var rawFileUUID = UUID.nameUUIDFromBytes("20230308-seed-document".getBytes());
         this.mockMvc
                 .perform(
                         get("/files/{tenantId}/{rawFileUUID}", 1, rawFileUUID)

@@ -1,14 +1,11 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.exceptions.MinIOServiceException;
-import io.github.saxomoose.sca.web.exceptions.RedisServiceException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.MinIOService;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.utils.Notification;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +23,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -71,7 +68,7 @@ public class DocumentController {
             @PathVariable final Long tenantId,
             @PathVariable final String rawFileUUID,
             @RequestParam final Boolean download
-    ) throws BusinessLogicException, MinIOServiceException {
+    ) throws Exception {
         final var path = documentService.convertToValidArgs(rawFileUUID);
         // TODO validate tenantId (uuid)
         final var tenant = tenantService.readByTenantId(tenantId);
@@ -110,7 +107,7 @@ public class DocumentController {
     public RedirectView store(
             final HttpServletRequest request,
             final RedirectAttributes redirectAttributes
-    ) throws BusinessLogicException, IOException, MinIOServiceException, ServletException {
+    ) throws Exception {
         final var parts = request.getParts();
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -154,29 +151,19 @@ public class DocumentController {
     // Exception handling
     @ExceptionHandler(value = {
             BusinessLogicException.class,
-            MinIOServiceException.class,
-            RedisServiceException.class
     })
     public RedirectView handle(
             final HttpServletRequest request,
-            final Exception exception,
+            final BusinessLogicException businessLogicException,
             final RedirectAttributes redirectAttributes
-    ) throws Exception {
-        List<Notification> notifications;
-        switch (exception) {
-            case BusinessLogicException businessLogicException -> notifications = List.of(new Notification(
+    ) {
+        final var path = URI.create(request.getHeader("referer")).getPath();
+        final var notifications = List.of(new Notification(
                     Notification.Type.ERROR,
                     "notification.error.validation",
                     businessLogicException.messageKey())
             );
-            case MinIOServiceException minIOServiceException -> notifications = List.of(new Notification(
-                    Notification.Type.ERROR,
-                    "notification.error",
-                    "TODO"
-            ));
-            default -> throw exception;
-        }
         redirectAttributes.addFlashAttribute("notifications", notifications);
-        return new RedirectView("/documents/create");
+        return new RedirectView(path);
     }
 }
