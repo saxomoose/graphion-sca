@@ -5,7 +5,9 @@ import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
 import io.github.saxomoose.sca.web.repositories.db.TenantRepository;
 import io.github.saxomoose.sca.web.repositories.db.UserRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
@@ -23,13 +25,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Tag("target")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+//@Tag("target")
 public class DocumentControllerTest {
     private MockMvc mockMvc;
     @Autowired
@@ -57,16 +57,16 @@ public class DocumentControllerTest {
     public void create() throws Exception {
         final var filePart = new MockPart("file", file());
         filePart.getHeaders().setContentType(MediaType.APPLICATION_PDF);
-        this.mockMvc
+        final var test = this.mockMvc
                 .perform(
-                multipart("/documents").part(
-                        new MockPart("_csrf", "".getBytes()),
-                        new MockPart("fileSize", "31599".getBytes()),
-                        new MockPart("filename", "20230308-test-document".getBytes()),
-                        filePart
-                        ).with(csrf())
-                        .with(user(user))
-                        .sessionAttr("tenant", tenant))
+                        multipart("/documents").part(
+                                        new MockPart("_csrf", "".getBytes()),
+                                        new MockPart("fileSize", "31599".getBytes()),
+                                        new MockPart("filename", "20230308-test-document".getBytes()),
+                                        filePart
+                                ).with(csrf())
+                                .with(user(user))
+                                .sessionAttr("tenant", tenant))
                 .andExpect(status().is3xxRedirection());
     }
 
@@ -84,7 +84,9 @@ public class DocumentControllerTest {
                         .queryParam("download", "true")
                         .with(user(user)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_PDF));
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"20230308-seed-document.pdf\""));
+
 //                .andExpect(content().string(containsString("Hello, World")));
     }
 }

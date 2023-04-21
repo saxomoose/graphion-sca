@@ -8,74 +8,50 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Tag("target")
 public class ObjectStorageServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(ObjectStorageServiceTest.class);
 
     @Autowired
     private MinIOService minIOService;
     private String bucket;
-    private String path;
-    private Long clientSideFileSize;
-    private InputStream inputStream;
 
     @BeforeAll
     public void setup() {
         bucket = "graphion";
-        final var name = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
-        path = String.format("/files/%s", name);
-        try {
-            inputStream = new FileInputStream(new ClassPathResource("minio/20230308-test-document.pdf").getFile());
-        } catch (IOException exception) {
-            logger.info(exception.getMessage());
-        }
-        try {
-            clientSideFileSize = (long) inputStream.available();
-        } catch (IOException exception) {
-            logger.info(exception.getMessage());
-        }
+    }
+
+    @AfterAll
+    public void deleteObject() throws Exception {
+        minIOService.delete(bucket, path());
     }
 
     @Test
-    @Order(1)
-    public void storeObject() {
-        try {
-            minIOService.storeFile(bucket, path, clientSideFileSize, inputStream);
-        } catch (MinIOServiceException exception) {
-            logger.info(exception.getMessage());
-        }
+    public void storeObject() throws Exception {
+        final var name = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
+        final var path = String.format("/files/%s", name);
+        final var inputStream = new FileInputStream(new ClassPathResource("minio/20230308-test-document.pdf").getFile());
+        final var clientSideFileSize = (long) inputStream.available();
+        minIOService.storeFile(bucket, path, clientSideFileSize, inputStream);
     }
 
     // given → when → then
     @Test
-    @Order(2)
-    public void statObject() throws MinIOServiceException {
-        final var statObjectResponse = minIOService.stat(bucket, path);
+    public void statObject() throws Exception {
+        final var statObjectResponse = minIOService.stat(bucket, path());
     }
 
     @Test
-    @Order(3)
-    public void getObjectAsStream() {
-        try {
-            final var objectInputStream = minIOService.readAsStream(bucket, path);
-        } catch (MinIOServiceException exception) {
-            logger.info(exception.getMessage());
-        }
+    public void getObjectAsStream() throws Exception {
+        final var objectInputStream = minIOService.readAsStream(bucket, path());
     }
 
-    @Test
-    @Order(4)
-    public void deleteObject() {
-        try {
-            minIOService.delete(bucket, path);
-        } catch (MinIOServiceException exception) {
-            logger.info(exception.getMessage());
-        }
+    private String path() {
+        final var name = UUID.nameUUIDFromBytes("20230308-seed-document".getBytes());
+        return String.format("/files/%s", name);
     }
 }

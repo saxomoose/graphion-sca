@@ -47,8 +47,8 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .exceptionHandling()
-            .authenticationEntryPoint(authenticationEntryPoint)
-            .and()
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .and()
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
             .sessionManagement((session) -> session
                 .sessionFixation().changeSessionId()
