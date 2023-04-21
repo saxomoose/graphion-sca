@@ -1,6 +1,5 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.exceptions.MinIOServiceException;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

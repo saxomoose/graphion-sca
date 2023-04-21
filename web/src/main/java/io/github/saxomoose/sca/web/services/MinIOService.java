@@ -1,6 +1,5 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.exceptions.MinIOServiceException;
 import io.minio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class MinIOService {
 //        }
 //    }
 
-    public StatObjectResponse stat(final String bucket, final String path) throws MinIOServiceException {
+    public StatObjectResponse stat(final String bucket, final String path) throws Exception {
         try {
             return minioClient.statObject(StatObjectArgs
                     .builder()
@@ -43,11 +42,11 @@ public class MinIOService {
             );
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new MinIOServiceException();
+            throw exception;
         }
     }
 
-    public InputStream readAsStream(final String bucket, final String path) throws MinIOServiceException {
+    public InputStream readAsStream(final String bucket, final String path) throws Exception {
         // Handle exception if file does not exist.
         try {
             return minioClient.getObject(GetObjectArgs.builder()
@@ -58,20 +57,20 @@ public class MinIOService {
 
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new MinIOServiceException();
+            throw exception;
         }
     }
 
-    public void storeFile(final String bucket, final String path, final Long clientSideFileSize, final InputStream inputStream) throws MinIOServiceException {
+    public void storeFile(final String bucket, final String path, final Long clientSideFileSize, final InputStream inputStream) throws Exception {
         configureBucket(bucket);
         store(bucket, path, inputStream);
         if (stat(bucket, path).size() != clientSideFileSize) {
             logger.error("The file size stored in the bucket does not match the client-side file size.");
-            throw new MinIOServiceException();
+            throw new Exception();
         }
     }
 
-    public void delete(final String bucket, final String path) throws MinIOServiceException {
+    public void delete(final String bucket, final String path) throws Exception {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
                     .bucket(bucket)
@@ -80,14 +79,14 @@ public class MinIOService {
             );
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new MinIOServiceException();
+            throw exception;
         }
     }
 
     /**
      * Should only create 1 bucket per tenant.
       */
-    private void configureBucket(String bucket) throws MinIOServiceException {
+    private void configureBucket(String bucket) throws Exception {
         try {
             final var bucketExists = minioClient.bucketExists(BucketExistsArgs.builder()
                         .bucket(bucket)
@@ -101,14 +100,14 @@ public class MinIOService {
             }
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new MinIOServiceException();
+            throw exception;
         }
     }
 
     /**
      * WriteResponseObject contains versionId.
       */
-    private void store(final String bucket, final String path, final InputStream inputStream) throws MinIOServiceException {
+    private void store(final String bucket, final String path, final InputStream inputStream) throws Exception {
         try {
             minioClient.putObject(PutObjectArgs.builder()
                             .bucket(bucket)
@@ -118,7 +117,7 @@ public class MinIOService {
             );
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new MinIOServiceException();
+            throw exception;
         }
     }
 }

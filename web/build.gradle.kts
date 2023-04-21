@@ -50,6 +50,11 @@ dependencies {
 
 // jvm
 tasks.bootRun {
+    dependsOn(
+            tasks.findByName("resetDatabase"),
+            tasks.findByName("redisFlushall"),
+            tasks.findByName("resetDefaultBucket")
+    )
     systemProperty("spring.profiles.active", "dev")
 
 }
@@ -102,6 +107,18 @@ tasks.register<Test>("targetTest") {
 }
 
 // docker
+tasks.register<Exec>("resetDatabase") {
+    commandLine("docker", "exec", "graphion-postgres-1", "./scripts/reset.sh")
+}
+
+tasks.register<Exec>("redisFlushall") {
+    commandLine("docker", "exec", "graphion-redis-1", "redis-cli", "flushall")
+}
+
+tasks.register<Exec>("resetDefaultBucket") {
+    commandLine("docker", "exec", "graphion-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion")
+}
+
 tasks.register<Exec>("resetDatabaseTest") {
     commandLine("docker", "exec", "graphion-test-postgres-1", "./scripts/reset.sh")
 }

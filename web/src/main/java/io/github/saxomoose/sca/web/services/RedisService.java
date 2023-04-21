@@ -2,9 +2,8 @@ package io.github.saxomoose.sca.web.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.enums.Redis;
-import io.github.saxomoose.sca.web.utils.Job;
-import io.github.saxomoose.sca.web.exceptions.RedisServiceException;
 import io.github.saxomoose.sca.web.models.Tenant;
+import io.github.saxomoose.sca.web.utils.Job;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class RedisService {
     /**
      * XADD graphionscaweb:jobs MAXLEN ~ 5 * "payload" "test1"
      */
-    public void sendJobToQueue() throws RedisServiceException {
+    public void sendJobToQueue() throws Exception {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var job = new Job(
                 tenantId,
@@ -56,7 +55,7 @@ public class RedisService {
             Objects.requireNonNull(serializedJob);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new RedisServiceException();
+            throw exception;
         }
         final var record = StreamRecords
                 .rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
@@ -70,14 +69,14 @@ public class RedisService {
              Objects.requireNonNull(recordId);
          } catch (Exception exception) {
              logger.error(exception.getMessage());
-             throw new RedisServiceException();
+             throw exception;
          }
         final var outputStringKey = String.format("%s:%s:%s", Redis.Queue.KEY, tenantId, recordId);
         try {
             stringRedisTemplate.opsForValue().setIfAbsent(outputStringKey, serializedJob, Duration.ofDays(1));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
-            throw new RedisServiceException();
+            throw exception;
         }
 //        redisConnection.listCommands().lPush(RedisKey.JOBS.toString().getBytes(), serializedJob.getBytes());
     }
