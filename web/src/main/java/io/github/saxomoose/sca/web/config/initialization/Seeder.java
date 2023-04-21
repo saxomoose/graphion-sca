@@ -53,7 +53,7 @@ public class Seeder implements CommandLineRunner {
                     new ClassPathResource("minio/20230308-seed-document.pdf").getInputStream()
             );
         } catch (Exception e) {
-            logger.error(e.toString());
+            logger.error(e.getMessage());
         }
 
         var tenant = Tenant.of("graphion");
