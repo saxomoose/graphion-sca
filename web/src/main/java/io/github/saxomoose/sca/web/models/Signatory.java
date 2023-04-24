@@ -1,10 +1,15 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.annotation.*;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Table(schema = "sca")
 public class Signatory {
@@ -29,11 +34,14 @@ public class Signatory {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Signatory of(Long tenantId, Long nationalRegistrationNumber, String firstName, String lastName, String email) {
-        return new Signatory(tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
+    public static Signatory of(Long tenantId, Long nationalRegistrationNumber, String firstName,
+            String lastName, String email) {
+        return new Signatory(tenantId, null, nationalRegistrationNumber, firstName, lastName, email,
+                Boolean.FALSE);
     }
 
-    public Signatory(Long tenant, Long id, Long nationalRegistrationNumber, String firstName, String lastName, String email, Boolean consent) {
+    public Signatory(Long tenant, Long id, Long nationalRegistrationNumber, String firstName,
+            String lastName, String email, Boolean consent) {
         this.tenant = tenant;
         this.id = id;
         this.nationalRegistrationNumber = nationalRegistrationNumber;
@@ -43,23 +51,44 @@ public class Signatory {
         this.consent = consent;
     }
 
-    public Long tenantId() { return this.tenant; }
-    public Long id() { return id; }
+    public Long tenantId() {
+        return this.tenant;
+    }
+
+    public Long id() {
+        return id;
+    }
+
     public Long nationalRegistrationNumber() {
         return nationalRegistrationNumber;
     }
-    public String firstName() { return firstName; }
-    public String lastName() { return lastName; }
-    public String email() { return email; }
-    public Boolean consent() { return consent; }
+
+    public String firstName() {
+        return firstName;
+    }
+
+    public String lastName() {
+        return lastName;
+    }
+
+    public String email() {
+        return email;
+    }
+
+    public Boolean consent() {
+        return consent;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Signatory signatory = (Signatory) o;
         return Objects.equals(id, signatory.id);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

@@ -1,11 +1,11 @@
 package io.github.saxomoose.sca.web.config;
 
+import java.io.IOException;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
-
-import java.io.IOException;
 
 @Configuration
 public class DevConfiguration {
@@ -24,4 +24,3 @@ public class DevConfiguration {
         templateEngine.setTemplateResolver(fileTemplateResolver);
     }
 }
-

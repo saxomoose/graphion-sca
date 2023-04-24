@@ -9,6 +9,7 @@ public class NaturalPersonOfficer extends Officer implements Serializable {
     public String firstName() {
         return firstName;
     }
+
     public String lastName() {
         return lastName;
     }
@@ -16,6 +17,7 @@ public class NaturalPersonOfficer extends Officer implements Serializable {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }

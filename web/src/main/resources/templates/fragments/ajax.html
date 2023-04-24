@@ -10,7 +10,7 @@
     fetch("/documents", {
       method: "post",
       headers: {
-        "X-CSRF-TOKEN": [[${_csrf.token}]]
+        "X-CSRF-TOKEN": [[${ _csrf.token }]]
       },
       body: formData,
       redirect: "follow"

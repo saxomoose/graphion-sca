@@ -1,8 +1,7 @@
 package io.github.saxomoose.sca.web.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.utils.Job;
+import java.nio.charset.StandardCharsets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.Message;
@@ -10,7 +9,10 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.github.saxomoose.sca.web.utils.Job;
 
 @Service
 public class RedisSubService implements MessageListener, SubscriptionListener {
@@ -24,7 +26,8 @@ public class RedisSubService implements MessageListener, SubscriptionListener {
 
     @Override
     public void onChannelSubscribed(byte[] channel, long count) {
-        logger.info(String.format("RedisSubService subscribed to channel %s", new String(channel, StandardCharsets.UTF_8)));
+        logger.info(String.format("RedisSubService subscribed to channel %s",
+                new String(channel, StandardCharsets.UTF_8)));
     }
 
     @Override
@@ -38,6 +41,5 @@ public class RedisSubService implements MessageListener, SubscriptionListener {
         }
         System.out.println(message);
     }
-
 
 }

@@ -1,8 +1,8 @@
 package io.github.saxomoose.sca.web.repositories.db;
 
-import io.github.saxomoose.sca.web.models.LegalPerson;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
+import io.github.saxomoose.sca.web.models.LegalPerson;
 
 public interface LegalPersonRepository extends CrudRepository<LegalPerson, Long> {
     @Query("SELECT *  FROM sca.legal_person LIMIT 1")

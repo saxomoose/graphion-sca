@@ -1,13 +1,19 @@
 package io.github.saxomoose.sca.web.models;
 
-import io.github.saxomoose.sca.web.enums.Function;
-import org.springframework.data.annotation.*;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Table;
+
+import io.github.saxomoose.sca.web.enums.Function;
 
 @Table(schema = "sca")
 public class LegalPerson {
@@ -39,19 +45,32 @@ public class LegalPerson {
         this.enterpriseNumber = enterpriseNumber;
     }
 
-    public Long tenantId() { return tenant; }
-    public Long id() { return id; }
-    public Long enterpriseNumber() { return enterpriseNumber; }
+    public Long tenantId() {
+        return tenant;
+    }
 
-    public void setOfficers(Set<Officer> officers) { this.officers = officers; }
+    public Long id() {
+        return id;
+    }
+
+    public Long enterpriseNumber() {
+        return enterpriseNumber;
+    }
+
+    public void setOfficers(Set<Officer> officers) {
+        this.officers = officers;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         LegalPerson that = (LegalPerson) o;
         return Objects.equals(id, that.id);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

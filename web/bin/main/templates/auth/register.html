@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head data-th-replace="~{fragments/head :: frag(~{::title})}">
+    <title>Registration</title>
+</head>
+<body class="d-flex flex-column h-100">
+<header data-th-replace="~{fragments/header}"></header>
+<div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+<div class="flex-shrink-0 mt-auto">
+    <div class="container-fluid">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-md-4">
+                <form data-th-action="@{/register}" data-th-object="${user}" method="post">
+                    <div class="mb-3">
+                        <label data-th-for="username" class="form-label">Email address</label>
+                        <input data-th-field="*{username}" type="email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label data-th-for="password" class="form-label">Password</label>
+                        <input data-th-field="*{password}" type="password" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<footer data-th-replace="~{fragments/footer}"></footer>
+<script data-th-replace="~{fragments/scripts}"></script>
+<div data-th-replace="~{fragments/toast-scripts}"></div>
+</body>
+</html>

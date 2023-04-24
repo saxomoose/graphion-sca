@@ -1,12 +1,11 @@
 [versions]
 
 [libraries]
-flywaycore = { module = "org.flywaydb:flyway-core", version = "9.15.1" }
-minio = { module = "io.minio:minio", version = "8.5.2"}
+flywaycore = { module = "org.flywaydb:flyway-core", version = "latest.release" }
+minio = { module = "io.minio:minio", version = "latest.release"}
 
 [plugins]
-docker = { id = "com.bmuschko.docker-remote-api", version = "9.3.1"}
-flyway = { id = "org.flywaydb.flyway", version = "9.15.1" }
-node = { id = "com.github.node-gradle.node", version = "3.5.1" }
-springboot = { id = "org.springframework.boot", version = "3.0.1" }
-springdependencymanagement = { id = "io.spring.dependency-management", version = "1.1.0" }
+flyway = { id = "org.flywaydb.flyway", version = "latest.release" }
+node = { id = "com.github.node-gradle.node", version = "latest.release" }
+springboot = { id = "org.springframework.boot", version = "latest.release" }
+springdependencymanagement = { id = "io.spring.dependency-management", version = "latest.release" }

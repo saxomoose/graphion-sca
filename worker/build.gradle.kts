@@ -10,8 +10,8 @@ group = "io.github.saxomoose"
 version = "0.0.1"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_19
-    targetCompatibility = JavaVersion.VERSION_19
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -33,7 +33,6 @@ dependencies {
 tasks.bootRun {
     systemProperty("spring.profiles.active", "dev")
     jvmArgs(
-            "--enable-preview",
             // Colored output in console.
             "-Dspring.output.ansi.enabled=ALWAYS",
             // Startup time optimization
@@ -43,7 +42,6 @@ tasks.bootRun {
 // test
 tasks.test {
     jvmArgs(
-            "--enable-preview",
             // Colored output in console.
             "-Dspring.output.ansi.enabled=ALWAYS",
             // Startup time optimization

@@ -8,7 +8,7 @@ public class Tuple<X, Y> {
         return new Tuple<>(filename, path);
     }
 
-    private Tuple(X first, Y second){
+    private Tuple(X first, Y second) {
         this.first = first;
         this.second = second;
     }
@@ -17,6 +17,7 @@ public class Tuple<X, Y> {
     public String filename() {
         return (String) first;
     }
+
     public String path() {
         return (String) second;
     }

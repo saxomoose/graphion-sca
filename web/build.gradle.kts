@@ -22,8 +22,8 @@ group = "io.github.saxomoose"
 version = "0.0.1"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_19
-    targetCompatibility = JavaVersion.VERSION_19
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -55,27 +55,16 @@ tasks.bootRun {
             tasks.findByName("redisFlushall"),
             tasks.findByName("resetDefaultBucket")
     )
+    jvmArgs (
+            "-Dspring.output.ansi.enabled=ALWAYS"
+    )
     systemProperty("spring.profiles.active", "dev")
 
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("--enable-preview")
-}
-
-tasks.withType<JavaExec>().configureEach {
-    jvmArgs(
-            "--enable-preview",
-            // Colored output in console.
-            "-Dspring.output.ansi.enabled=ALWAYS",
-            // Startup time optimization
-    )
 }
 
 // test
 tasks.test {
     jvmArgs(
-            "--enable-preview",
             // Colored output in console.
             "-Dspring.output.ansi.enabled=ALWAYS",
             // Startup time optimization
@@ -94,7 +83,6 @@ tasks.register<Test>("targetTest") {
             tasks.findByName("resetDefaultBucketTest")
     )
     jvmArgs(
-            "--enable-preview",
             // Colored output in console.
             "-Dspring.output.ansi.enabled=ALWAYS",
 //            "-Djava.net.preferIPv4Stack=true",

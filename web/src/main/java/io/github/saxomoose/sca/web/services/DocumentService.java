@@ -1,18 +1,19 @@
 package io.github.saxomoose.sca.web.services;
 
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
-import io.github.saxomoose.sca.web.utils.Tuple;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Pattern;
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.models.Document;
+import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
+import io.github.saxomoose.sca.web.utils.Tuple;
 
 @Service
 public class DocumentService {
@@ -35,7 +36,7 @@ public class DocumentService {
         return documentRepository.select(tenantId, path);
     }
 
-    public void create(final Long tenantId, final String filename, final String path){
+    public void create(final Long tenantId, final String filename, final String path) {
         final var document = Document.of(tenantId, filename, path);
         documentRepository.save(document);
     }
@@ -46,8 +47,9 @@ public class DocumentService {
 
     /**
      * Validation
-      */
-    public Tuple<String, String> converToValidArgs(final Long tenantId, final String filename) throws BusinessLogicException {
+     */
+    public Tuple<String, String> converToValidArgs(final Long tenantId, final String filename)
+            throws BusinessLogicException {
         final var messageKey = "document.filename.invalid";
         if (filename.isBlank()) {
             throw new BusinessLogicException(messageKey);
@@ -66,7 +68,9 @@ public class DocumentService {
     }
 
     public String convertToValidArgs(String uuid) throws BusinessLogicException {
-        final var pattern = Pattern.compile("^([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-3[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12})$", Pattern.CASE_INSENSITIVE);
+        final var pattern = Pattern.compile(
+                "^([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-3[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12})$",
+                Pattern.CASE_INSENSITIVE);
         final var matcher = pattern.matcher(uuid);
         if (!matcher.matches()) {
             throw new BusinessLogicException("files.path.invalid");
