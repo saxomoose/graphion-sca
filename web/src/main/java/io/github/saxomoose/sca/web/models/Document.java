@@ -1,10 +1,15 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.annotation.*;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Table(schema = "sca")
 public class Document {
@@ -36,20 +41,32 @@ public class Document {
         this.path = path;
     }
 
-    public Long tenantId() { return tenant; }
+    public Long tenantId() {
+        return tenant;
+    }
+
     public Long id() {
         return id;
     }
-    public String filename() { return filename; }
-    public String path() { return path; }
+
+    public String filename() {
+        return filename;
+    }
+
+    public String path() {
+        return path;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Document document = (Document) o;
         return Objects.equals(id, document.id);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

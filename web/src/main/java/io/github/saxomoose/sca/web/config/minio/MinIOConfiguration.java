@@ -1,10 +1,11 @@
 package io.github.saxomoose.sca.web.config.minio;
 
-import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
+import io.minio.MinioClient;
 
 @Configuration
 public class MinIOConfiguration {
@@ -18,11 +19,8 @@ public class MinIOConfiguration {
     @Bean
     @Primary
     public MinioClient minioClient() {
-        return new MinioClient.Builder()
-                .credentials(accessKey, secretKey)
-                .endpoint(endpoint)
+        return new MinioClient.Builder().credentials(accessKey, secretKey).endpoint(endpoint)
                 .build();
     }
-
 
 }

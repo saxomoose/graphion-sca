@@ -1,6 +1,5 @@
 package io.github.saxomoose.sca.web.config.security;
 
-import io.github.saxomoose.sca.web.services.JDBCUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+
+import io.github.saxomoose.sca.web.services.JDBCUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -23,21 +24,20 @@ public class SecurityConfiguration {
 
     @Autowired
     public SecurityConfiguration(PasswordEncoder passwordEncoder,
-                                 JDBCUserDetailsService jdbcUserDetailsService,
-                                 AuthenticationEntryPoint authenticationEntryPoint,
-                                 AuthenticationSuccessHandler authenticationSuccessHandler, AuthenticationFailureHandler authenticationFailureHandler) {
+            JDBCUserDetailsService jdbcUserDetailsService,
+            AuthenticationEntryPoint authenticationEntryPoint,
+            AuthenticationSuccessHandler authenticationSuccessHandler,
+            AuthenticationFailureHandler authenticationFailureHandler) {
         this.passwordEncoder = passwordEncoder;
         this.jdbcUserDetailsService = jdbcUserDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
     }
+
     @Autowired
     public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(jdbcUserDetailsService)
-            .passwordEncoder(passwordEncoder)
-                .and()
-        ;
+        auth.userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder).and();
     }
 
     /**
@@ -45,30 +45,19 @@ public class SecurityConfiguration {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-            .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-            .sessionManagement((session) -> session
-                .sessionFixation().changeSessionId()
-                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-            .authorizeHttpRequests()
-                .requestMatchers("/", "/register", "/ping").permitAll()
+        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+                .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+                .sessionManagement((session) -> session.sessionFixation().changeSessionId()
+                        .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+                .authorizeHttpRequests().requestMatchers("/", "/register", "/ping").permitAll()
                 // Deactivate basic auth.
-//                    .requestMatchers("/**").permitAll()
+                // .requestMatchers("/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-            .formLogin()
-                .loginPage("/login").permitAll()
+                .anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
                 // Redirect to closings
                 .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler)
-                .and()
-            .logout()
-                .logoutUrl("/logout").permitAll()
-                .logoutSuccessUrl("/");
+                .failureHandler(authenticationFailureHandler).and().logout().logoutUrl("/logout")
+                .permitAll().logoutSuccessUrl("/");
         return http.build();
     }
 }

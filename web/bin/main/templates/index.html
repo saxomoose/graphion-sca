@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head data-th-replace="~{fragments/head :: frag(~{::title})}">
+    <title>Home</title>
+</head>
+<body class="d-flex flex-column h-100">
+<header data-th-replace="~{fragments/header}"></header>
+<div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+<footer data-th-replace="~{fragments/footer}"></footer>
+<script data-th-replace="~{fragments/scripts}"></script>
+<script data-th-replace="~{fragments/toast-scripts}"></script>
+</body>
+</html>

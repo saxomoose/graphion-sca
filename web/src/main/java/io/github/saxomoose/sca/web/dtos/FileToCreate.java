@@ -1,10 +1,10 @@
 package io.github.saxomoose.sca.web.dtos;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.Objects;
+
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 public class FileToCreate {
     private final MediaType mediaType;
@@ -17,7 +17,7 @@ public class FileToCreate {
             if (!mediaType.equals(MediaType.APPLICATION_PDF)) {
                 throw new IllegalArgumentException();
             }
-        } catch (NullPointerException | IllegalArgumentException exception){
+        } catch (NullPointerException | IllegalArgumentException exception) {
             throw new IllegalArgumentException();
         }
         byte[] bytes;
@@ -38,6 +38,11 @@ public class FileToCreate {
         this.contentBytes = contentBytes;
     }
 
-    public MediaType getMediaType() { return mediaType; }
-    public byte[] getContentBytes() { return contentBytes; }
+    public MediaType getMediaType() {
+        return mediaType;
+    }
+
+    public byte[] getContentBytes() {
+        return contentBytes;
+    }
 }

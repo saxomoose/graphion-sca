@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: "sca-worker"
+  main:
+    lazy-initialization: true
+  mail:
+    host: "10.0.0.2"
+    port: 1025
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+  data:
+    redis:
+      host: "127.0.0.1"
+      port: 6379
+      username: "graphionscaworker"
+      password: "n7+Cgm9K"
+  datasource:
+    url: "jdbc:postgresql://127.0.0.1:5432/graphion?connectionTimeZone=UTC"
+    # url: "jdbc:postgresql://db:5432/graphion"
+    username: "graphionscaworker"
+    password: "n7+Cgm9K"
+objectstorage:
+  endpoint: "http://127.0.0.1:9000"
+  accesskey: "nynxi0nT2EwTu67v"
+  secretkey: "R77wIak5Ay183kbvbwTpwVj7mmSUIYrQ"
+  defaultbucket: "sca"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "test"
+  data:
+    redis:
+      host: "127.0.0.1"
+      port: 6389
+      username: "graphionscaworker"
+      password: "n7+Cgm9K"
+  datasource:
+    url: "jdbc:postgresql://127.0.0.1:5442/graphion?connectionTimeZone=UTC"
+    username: "graphionscaworker"
+    password: "n7+Cgm9K"
+objectstorage:
+  endpoint: "http://127.0.0.1:9010"
+  accesskey: "nynxi0nT2EwTu67v"
+  secretkey: "R77wIak5Ay183kbvbwTpwVj7mmSUIYrQ"
+  defaultbucket: "sca"
+---
+spring:
+  config:
+    activate:
+      on-profile: "prod"

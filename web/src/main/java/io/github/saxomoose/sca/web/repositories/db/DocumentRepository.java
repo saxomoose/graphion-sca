@@ -1,11 +1,10 @@
 package io.github.saxomoose.sca.web.repositories.db;
 
-import io.github.saxomoose.sca.web.models.Document;
+import java.util.Collection;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-
-import java.util.Collection;
+import io.github.saxomoose.sca.web.models.Document;
 
 public interface DocumentRepository extends CrudRepository<Document, Long> {
     @Query("SELECT *  FROM sca.document LIMIT 1")

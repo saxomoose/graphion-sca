@@ -1,13 +1,18 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.annotation.*;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Table(schema = "sca")
 public class Closing {
@@ -47,29 +52,41 @@ public class Closing {
     public Long tenantId() {
         return tenant;
     }
+
     public Long id() {
         return id;
     }
+
     public String name() {
         return name;
     }
+
     public ZoneId zoneId() {
         return zoneId;
     }
+
     public LocalDateTime timestamp() {
         return timestamp;
     }
 
-    public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories) { this.naturalPersonSignatories = naturalPersonSignatories; }
-    public void setLegalPersonSignatories(Set<ClosingLegalPerson> legalPersonSignatories) { this.legalPersonSignatories = legalPersonSignatories; }
+    public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories) {
+        this.naturalPersonSignatories = naturalPersonSignatories;
+    }
+
+    public void setLegalPersonSignatories(Set<ClosingLegalPerson> legalPersonSignatories) {
+        this.legalPersonSignatories = legalPersonSignatories;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Closing closing = (Closing) o;
         return Objects.equals(id, closing.id);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

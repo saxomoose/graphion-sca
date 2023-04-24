@@ -9,7 +9,11 @@ public class ValidationError {
         this.notification = new Notification(Notification.Type.ERROR, "notification.error.validation", code);
     }
 
-    public String field() { return field; }
+    public String field() {
+        return field;
+    }
 
-    public Notification notification() { return notification; }
+    public Notification notification() {
+        return notification;
+    }
 }

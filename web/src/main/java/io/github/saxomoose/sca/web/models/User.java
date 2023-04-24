@@ -1,18 +1,24 @@
 package io.github.saxomoose.sca.web.models;
 
-import io.github.saxomoose.sca.web.enums.Role;
-import org.springframework.data.annotation.*;
-import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
 public class User implements UserDetails, Serializable {
@@ -44,7 +50,8 @@ public class User implements UserDetails, Serializable {
     }
 
     // remove public?
-    public User(Long tenant, Long id, String username, String password, Boolean enabled, Role role) {
+    public User(Long tenant, Long id, String username, String password, Boolean enabled,
+            Role role) {
         this.tenant = tenant;
         this.id = id;
         this.username = username;
@@ -53,32 +60,44 @@ public class User implements UserDetails, Serializable {
         this.role = role;
     }
 
-    public Long tenantId() { return tenant; }
+    public Long tenantId() {
+        return tenant;
+    }
+
     public Long id() {
         return id;
     }
+
     @Override
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
+
     @Override
     public String getPassword() {
         return password;
     }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
+
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
+
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
+
     @Override
     public boolean isEnabled() {
         return enabled;
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authList = new ArrayList<>();
@@ -93,11 +112,14 @@ public class User implements UserDetails, Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         User user = (User) o;
         return Objects.equals(id, user.id);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

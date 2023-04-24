@@ -7,5 +7,7 @@ public class BusinessLogicException extends Exception {
         this.messageKey = messageKey;
     }
 
-    public String messageKey() { return this.messageKey; }
+    public String messageKey() {
+        return this.messageKey;
+    }
 }

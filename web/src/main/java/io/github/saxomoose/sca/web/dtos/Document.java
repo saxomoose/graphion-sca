@@ -1,13 +1,13 @@
 package io.github.saxomoose.sca.web.dtos;
 
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-
 import java.util.regex.Pattern;
+
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 
 public class Document {
     private final String filename;
 
-    public static Document of (String filename) throws IllegalArgumentException {
+    public static Document of(String filename) throws IllegalArgumentException {
         final var messageKey = "document.filename.invalid";
         if (filename.isBlank()) {
             throw new IllegalArgumentException(new BusinessLogicException(messageKey));
@@ -24,5 +24,7 @@ public class Document {
         this.filename = filename;
     }
 
-    public String filename() { return filename; }
+    public String filename() {
+        return filename;
+    }
 }

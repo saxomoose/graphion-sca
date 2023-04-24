@@ -10,6 +10,7 @@ public class Function implements Serializable {
     public io.github.saxomoose.sca.web.enums.Function functionEnum() {
         return function;
     }
+
     public LocalDate startDate() {
         return startDate;
     }
@@ -17,6 +18,7 @@ public class Function implements Serializable {
     public void setFunctionEnum(io.github.saxomoose.sca.web.enums.Function function) {
         this.function = function;
     }
+
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
