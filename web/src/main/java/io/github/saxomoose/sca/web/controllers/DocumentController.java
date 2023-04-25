@@ -79,8 +79,8 @@ public class DocumentController {
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
-                httpHeaders.setContentDisposition(ContentDisposition.attachment()
-                        .filename(String.format("%s.pdf", document.filename())).build());
+                httpHeaders.setContentDisposition(
+                        ContentDisposition.attachment().filename(String.format("%s.pdf", document.filename())).build());
             }
         }).body(inputStreamResource);
     }
@@ -134,12 +134,11 @@ public class DocumentController {
         minIOService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize,
                 rawFileInputStream);
         documentService.create(tenant.id(), tuple.filename(), tuple.path());
-        redirectAttributes.addFlashAttribute("notifications",
-                List.of(
-                        new Notification(
-                                Notification.Type.SUCCESS,
-                                "notification.success",
-                                "documents.create.success")));
+        redirectAttributes.addFlashAttribute("notifications", List.of(
+                new Notification(
+                        Notification.Type.SUCCESS,
+                        "notification.success",
+                        "documents.create.success")));
         return new RedirectView("/documents");
     }
 
@@ -149,9 +148,11 @@ public class DocumentController {
             final BusinessLogicException businessLogicException,
             final RedirectAttributes redirectAttributes) {
         final var path = URI.create(request.getHeader("referer")).getPath();
-        final var notifications = List.of(new Notification(Notification.Type.ERROR,
-                "notification.error.validation", businessLogicException.messageKey()));
-        redirectAttributes.addFlashAttribute("notifications", notifications);
+        redirectAttributes.addFlashAttribute("notifications", List.of(
+                new Notification(
+                        Notification.Type.ERROR,
+                        "notification.error.validation",
+                        businessLogicException.messageKey())));
         return new RedirectView(path);
     }
 }

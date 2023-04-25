@@ -34,14 +34,23 @@ public class Signatory {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Signatory of(Long tenantId, Long nationalRegistrationNumber, String firstName,
-            String lastName, String email) {
-        return new Signatory(tenantId, null, nationalRegistrationNumber, firstName, lastName, email,
-                Boolean.FALSE);
+    public static Signatory of(
+            Long tenantId,
+            Long nationalRegistrationNumber,
+            String firstName,
+            String lastName,
+            String email) {
+        return new Signatory(tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
     }
 
-    public Signatory(Long tenant, Long id, Long nationalRegistrationNumber, String firstName,
-            String lastName, String email, Boolean consent) {
+    public Signatory(
+            Long tenant,
+            Long id,
+            Long nationalRegistrationNumber,
+            String firstName,
+            String lastName,
+            String email,
+            Boolean consent) {
         this.tenant = tenant;
         this.id = id;
         this.nationalRegistrationNumber = nationalRegistrationNumber;

@@ -1,8 +1,6 @@
 package io.github.saxomoose.sca.web.dtos.scraper;
 
-import java.io.Serializable;
-
-public class LegalPersonOfficer extends Officer implements Serializable {
+public class LegalPersonOfficer extends Officer {
     private Integer enterpriseNumber;
 
     public Integer enterpriseNumber() {

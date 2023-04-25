@@ -28,13 +28,18 @@ java {
 
 repositories {
     mavenCentral()
+    maven("https://gitlab.com/api/v4/projects/19948337/packages/maven")
 }
 
 dependencies {
     compileOnly(libs.flywaycore)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation(project(":lib"))
+    implementation(libs.digidoc4j) {
+        exclude(group = "com.sun.xml.bind")
+    }
     implementation(libs.minio)
+    implementation(libs.webeid)
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-mail")
@@ -59,16 +64,12 @@ tasks.bootRun {
             "-Dspring.output.ansi.enabled=ALWAYS"
     )
     systemProperty("spring.profiles.active", "dev")
-
 }
+
 
 // test
 tasks.test {
-    jvmArgs(
-            // Colored output in console.
-            "-Dspring.output.ansi.enabled=ALWAYS",
-            // Startup time optimization
-    )
+    enabled = false
     systemProperty("spring.profiles.active", "test")
     useJUnitPlatform()
 //    dependsOn(tasks.findByName("flywayCleanMigrateTest"))

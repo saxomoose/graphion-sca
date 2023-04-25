@@ -61,11 +61,9 @@ public class RedisService {
                 .withStreamKey(Redis.Queue.KEY.toString().getBytes());
         RecordId recordId;
         try {
-            recordId = redisConnection.streamCommands()
-                    .xAdd(record,
-                            RedisStreamCommands.XAddOptions
-                                    .maxlen(5)
-                                    .approximateTrimming(Boolean.TRUE));
+            recordId = redisConnection.streamCommands().xAdd(
+                    record,
+                    RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE));
             Objects.requireNonNull(recordId);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -73,8 +71,10 @@ public class RedisService {
         }
         final var outputStringKey = String.format("%s:%s:%s", Redis.Queue.KEY, tenantId, recordId);
         try {
-            stringRedisTemplate.opsForValue()
-                    .setIfAbsent(outputStringKey, serializedJob, Duration.ofDays(1));
+            stringRedisTemplate.opsForValue().setIfAbsent(
+                    outputStringKey,
+                    serializedJob,
+                    Duration.ofDays(1));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw exception;
