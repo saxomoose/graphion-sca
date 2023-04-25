@@ -1,6 +1,5 @@
 package io.github.saxomoose.sca.web.models;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
-public class User implements UserDetails, Serializable {
+public class User implements UserDetails {
     private final Long tenant;
     @Id
     private final Long id;

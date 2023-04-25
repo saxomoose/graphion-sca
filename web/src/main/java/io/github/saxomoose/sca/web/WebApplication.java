@@ -7,13 +7,13 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(exclude = { RedisReactiveAutoConfiguration.class, })
 @ComponentScan(basePackages = { "io.github.saxomoose.sca.lib.services",
-                "io.github.saxomoose.sca.web.config", "io.github.saxomoose.sca.web.controllers",
-                "io.github.saxomoose.sca.web.services" })
+        "io.github.saxomoose.sca.web.config", "io.github.saxomoose.sca.web.controllers",
+        "io.github.saxomoose.sca.web.services" })
 // @ComponentScan(excludeFilters = @ComponentScan.Filter(
 // type = FilterType.ASSIGNABLE_TYPE,
 // classes = {DatabaseSeeder.class}))
 public class WebApplication {
-        public static void main(String[] args) {
-                SpringApplication.run(WebApplication.class, args);
-        }
+    public static void main(String[] args) {
+        SpringApplication.run(WebApplication.class, args);
+    }
 }

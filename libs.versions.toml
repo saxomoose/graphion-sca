@@ -1,8 +1,10 @@
 [versions]
 
 [libraries]
+digidoc4j = { module = "org.digidoc4j:digidoc4j", version = "latest.release" }
 flywaycore = { module = "org.flywaydb:flyway-core", version = "latest.release" }
-minio = { module = "io.minio:minio", version = "latest.release"}
+minio = { module = "io.minio:minio", version = "latest.release" }
+webeid = { module = "org.webeid.security:authtoken-validation", version = "latest.release" }
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version = "latest.release" }

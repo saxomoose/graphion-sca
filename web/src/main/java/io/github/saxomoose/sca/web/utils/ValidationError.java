@@ -6,7 +6,10 @@ public class ValidationError {
 
     public ValidationError(String field, String code) {
         this.field = field;
-        this.notification = new Notification(Notification.Type.ERROR, "notification.error.validation", code);
+        this.notification = new Notification(
+                Notification.Type.ERROR,
+                "notification.error.validation",
+                code);
     }
 
     public String field() {
