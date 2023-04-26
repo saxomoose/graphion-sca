@@ -55,7 +55,7 @@ public class DocumentController {
     @GetMapping("/documents")
     public ModelAndView index(final HttpServletRequest request) {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var documents = documentService.read(tenantId);
+        final var documents = documentService.select(tenantId);
         final var modelAndView = new ModelAndView("documents/index");
         modelAndView.addObject("documents", documents);
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
@@ -72,8 +72,8 @@ public class DocumentController {
             throws Exception {
         final var path = documentService.convertToValidArgs(rawFileUUID);
         // TODO validate tenantId (uuid)
-        final var tenant = tenantService.readByTenantId(tenantId);
-        final var document = documentService.read(tenant.id(), path);
+        final var tenant = tenantService.selectByTenantId(tenantId);
+        final var document = documentService.select(tenant.id(), path);
         final Resource inputStreamResource = new InputStreamResource(
                 minIOService.readAsStream(tenant.bucket(), document.path()));
         return ResponseEntity.ok().headers(httpHeaders -> {

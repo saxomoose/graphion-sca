@@ -4,12 +4,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
@@ -18,6 +16,7 @@ import io.github.saxomoose.sca.web.utils.Tuple;
 @Service
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final String UPLOADED_FILES_PATH = "/files/";
 
     private final DocumentRepository documentRepository;
 
@@ -27,12 +26,12 @@ public class DocumentService {
     }
 
     // Database
-    public Set<Document> read(final Long tenantId) {
+    public Set<Document> select(final Long tenantId) {
         final var documents = documentRepository.findAllByTenant(tenantId);
         return new HashSet<>(documents);
     }
 
-    public Document read(final Long tenantId, final String path) {
+    public Document select(final Long tenantId, final String path) {
         return documentRepository.select(tenantId, path);
     }
 
@@ -79,6 +78,6 @@ public class DocumentService {
     }
 
     private String generatePath(final UUID fileUUID) {
-        return String.format("/files/%s", fileUUID);
+        return String.format("%s%s", UPLOADED_FILES_PATH, fileUUID);
     }
 }

@@ -15,15 +15,15 @@ public class TenantService {
         this.tenantRepository = tenantRepository;
     }
 
-    public Tenant readByTenantId(Long tenantId) {
-        return tenantRepository.findById(tenantId).orElseThrow();
+    public Tenant selectByTenantId(Long id) {
+        return tenantRepository.findById(id).orElseThrow();
     }
 
-    public Tenant readByUserUserId(Long userId) {
-        return tenantRepository.select(userId);
+    public Tenant selectByUserId(Long id) {
+        return tenantRepository.select(id);
     }
 
-    public Tenant read(String username) {
+    public Tenant select(String username) {
         return tenantRepository.select(username);
     }
 }

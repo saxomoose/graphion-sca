@@ -22,7 +22,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User read(String username) {
+    public User select(Long id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
+    public User select(String username) {
         return userRepository.findByUsername(username);
     }
     //

@@ -10,14 +10,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.NullRequestCache;
-
-import io.github.saxomoose.sca.web.services.JDBCUserDetailsService;
+import io.github.saxomoose.sca.web.config.security.jdbc.JDBCUserDetailsService;
+import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
     private final PasswordEncoder passwordEncoder;
     private final JDBCUserDetailsService jdbcUserDetailsService;
+    private final PKIAuthenticationProvider pkiAuthenticationProvider;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
@@ -25,11 +26,13 @@ public class SecurityConfiguration {
     @Autowired
     public SecurityConfiguration(PasswordEncoder passwordEncoder,
             JDBCUserDetailsService jdbcUserDetailsService,
+            PKIAuthenticationProvider pkiAuthenticationProvider,
             AuthenticationEntryPoint authenticationEntryPoint,
             AuthenticationSuccessHandler authenticationSuccessHandler,
             AuthenticationFailureHandler authenticationFailureHandler) {
         this.passwordEncoder = passwordEncoder;
         this.jdbcUserDetailsService = jdbcUserDetailsService;
+        this.pkiAuthenticationProvider = pkiAuthenticationProvider;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
@@ -37,7 +40,9 @@ public class SecurityConfiguration {
 
     @Autowired
     public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder).and();
+        auth.userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder).and()
+                .authenticationProvider(pkiAuthenticationProvider);
+
     }
 
     /**
@@ -45,23 +50,18 @@ public class SecurityConfiguration {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
                 .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-                .sessionManagement(
-                        (session) -> session
-                                .sessionFixation().changeSessionId()
-                                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+                .sessionManagement((session) -> session.sessionFixation().changeSessionId()
+                        .sessionCreationPolicy(SessionCreationPolicy.NEVER))
                 .authorizeHttpRequests().requestMatchers("/", "/register", "/ping").permitAll()
                 // Deactivate basic auth.
                 // .requestMatchers("/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
-                .anyRequest().authenticated().and()
-                .formLogin().loginPage("/login").permitAll()
+                .anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
                 // Redirect to closings
                 .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler).and()
-                .logout().logoutUrl("/logout")
+                .failureHandler(authenticationFailureHandler).and().logout().logoutUrl("/logout")
                 .permitAll().logoutSuccessUrl("/");
         return http.build();
     }

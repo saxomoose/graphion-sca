@@ -34,12 +34,6 @@ repositories {
 dependencies {
     compileOnly(libs.flywaycore)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation(project(":lib"))
-    implementation(libs.digidoc4j) {
-        exclude(group = "com.sun.xml.bind")
-    }
-    implementation(libs.minio)
-    implementation(libs.webeid)
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-mail")
@@ -48,6 +42,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation(libs.jaxbcore)
+    implementation(libs.digidoc4j)
+    implementation(libs.minio)
+    implementation(libs.webeid)
+    implementation(project(":lib"))
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -165,6 +164,16 @@ node {
     version.set(providers.gradleProperty("node.version").get())
     workDir.set(file("${project.rootDir}/.gradle/node"))
     nodeProjectDir.set(file("${project.projectDir}"))
+}
+
+tasks.register<NpmTask>("setNPMRegistry") {
+    val args: ListProperty<String> = objects.listProperty(String::class.java)
+    args.addAll("config", "set", "registry", "https://gitlab.com/api/v4/packages/npm")
+    this.args.set(args)
+}
+
+tasks.npmInstall {
+    dependsOn(tasks.findByName("setNPMRegistry"))
 }
 
 tasks.register<NpmTask>("npmRunBuild") {

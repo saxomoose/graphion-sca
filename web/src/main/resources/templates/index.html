@@ -8,9 +8,56 @@
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
     <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+    <button id="webeid-auth-button" class="btn btn-info">Authenticate with PKI</button>
+    <div id="error-message" class="alert alert-danger" style="display: none;" role="alert">
+        <div class="message"></div>
+        <pre class="details"></pre>
+    </div>
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/scripts}"></script>
     <script data-th-replace="~{fragments/toast-scripts}"></script>
+    <script data-th-inline="javascript">
+        "use strict";
+
+        webeiderrors.hideErrorMessage();
+
+        const authButton = document.querySelector("#webeid-auth-button");
+
+        authButton.addEventListener("click", async () => {
+            webeiderrors.hideErrorMessage();
+            authButton.disabled = true;
+
+            try {
+                const challengeResponse = await fetch("/pki/challenge", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                await webeiderrors.checkHttpError(challengeResponse);
+                const { nonce } = await challengeResponse.json();
+                const authToken = await webeid.authenticate(nonce, "en");
+                const authTokenResponse = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": [[${ _csrf.token }]]
+                    },
+                    body: `{"auth-token": ${JSON.stringify(authToken)}}`
+                });
+                await webeiderrors.checkHttpError(authTokenResponse);
+                const authTokenResult = await authTokenResponse.json();
+                console.log("Authentication successful! Result:", authTokenResult);
+                window.location.href = "/";
+
+            } catch (error) {
+                webeiderrors.showErrorMessage(error);
+                throw error;
+            } finally {
+                authButton.disabled = false;
+            }
+        });
+    </script>
 </body>
 
 </html>

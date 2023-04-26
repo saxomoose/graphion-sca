@@ -24,11 +24,10 @@ public class AuthenticationFailureHandler
         final var flashMap = new FlashMap();
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         if (exception instanceof BadCredentialsException) {
-            final var notifications = List.of(
-                    new Notification(
-                            Notification.Type.ERROR,
-                            "notification.error.authentication",
-                            "login.error.badcredentials"));
+            final var notifications = List.of(new Notification(
+                    Notification.Type.ERROR,
+                    "notification.error.authentication",
+                    "login.error.badcredentials"));
             flashMap.put("notifications", notifications);
             flashMapManager.saveOutputFlashMap(flashMap, request, response);
         }
