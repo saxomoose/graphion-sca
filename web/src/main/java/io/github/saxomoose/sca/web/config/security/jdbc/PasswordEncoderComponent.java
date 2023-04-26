@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security;
+package io.github.saxomoose.sca.web.config.security.jdbc;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

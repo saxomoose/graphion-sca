@@ -24,11 +24,10 @@ public class AuthenticationEntryPoint
         final var flashMap = new FlashMap();
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         if (authException instanceof InsufficientAuthenticationException) {
-            final var notifications = List.of(
-                    new Notification(
-                            Notification.Type.ERROR,
-                            "notification.error.401",
-                            "http.401"));
+            final var notifications = List.of(new Notification(
+                    Notification.Type.ERROR,
+                    "notification.error.401",
+                    "http.401"));
             flashMap.put("notifications", notifications);
             flashMapManager.saveOutputFlashMap(flashMap, request, response);
         }
