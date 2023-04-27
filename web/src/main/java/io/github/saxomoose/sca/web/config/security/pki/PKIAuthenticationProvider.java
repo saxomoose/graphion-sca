@@ -1,49 +1,53 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
-import java.io.IOException;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
+import eu.webeid.security.challenge.ChallengeNonceStore;
+import eu.webeid.security.validator.AuthTokenValidator;
 
+/**
+ * Custom authentication provider that uses the authentication token validator for authentication.
+ */
 @Component
 public class PKIAuthenticationProvider implements AuthenticationProvider {
+    private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationProvider.class);
+    private static final String ROLE = "ROLE_SIGNATORY";
+    private static final GrantedAuthority GRANTED_AUTHORITY = new SimpleGrantedAuthority(ROLE);
 
-    private final HttpServletRequest request;
-    private final ObjectMapper objectMapper;
+    private final AuthTokenValidator authTokenValidator;
+    private final ChallengeNonceStore challengeNonceStore;
 
     @Autowired
-    public PKIAuthenticationProvider(HttpServletRequest request, ObjectMapper objectMapper) {
-        this.request = request;
-        this.objectMapper = objectMapper;
+    public PKIAuthenticationProvider(AuthTokenValidator authTokenValidator,
+            ChallengeNonceStore challengeNonceStore) {
+        this.authTokenValidator = authTokenValidator;
+        this.challengeNonceStore = challengeNonceStore;
+
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException {
-        if (!HttpMethod.POST.name().equals(request.getMethod())) {
-            throw new AuthenticationServiceException(
-                    String.format("HTTP method not supported: %s", request.getMethod()));
-        }
-        final var contentType = request.getHeader("Content-Type");
-        if (contentType == null || !contentType.startsWith("application/json")) {
-            throw new AuthenticationServiceException(
-                    String.format("Content type not supported: %s", contentType));
-        }
-        AuthToken authToken = null;
+    public Authentication authenticate(Authentication auth) throws AuthenticationException {
+        logger.info(String.format("authenticate(): %s", auth));
+        final var authentication = (PreAuthenticatedAuthenticationToken) auth;
+        final var authToken = ((AuthToken) authentication.getCredentials()).token();
+        final var authorities = List.of(GRANTED_AUTHORITY);
         try {
-            authToken = objectMapper.readValue(request.getReader(), AuthToken.class);
-        } catch (IOException e) {
-            throw new AuthenticationServiceException("Failed to deserialize JSON payload.");
+            final var nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
+            final var userCertificate = authTokenValidator.validate(authToken, nonce);
+            return PKIAuthentication.of(userCertificate, authorities);
+        } catch (Exception exception) {
+            logger.error(exception.getMessage());
+            throw new RuntimeException(exception);
         }
-        final var token = new PreAuthenticatedAuthenticationToken(null, authToken);
-        return token;
     }
 
     @Override

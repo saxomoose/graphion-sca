@@ -1,11 +1,9 @@
 package io.github.saxomoose.sca.web.config.security;
 
 import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.UserService;
 import jakarta.servlet.ServletException;
@@ -17,17 +15,15 @@ import jakarta.servlet.http.HttpSession;
 public class AuthenticationSuccessHandler
         implements org.springframework.security.web.authentication.AuthenticationSuccessHandler {
     private final HttpSession httpSession;
-    private final UserService userService;
     private final TenantService tenantService;
+    private final UserService userService;
 
     @Autowired
-    public AuthenticationSuccessHandler(
-            HttpSession httpSession,
-            UserService userService,
-            TenantService tenantService) {
+    public AuthenticationSuccessHandler(HttpSession httpSession, TenantService tenantService,
+            UserService userService) {
         this.httpSession = httpSession;
-        this.userService = userService;
         this.tenantService = tenantService;
+        this.userService = userService;
     }
 
     @Override

@@ -5,7 +5,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -25,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
@@ -37,18 +35,18 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class DocumentController {
-    private final HttpSession httpSession;
-    private final TenantService tenantService;
     private final DocumentService documentService;
+    private final HttpSession httpSession;
     private final MinIOService minIOService;
+    private final TenantService tenantService;
 
     @Autowired
-    public DocumentController(HttpSession httpSession, TenantService tenantService,
-            DocumentService documentService, MinIOService minIOService) {
-        this.httpSession = httpSession;
-        this.tenantService = tenantService;
+    public DocumentController(DocumentService documentService, HttpSession httpSession,
+            MinIOService minIOService, TenantService tenantService) {
         this.documentService = documentService;
+        this.httpSession = httpSession;
         this.minIOService = minIOService;
+        this.tenantService = tenantService;
     }
 
     // Read
@@ -79,8 +77,8 @@ public class DocumentController {
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
-                httpHeaders.setContentDisposition(
-                        ContentDisposition.attachment().filename(String.format("%s.pdf", document.filename())).build());
+                httpHeaders.setContentDisposition(ContentDisposition.attachment()
+                        .filename(String.format("%s.pdf", document.filename())).build());
             }
         }).body(inputStreamResource);
     }
@@ -114,7 +112,8 @@ public class DocumentController {
                 }
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
             } else if (part.getName().equals("filename")) {
-                rawFilename = new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                rawFilename =
+                        new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             } else if (part.getName().equals("file")) {
                 final var test = part.getSize();
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
@@ -134,24 +133,20 @@ public class DocumentController {
         minIOService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize,
                 rawFileInputStream);
         documentService.create(tenant.id(), tuple.filename(), tuple.path());
-        redirectAttributes.addFlashAttribute("notifications", List.of(
-                new Notification(
-                        Notification.Type.SUCCESS,
-                        "notification.success",
+        redirectAttributes.addFlashAttribute("notifications",
+                List.of(new Notification(Notification.Type.SUCCESS, "notification.success",
                         "documents.create.success")));
         return new RedirectView("/documents");
     }
 
     // Exception handling
-    @ExceptionHandler(value = { BusinessLogicException.class, })
+    @ExceptionHandler(value = {BusinessLogicException.class,})
     public RedirectView handle(final HttpServletRequest request,
             final BusinessLogicException businessLogicException,
             final RedirectAttributes redirectAttributes) {
         final var path = URI.create(request.getHeader("referer")).getPath();
-        redirectAttributes.addFlashAttribute("notifications", List.of(
-                new Notification(
-                        Notification.Type.ERROR,
-                        "notification.error.validation",
+        redirectAttributes.addFlashAttribute("notifications",
+                List.of(new Notification(Notification.Type.ERROR, "notification.error.validation",
                         businessLogicException.messageKey())));
         return new RedirectView(path);
     }
