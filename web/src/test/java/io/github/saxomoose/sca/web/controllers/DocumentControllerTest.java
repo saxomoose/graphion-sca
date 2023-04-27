@@ -8,10 +8,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.io.IOException;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,7 +21,6 @@ import org.springframework.mock.web.MockPart;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
@@ -48,10 +45,7 @@ public class DocumentControllerTest {
 
     @BeforeAll
     public void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         tenant = tenantRepository.select();
         user = userRepository.select();
     }
@@ -60,34 +54,33 @@ public class DocumentControllerTest {
     public void create() throws Exception {
         final var filePart = new MockPart("file", file());
         filePart.getHeaders().setContentType(MediaType.APPLICATION_PDF);
-        final var test = this.mockMvc
-                .perform(
-                        multipart("/documents").part(
-                                new MockPart("_csrf", "".getBytes()),
-                                new MockPart("fileSize", "31599".getBytes()),
-                                new MockPart("filename", "20230308-test-document".getBytes()),
-                                filePart).with(csrf())
-                                .with(user(user))
-                                .sessionAttr("tenant", tenant))
-                .andExpect(status().is3xxRedirection());
+        final var test =
+                this.mockMvc
+                        .perform(multipart("/documents")
+                                .part(new MockPart("_csrf", "".getBytes()),
+                                        new MockPart("fileSize", "31599".getBytes()),
+                                        new MockPart("filename",
+                                                "20230308-test-document".getBytes()),
+                                        filePart)
+                                .with(csrf()).with(user(user)).sessionAttr("tenant", tenant))
+                        .andExpect(status().is3xxRedirection());
     }
 
     private byte[] file() throws IOException {
-        return new ClassPathResource("minio/20230308-test-document.pdf").getInputStream().readAllBytes();
+        return new ClassPathResource("minio/20230308-test-document.pdf").getInputStream()
+                .readAllBytes();
     }
 
     @Test
     public void serveFile() throws Exception {
         final var rawFileUUID = UUID.nameUUIDFromBytes("20230308-seed-document".getBytes());
         this.mockMvc
-                .perform(
-                        get("/files/{tenantId}/{rawFileUUID}", 1, rawFileUUID)
-                                .queryParam("download", "true")
-                                .with(user(user)))
+                .perform(get("/files/{tenantId}/{rawFileUUID}", 1, rawFileUUID)
+                        .queryParam("download", "true").with(user(user)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-                .andExpect(
-                        header().string("Content-Disposition", "attachment; filename=\"20230308-seed-document.pdf\""));
+                .andExpect(header().string("Content-Disposition",
+                        "attachment; filename=\"20230308-seed-document.pdf\""));
 
         // .andExpect(content().string(containsString("Hello, World")));
     }

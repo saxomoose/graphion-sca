@@ -16,7 +16,7 @@ import io.github.saxomoose.sca.web.utils.Tuple;
 @Service
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    private static final String UPLOADED_FILES_PATH = "/files/";
+    private static final String UPLOADED_FILES_PATH = "/uploads/";
 
     private final DocumentRepository documentRepository;
 

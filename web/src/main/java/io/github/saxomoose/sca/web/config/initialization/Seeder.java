@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-
 import io.github.saxomoose.sca.web.enums.Function;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Document;
@@ -57,10 +55,7 @@ public class Seeder implements CommandLineRunner {
     private void load() {
         final var rawFileUUID = UUID.nameUUIDFromBytes("20230308-seed-document".getBytes());
         try {
-            minioService.storeFile(
-                    "graphion",
-                    String.format("/files/%s", rawFileUUID),
-                    31599L,
+            minioService.storeFile("graphion", String.format("/uploads/%s", rawFileUUID), 31599L,
                     new ClassPathResource("minio/20230308-seed-document.pdf").getInputStream());
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -70,9 +65,7 @@ public class Seeder implements CommandLineRunner {
         tenantRepository.save(tenant);
         tenant = tenantRepository.select();
 
-        var user = User.of(
-                tenant.id(),
-                environment.getProperty("seeder.adminusername"),
+        var user = User.of(tenant.id(), environment.getProperty("seeder.adminusername"),
                 environment.getProperty("seeder.adminpassword"));
         userRepository.save(user);
         user = userRepository.select();
@@ -81,28 +74,19 @@ public class Seeder implements CommandLineRunner {
         // mutableUser.setEnabled(Boolean.FALSE);
         // mutableUserRepository.save(mutableUser);
 
-        var signatory = Signatory.of(
-                tenant.id(),
-                1111111111L,
-                "FirstName",
-                "LastName",
+        var signatory = Signatory.of(tenant.id(), 1111111111L, "FirstName", "LastName",
                 "firstname.lastname@graphion.test");
         signatoryRepository.save(signatory);
         signatory = signatoryRepository.select();
 
         // signatoryRepository.delete(signatory);
 
-        var document = Document.of(
-                tenant.id(),
-                "20230308-seed-document",
-                String.format("/files/%s", rawFileUUID));
+        var document = Document.of(tenant.id(), "20230308-seed-document",
+                String.format("/uploads/%s", rawFileUUID));
         documentRepository.save(document);
         document = documentRepository.select();
 
-        var closing = Closing.of(
-                tenant.id(),
-                "seed_closing_1",
-                ZoneId.of("Europe/Brussels"),
+        var closing = Closing.of(tenant.id(), "seed_closing_1", ZoneId.of("Europe/Brussels"),
                 LocalDateTime.now());
         closing.addNaturalPersonSignatory(signatory.id(), document.id());
         closingRepository.save(closing);

@@ -7,6 +7,9 @@ import eu.webeid.security.challenge.ChallengeNonce;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * Session-backed challenge nonce store.
+ */
 @Component
 public class SessionBackedChallengeNonceStore implements ChallengeNonceStore {
     private static final String CHALLENGE_NONCE_KEY = "challenge-nonce";
