@@ -6,12 +6,14 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
 import eu.webeid.security.challenge.ChallengeNonceGenerator;
 import eu.webeid.security.challenge.ChallengeNonceGeneratorBuilder;
 import eu.webeid.security.challenge.ChallengeNonceStore;
@@ -56,16 +58,11 @@ public class PKIConfiguration {
         List<X509Certificate> caCertificates = new ArrayList<>();
         try {
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            PathMatchingResourcePatternResolver resolver =
-                    new PathMatchingResourcePatternResolver();
-            // final var test = new ClassPathResource("certs/dev/belgiumrca3.crt").getFile();
-            // final var test = String.format("%s%s%s", CERTS_RESOURCE_PATH,
-            // configurationService.activeProfile(), CERTS_GLOB_PATTERN);
-            Resource[] resources = resolver.getResources(String.format("%s%s%s",
-                    CERTS_RESOURCE_PATH, configurationService.activeProfile(), CERTS_GLOB_PATTERN));
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            Resource[] resources = resolver.getResources(
+                String.format("%s%s%s", CERTS_RESOURCE_PATH, configurationService.activeProfile(), CERTS_GLOB_PATTERN));
             for (Resource resource : resources) {
-                X509Certificate caCertificate = (X509Certificate) certFactory
-                        .generateCertificate(resource.getInputStream());
+                X509Certificate caCertificate = (X509Certificate) certFactory.generateCertificate(resource.getInputStream());
                 caCertificates.add(caCertificate);
             }
         } catch (Exception exception) {
@@ -110,7 +107,9 @@ public class PKIConfiguration {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
                     .withSiteOrigin(URI.create(configurationService.localOrigin()))
-                    .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles());
+                    .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles())
+                    // TODO: Investigate OCSP.
+                    .withoutUserCertificateRevocationCheckWithOcsp();
             // .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromTrustStore());
             if (configurationService.activeProfile().equals("dev")) {
                 // TODO: Enable support for ESTEID 2015 test certificates in development profile.

@@ -4,24 +4,25 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+
 import eu.webeid.security.certificate.CertificateData;
 
-public class PKIAuthentication extends PreAuthenticatedAuthenticationToken
-        implements Authentication {
+public class PKIAuthentication extends PreAuthenticatedAuthenticationToken implements Authentication {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthentication.class);
 
     private final String idCode;
 
-    public static Authentication of(X509Certificate userCertificate,
-            List<GrantedAuthority> authorities) throws CertificateEncodingException {
+    public static Authentication of(
+        X509Certificate userCertificate,
+        List<GrantedAuthority> authorities) throws CertificateEncodingException {
         final var principalName = getPrincipalNameFromCertificate(userCertificate);
-        final var idCode =
-                Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
+        final var idCode = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
         return new PKIAuthentication(principalName, idCode, authorities);
     }
 
@@ -32,8 +33,7 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken
         return idCode;
     }
 
-    private PKIAuthentication(String principalName, String idCode,
-            List<GrantedAuthority> authorities) {
+    private PKIAuthentication(String principalName, String idCode, List<GrantedAuthority> authorities) {
         super(principalName, idCode, authorities);
         this.idCode = idCode;
     }
@@ -46,5 +46,4 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken
             throw new RuntimeException(exception);
         }
     }
-
 }

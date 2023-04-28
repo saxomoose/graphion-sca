@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security;
+package io.github.saxomoose.sca.web.config.security.jdbc;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class AuthenticationFailureHandler
+public class JDBCAuthenticationFailureHandler
         implements org.springframework.security.web.authentication.AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,

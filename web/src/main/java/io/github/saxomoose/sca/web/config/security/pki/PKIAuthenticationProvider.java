@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
+
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
 
@@ -20,18 +22,17 @@ import eu.webeid.security.validator.AuthTokenValidator;
 @Component
 public class PKIAuthenticationProvider implements AuthenticationProvider {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationProvider.class);
-    private static final String ROLE = "ROLE_SIGNATORY";
-    private static final GrantedAuthority GRANTED_AUTHORITY = new SimpleGrantedAuthority(ROLE);
+    private static final GrantedAuthority GRANTED_AUTHORITY = new SimpleGrantedAuthority("ROLE_ADMIN");
 
     private final AuthTokenValidator authTokenValidator;
     private final ChallengeNonceStore challengeNonceStore;
 
     @Autowired
-    public PKIAuthenticationProvider(AuthTokenValidator authTokenValidator,
-            ChallengeNonceStore challengeNonceStore) {
+    public PKIAuthenticationProvider(
+        AuthTokenValidator authTokenValidator,
+        ChallengeNonceStore challengeNonceStore) {
         this.authTokenValidator = authTokenValidator;
         this.challengeNonceStore = challengeNonceStore;
-
     }
 
     @Override

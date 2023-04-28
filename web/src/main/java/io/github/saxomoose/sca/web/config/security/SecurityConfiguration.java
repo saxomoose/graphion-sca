@@ -16,43 +16,51 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.saxomoose.sca.web.config.security.jdbc.JDBCAuthenticationFailureHandler;
+import io.github.saxomoose.sca.web.config.security.jdbc.JDBCAuthenticationSuccessHandler;
 import io.github.saxomoose.sca.web.config.security.jdbc.JDBCUserDetailsService;
 import io.github.saxomoose.sca.web.config.security.pki.AuthenticationProcessingFilter;
-import io.github.saxomoose.sca.web.config.security.pki.ExcludeSessionRepositoryFilter;
+import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationFailureHandler;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
+import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
     private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final AuthenticationFailureHandler authenticationFailureHandler;
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    private final ExcludeSessionRepositoryFilter excludeSessionRepositoryFilter;
+    private final JDBCAuthenticationFailureHandler jdbcAuthenticationFailureHandler;
+    private final JDBCAuthenticationSuccessHandler jdbcAuthenticationSuccessHandler;
     private final JDBCUserDetailsService jdbcUserDetailsService;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler;
     private final PKIAuthenticationProvider pkiAuthenticationProvider;
+    private final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler;
 
     @Autowired
-    public SecurityConfiguration(AuthenticationEntryPoint authenticationEntryPoint,
-            AuthenticationFailureHandler authenticationFailureHandler,
-            AuthenticationSuccessHandler authenticationSuccessHandler,
-            ExcludeSessionRepositoryFilter excludeSessionRepositoryFilter,
-            JDBCUserDetailsService jdbcUserDetailsService, ObjectMapper objectMapper,
-            PasswordEncoder passwordEncoder, PKIAuthenticationProvider pkiAuthenticationProvider) {
+    public SecurityConfiguration(
+        AuthenticationEntryPoint authenticationEntryPoint,
+        JDBCAuthenticationFailureHandler authenticationFailureHandler,
+        JDBCAuthenticationSuccessHandler authenticationSuccessHandler,
+        JDBCUserDetailsService jdbcUserDetailsService,
+        ObjectMapper objectMapper,
+        PasswordEncoder passwordEncoder,
+        PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
+        PKIAuthenticationProvider pkiAuthenticationProvider,
+        PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler) {
         this.authenticationEntryPoint = authenticationEntryPoint;
-        this.authenticationFailureHandler = authenticationFailureHandler;
-        this.authenticationSuccessHandler = authenticationSuccessHandler;
-        this.excludeSessionRepositoryFilter = excludeSessionRepositoryFilter;
+        this.jdbcAuthenticationFailureHandler = authenticationFailureHandler;
+        this.jdbcAuthenticationSuccessHandler = authenticationSuccessHandler;
         this.jdbcUserDetailsService = jdbcUserDetailsService;
         this.objectMapper = objectMapper;
         this.passwordEncoder = passwordEncoder;
+        this.pkiAuthenticationFailureHandler = pkiAuthenticationFailureHandler;
         this.pkiAuthenticationProvider = pkiAuthenticationProvider;
+        this.pkiAuthenticationSuccessHandler = pkiAuthenticationSuccessHandler;
     }
 
     @Bean
-    AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -60,52 +68,34 @@ public class SecurityConfiguration {
     public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(pkiAuthenticationProvider)
             .userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder);
-                
-
     }
-
-    // @Bean
-    // public FilterRegistrationBean<ExcludeSessionRepositoryFilter> loggingFilter(){
-    // FilterRegistrationBean<ExcludeSessionRepositoryFilter> registrationBean = new FilterRegistrationBean<>();
-        
-    // registrationBean.setFilter(excludeSessionRepositoryFilter);
-    // registrationBean.addUrlPatterns("/pki/**");
-    // registrationBean.setOrder(1);
-        
-    // return registrationBean;    
-    // }
 
     /**
      * Spring Security uses session created by redis integration.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(AuthenticationManager authenticationManager, HttpSecurity http) throws Exception {
-        http
-            .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-            .sessionManagement((session) -> session.sessionFixation().changeSessionId()
-            .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-            // .addFilter(excludeSessionRepositoryFilter)
+        http.requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+            .sessionManagement((session) -> session
+                .sessionFixation().changeSessionId()
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .addFilterBefore(new AuthenticationProcessingFilter(
                 authenticationManager,
+                pkiAuthenticationFailureHandler,
+                pkiAuthenticationSuccessHandler,
                 objectMapper,
                 "/pki/login"), UsernamePasswordAuthenticationFilter.class)
-            // .exceptionHandling()
-            // .authenticationEntryPoint(authenticationEntryPoint).and()
-            .authorizeHttpRequests().requestMatchers("/", "/css/**", "/js/**", "/login", "/pki/**", "/svg/**", "/svg-bootstrap/**").permitAll()
+            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+                .and()
+            .authorizeHttpRequests().requestMatchers("/", "/css/**", "/js/**", "/login", "/ping", "/pki/**", "/svg/**", "/svg-bootstrap/**").permitAll()
             .anyRequest().authenticated()    
                 .and()
-            // .authorizeHttpRequests().requestMatchers("/", "/register",
-            // "/ping").permitAll()
             // Deactivate basic auth.
             // .authorizeHttpRequests().requestMatchers("/**").permitAll()
-            // .requestMatchers("/css/**", "/js/**", "/svg/**",
-            // "/svg-bootstrap/**").permitAll()
-            // .anyRequest().authenticated()
-            // .and()
             .formLogin().loginPage("/login").permitAll()
             // Redirect to closings
-            .successHandler(authenticationSuccessHandler)
-            .failureHandler(authenticationFailureHandler)
+            .successHandler(jdbcAuthenticationSuccessHandler)
+            .failureHandler(jdbcAuthenticationFailureHandler)
                 .and()
             .logout().logoutUrl("/logout")
             .permitAll().logoutSuccessUrl("/");
