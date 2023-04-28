@@ -19,8 +19,10 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthenticationEntryPoint
         implements org.springframework.security.web.AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException authException) throws IOException, ServletException {
+    public void commence(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        AuthenticationException authException) throws IOException, ServletException {
         final var flashMap = new FlashMap();
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         if (authException instanceof InsufficientAuthenticationException) {

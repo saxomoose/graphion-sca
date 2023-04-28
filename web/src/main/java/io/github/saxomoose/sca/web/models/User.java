@@ -1,7 +1,6 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -99,10 +98,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authList = new ArrayList<>();
-        authList.add(new SimpleGrantedAuthority(role.name()));
-
-        return authList;
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     public void setEnabled(Boolean enabled) {

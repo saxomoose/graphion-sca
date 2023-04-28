@@ -29,7 +29,8 @@ public class IndexController {
     }
 
     @GetMapping("/ping")
-    public ModelAndView ping() {
+    public ModelAndView ping(HttpServletRequest request) {
+        final var principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 }

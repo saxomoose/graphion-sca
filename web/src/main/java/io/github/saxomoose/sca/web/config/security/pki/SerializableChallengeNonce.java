@@ -22,7 +22,6 @@ public class SerializableChallengeNonce implements Serializable {
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         challengeNonce = new ChallengeNonce((String) in.readObject(), (ZonedDateTime) in.readObject());
-        // initialize any other necessary fields here
     }
 
     public ChallengeNonce getchallengeNonce() {
