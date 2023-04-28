@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -64,7 +63,7 @@ public class DocumentController {
     }
 
     @GetMapping(value = "/files/{tenantId}/{rawFileUUID}", produces = "application/pdf")
-    @ResponseBody
+    // @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable final Long tenantId,
             @PathVariable final String rawFileUUID, @RequestParam final Boolean download)
             throws Exception {

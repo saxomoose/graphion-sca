@@ -14,20 +14,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class PKILoginProcessingFilter extends AbstractAuthenticationProcessingFilter {
-    private static final Logger logger = LoggerFactory.getLogger(PKILoginProcessingFilter.class);
+public class AuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
+    private static final Logger logger =
+            LoggerFactory.getLogger(AuthenticationProcessingFilter.class);
 
     private final ObjectMapper objectMapper;
 
     /**
      * TODO: Look into alternative.
      */
-    public PKILoginProcessingFilter(AuthenticationManager authenticationManager,
+    public AuthenticationProcessingFilter(AuthenticationManager authenticationManager,
             ObjectMapper objectMapper, String defaultFilterProcessesUrl) {
         super(defaultFilterProcessesUrl);
         this.setAuthenticationManager(authenticationManager);
-        this.setAuthenticationSuccessHandler(new PKIAuthenticationSuccessHandler());
-        this.setAuthenticationFailureHandler(new PKIAuthenticationFailureHandler());
+        this.setAuthenticationSuccessHandler(new AuthenticationSuccessHandler());
+        this.setAuthenticationFailureHandler(new AuthenticationFailureHandler());
+        this.objectMapper = objectMapper;
     }
 
     @Override

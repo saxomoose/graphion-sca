@@ -20,18 +20,18 @@ import eu.webeid.security.validator.AuthTokenValidatorBuilder;
 import io.github.saxomoose.sca.web.config.ConfigurationService;
 
 @Configuration
-public class ValidationConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(ValidationConfiguration.class);
+public class PKIConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(PKIConfiguration.class);
 
     private static final long CHALLENGE_NONCE_TTL_MINUTES = 5;
-    private static final String CERTS_RESOURCE_PATH = "/certs/";
-    private static final String CERTS_GLOB_PATTERN = "/*.cer";
+    private static final String CERTS_RESOURCE_PATH = "classpath*:certs/";
+    private static final String CERTS_GLOB_PATTERN = "/*.crt";
     private static final String TRUSTED_CERTIFICATES_JKS = "trusted_certificates.jks";
 
     private final ConfigurationService configurationService;
     private final ChallengeNonceStore challengeNonceStore;
 
-    public ValidationConfiguration(ConfigurationService configurationService,
+    public PKIConfiguration(ConfigurationService configurationService,
             ChallengeNonceStore challengeNonceStore) {
         this.configurationService = configurationService;
         this.challengeNonceStore = challengeNonceStore;
@@ -58,8 +58,11 @@ public class ValidationConfiguration {
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             PathMatchingResourcePatternResolver resolver =
                     new PathMatchingResourcePatternResolver();
-            Resource[] resources = resolver.getResources(CERTS_RESOURCE_PATH
-                    + configurationService.activeProfile() + CERTS_GLOB_PATTERN);
+            // final var test = new ClassPathResource("certs/dev/belgiumrca3.crt").getFile();
+            // final var test = String.format("%s%s%s", CERTS_RESOURCE_PATH,
+            // configurationService.activeProfile(), CERTS_GLOB_PATTERN);
+            Resource[] resources = resolver.getResources(String.format("%s%s%s",
+                    CERTS_RESOURCE_PATH, configurationService.activeProfile(), CERTS_GLOB_PATTERN));
             for (Resource resource : resources) {
                 X509Certificate caCertificate = (X509Certificate) certFactory
                         .generateCertificate(resource.getInputStream());

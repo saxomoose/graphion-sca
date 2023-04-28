@@ -13,10 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.github.saxomoose.sca.web.config.security.jdbc.JDBCUserDetailsService;
+import io.github.saxomoose.sca.web.config.security.pki.AuthenticationProcessingFilter;
+import io.github.saxomoose.sca.web.config.security.pki.ExcludeSessionRepositoryFilter;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
-import io.github.saxomoose.sca.web.config.security.pki.PKILoginProcessingFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,6 +27,7 @@ public class SecurityConfiguration {
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AuthenticationFailureHandler authenticationFailureHandler;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final ExcludeSessionRepositoryFilter excludeSessionRepositoryFilter;
     private final JDBCUserDetailsService jdbcUserDetailsService;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
@@ -33,11 +37,13 @@ public class SecurityConfiguration {
     public SecurityConfiguration(AuthenticationEntryPoint authenticationEntryPoint,
             AuthenticationFailureHandler authenticationFailureHandler,
             AuthenticationSuccessHandler authenticationSuccessHandler,
+            ExcludeSessionRepositoryFilter excludeSessionRepositoryFilter,
             JDBCUserDetailsService jdbcUserDetailsService, ObjectMapper objectMapper,
             PasswordEncoder passwordEncoder, PKIAuthenticationProvider pkiAuthenticationProvider) {
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationFailureHandler = authenticationFailureHandler;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
+        this.excludeSessionRepositoryFilter = excludeSessionRepositoryFilter;
         this.jdbcUserDetailsService = jdbcUserDetailsService;
         this.objectMapper = objectMapper;
         this.passwordEncoder = passwordEncoder;
@@ -52,34 +58,57 @@ public class SecurityConfiguration {
 
     @Autowired
     public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder).and()
-                .authenticationProvider(pkiAuthenticationProvider);
+        auth.authenticationProvider(pkiAuthenticationProvider)
+            .userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder);
+                
 
     }
+
+    // @Bean
+    // public FilterRegistrationBean<ExcludeSessionRepositoryFilter> loggingFilter(){
+    // FilterRegistrationBean<ExcludeSessionRepositoryFilter> registrationBean = new FilterRegistrationBean<>();
+        
+    // registrationBean.setFilter(excludeSessionRepositoryFilter);
+    // registrationBean.addUrlPatterns("/pki/**");
+    // registrationBean.setOrder(1);
+        
+    // return registrationBean;    
+    // }
 
     /**
      * Spring Security uses session created by redis integration.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(AuthenticationManager authenticationManager,
-            HttpSecurity http) throws Exception {
-        http.addFilterBefore(
-                new PKILoginProcessingFilter(authenticationManager, objectMapper, null),
-                UsernamePasswordAuthenticationFilter.class)
-                // .exceptionHandling()
-                // .authenticationEntryPoint(authenticationEntryPoint).and()
-                .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-                .sessionManagement((session) -> session.sessionFixation().changeSessionId()
-                        .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-                .authorizeHttpRequests().requestMatchers("/", "/register", "/ping").permitAll()
-                // Deactivate basic auth.
-                // .requestMatchers("/**").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**").permitAll()
-                .anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
-                // Redirect to closings
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler).and().logout().logoutUrl("/logout")
-                .permitAll().logoutSuccessUrl("/");
+    public SecurityFilterChain securityFilterChain(AuthenticationManager authenticationManager, HttpSecurity http) throws Exception {
+        http
+            .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+            .sessionManagement((session) -> session.sessionFixation().changeSessionId()
+            .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+            // .addFilter(excludeSessionRepositoryFilter)
+            .addFilterBefore(new AuthenticationProcessingFilter(
+                authenticationManager,
+                objectMapper,
+                "/pki/login"), UsernamePasswordAuthenticationFilter.class)
+            // .exceptionHandling()
+            // .authenticationEntryPoint(authenticationEntryPoint).and()
+            .authorizeHttpRequests().requestMatchers("/", "/css/**", "/js/**", "/login", "/pki/**", "/svg/**", "/svg-bootstrap/**").permitAll()
+            .anyRequest().authenticated()    
+                .and()
+            // .authorizeHttpRequests().requestMatchers("/", "/register",
+            // "/ping").permitAll()
+            // Deactivate basic auth.
+            // .authorizeHttpRequests().requestMatchers("/**").permitAll()
+            // .requestMatchers("/css/**", "/js/**", "/svg/**",
+            // "/svg-bootstrap/**").permitAll()
+            // .anyRequest().authenticated()
+            // .and()
+            .formLogin().loginPage("/login").permitAll()
+            // Redirect to closings
+            .successHandler(authenticationSuccessHandler)
+            .failureHandler(authenticationFailureHandler)
+                .and()
+            .logout().logoutUrl("/logout")
+            .permitAll().logoutSuccessUrl("/");
         return http.build();
     }
 }

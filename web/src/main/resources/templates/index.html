@@ -31,13 +31,13 @@
                 const challengeResponse = await fetch("/pki/challenge", {
                     method: "GET",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Accept": "application/json"
                     }
                 });
                 await webeiderrors.checkHttpError(challengeResponse);
                 const { nonce } = await challengeResponse.json();
                 const authToken = await webeid.authenticate(nonce, "en");
-                const authTokenResponse = await fetch("/auth/login", {
+                const authTokenResponse = await fetch("/pki/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
