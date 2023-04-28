@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.config.security.pki;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import eu.webeid.security.challenge.ChallengeNonce;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import jakarta.servlet.http.HttpSession;
@@ -23,13 +24,13 @@ public class SessionBackedChallengeNonceStore implements ChallengeNonceStore {
 
     @Override
     public void put(ChallengeNonce challengeNonce) {
-        currentSession().setAttribute(CHALLENGE_NONCE_KEY, challengeNonce);
+        final var serializableChallengeNonce = new SerializableChallengeNonce(challengeNonce);
+        currentSession().setAttribute(CHALLENGE_NONCE_KEY, serializableChallengeNonce);
     }
 
     @Override
     public ChallengeNonce getAndRemoveImpl() {
-        final var challengeNonce =
-                (ChallengeNonce) currentSession().getAttribute(CHALLENGE_NONCE_KEY);
+        final var challengeNonce = ((SerializableChallengeNonce) currentSession().getAttribute(CHALLENGE_NONCE_KEY)).getchallengeNonce();
         currentSession().removeAttribute(CHALLENGE_NONCE_KEY);
         return challengeNonce;
     }
