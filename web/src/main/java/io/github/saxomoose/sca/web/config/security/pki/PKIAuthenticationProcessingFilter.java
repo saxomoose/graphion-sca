@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,30 +18,35 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class AuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationProcessingFilter.class);
+public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
+    private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationProcessingFilter.class);
 
     private final ObjectMapper objectMapper;
 
     /**
      * TODO: Look into alternative.
      */
-    public AuthenticationProcessingFilter(
-        AuthenticationManager authenticationManager,
-        PKIAuthenticationFailureHandler authenticationFailureHandler,
-        PKIAuthenticationSuccessHandler authenticationSuccessHandler,
-        ObjectMapper objectMapper, 
-        String defaultFilterProcessesUrl) {
+    public PKIAuthenticationProcessingFilter(
+        final AuthenticationManager authenticationManager,
+        final PKIAuthenticationFailureHandler authenticationFailureHandler,
+        final PKIAuthenticationSuccessHandler authenticationSuccessHandler,
+        final ObjectMapper objectMapper, 
+        final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
+        final String defaultFilterProcessesUrl) 
+    {
         super(defaultFilterProcessesUrl);
         this.setAuthenticationManager(authenticationManager);
         this.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         this.setAuthenticationFailureHandler(authenticationFailureHandler);
+        this.setSecurityContextRepository(httpSessionSecurityContextRepository);
         this.objectMapper = objectMapper;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException, IOException, ServletException {
+        throws AuthenticationException, IOException, ServletException 
+    {
+
         if (!HttpMethod.POST.name().equals(request.getMethod())) {
             logger.error("HTTP method not supported: %s", request.getMethod());
             throw new RuntimeException();
@@ -50,14 +56,28 @@ public class AuthenticationProcessingFilter extends AbstractAuthenticationProces
             logger.error("Content type not supported: %s", contentType);
             throw new RuntimeException();
         }
-        AuthToken authToken = null;
-        try {
-            authToken = objectMapper.readValue(request.getReader(), AuthToken.class);
-        } catch (Exception exception) {
-            logger.error(exception.getMessage());
-            throw new RuntimeException();
-        }
+        AuthToken authToken = objectMapper.readValue(request.getReader(), AuthToken.class);
         final var token = new PreAuthenticatedAuthenticationToken(null, authToken);
         return getAuthenticationManager().authenticate(token);
     }
+
+    // TODO: override successfulAuthentication
+
+    // @Override
+    // public void successfulAuthentication(
+    //     HttpServletRequest request,
+    //     HttpServletResponse response,
+    //     FilterChain chain,
+    //     Authentication authResult) throws IOException, ServletException 
+    // {
+    //     final var context = super.securityContextHolderStrategy.createEmptyContext();
+    //     context.setAuthentication(authResult);
+    //     this.securityContextHolderStrategy.setContext(context);
+    //     this.securityContextRepository.saveContext(context, request, response);
+    //     if (this.logger.isDebugEnabled()) {
+    //         this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
+    //     }
+    //     this.successHandler.onAuthenticationSuccess(request, response, authResult);
+    // }       
+
 }
