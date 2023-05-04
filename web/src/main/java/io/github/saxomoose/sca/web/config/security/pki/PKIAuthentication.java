@@ -13,34 +13,36 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 import eu.webeid.security.certificate.CertificateData;
 
-public class PKIAuthentication extends PreAuthenticatedAuthenticationToken implements Authentication {
+public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthentication.class);
 
     private final String idCode;
 
-    public static Authentication of(
-        X509Certificate userCertificate,
-        List<GrantedAuthority> authorities) throws CertificateEncodingException {
+    public static Authentication of(X509Certificate userCertificate, List<GrantedAuthority> authorities) throws CertificateEncodingException 
+    {
         final var principalName = getPrincipalNameFromCertificate(userCertificate);
         final var idCode = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
         return new PKIAuthentication(principalName, idCode, authorities);
     }
 
-    /**
-     * TODO: should be handled differently. Avoid shared property (volatile, ...)
-     */
-    public String idCode() {
+    public String idCode() 
+    {
         return idCode;
     }
 
-    private PKIAuthentication(String principalName, String idCode, List<GrantedAuthority> authorities) {
+    private PKIAuthentication(String principalName, String idCode, List<GrantedAuthority> authorities) 
+    {
         super(principalName, idCode, authorities);
         this.idCode = idCode;
     }
 
-    private static String getPrincipalNameFromCertificate(X509Certificate userCertificate) {
+    private static String getPrincipalNameFromCertificate(X509Certificate userCertificate) 
+    {
         try {
-            return Objects.requireNonNull(CertificateData.getSubjectCN(userCertificate));
+            return String.format(
+                "%s %s", 
+                Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate)), 
+                Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate)));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);

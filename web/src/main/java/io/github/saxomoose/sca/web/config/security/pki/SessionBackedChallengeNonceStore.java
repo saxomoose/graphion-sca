@@ -18,24 +18,28 @@ public class SessionBackedChallengeNonceStore implements ChallengeNonceStore {
     private final ObjectFactory<HttpSession> httpSessionFactory;
 
     @Autowired
-    public SessionBackedChallengeNonceStore(ObjectFactory<HttpSession> httpSessionFactory) {
+    public SessionBackedChallengeNonceStore(ObjectFactory<HttpSession> httpSessionFactory) 
+    {
         this.httpSessionFactory = httpSessionFactory;
     }
 
     @Override
-    public void put(ChallengeNonce challengeNonce) {
+    public void put(ChallengeNonce challengeNonce) 
+    {
         final var serializableChallengeNonce = new SerializableChallengeNonce(challengeNonce);
         currentSession().setAttribute(CHALLENGE_NONCE_KEY, serializableChallengeNonce);
     }
 
     @Override
-    public ChallengeNonce getAndRemoveImpl() {
+    public ChallengeNonce getAndRemoveImpl() 
+    {
         final var challengeNonce = ((SerializableChallengeNonce) currentSession().getAttribute(CHALLENGE_NONCE_KEY)).getchallengeNonce();
         currentSession().removeAttribute(CHALLENGE_NONCE_KEY);
         return challengeNonce;
     }
 
-    private HttpSession currentSession() {
+    private HttpSession currentSession() 
+    {
         return httpSessionFactory.getObject();
     }
 }

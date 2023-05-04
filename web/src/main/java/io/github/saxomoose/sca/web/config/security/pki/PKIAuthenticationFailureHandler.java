@@ -14,12 +14,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class PKIAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
-    private static final Logger logger =
-            LoggerFactory.getLogger(PKIAuthenticationFailureHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationFailureHandler.class);
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException exception) throws IOException, ServletException {
+        AuthenticationException exception) throws IOException, ServletException 
+    {
         logger.error(exception.getMessage());
         final var session = request.getSession(false);
         if (session != null) {

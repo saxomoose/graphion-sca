@@ -33,4 +33,11 @@ public class IndexController {
         final var principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
+
+    @GetMapping("/pki/ping")
+    public ModelAndView pkiPing(HttpServletRequest request) {
+        final var principal = request.getUserPrincipal();
+        return new ModelAndView("ping");
+    }
+
 }

@@ -40,7 +40,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.session:spring-session-data-redis")
+    // implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     implementation(libs.jaxbcore)
     implementation(libs.digidoc4j)
@@ -69,9 +69,6 @@ tasks.bootRun {
 // test
 tasks.test {
     enabled = false
-    systemProperty("spring.profiles.active", "test")
-    useJUnitPlatform()
-//    dependsOn(tasks.findByName("flywayCleanMigrateTest"))
 }
 
 tasks.register<Test>("targetTest") {
@@ -85,7 +82,6 @@ tasks.register<Test>("targetTest") {
     jvmArgs(
             // Colored output in console.
             "-Dspring.output.ansi.enabled=ALWAYS",
-//            "-Djava.net.preferIPv4Stack=true",
             "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=0.0.0.0:5005"
     )
     systemProperty("spring.profiles.active", "test")

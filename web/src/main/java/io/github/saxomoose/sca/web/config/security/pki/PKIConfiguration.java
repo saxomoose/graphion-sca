@@ -43,7 +43,8 @@ public class PKIConfiguration {
      * Challenge nonce generator.
      */
     @Bean
-    public ChallengeNonceGenerator generator() {
+    public ChallengeNonceGenerator generator() 
+    {
         return new ChallengeNonceGeneratorBuilder()
                 .withNonceTtl(Duration.ofMinutes(CHALLENGE_NONCE_TTL_MINUTES))
                 .withChallengeNonceStore(challengeNonceStore).build();
@@ -54,7 +55,8 @@ public class PKIConfiguration {
      * authentication and OCSP responder certificates.
      */
     @Bean
-    public X509Certificate[] loadTrustedCACertificatesFromCerFiles() {
+    public X509Certificate[] loadTrustedCACertificatesFromCerFiles() 
+    {
         List<X509Certificate> caCertificates = new ArrayList<>();
         try {
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
@@ -103,7 +105,8 @@ public class PKIConfiguration {
      * Authentication token validator.
      */
     @Bean
-    public AuthTokenValidator validator() {
+    public AuthTokenValidator validator() 
+    {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
                     .withSiteOrigin(URI.create(configurationService.localOrigin()))

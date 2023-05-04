@@ -1,17 +1,21 @@
 package io.github.saxomoose.sca.web.config.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,27 +23,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.config.security.jdbc.JDBCAuthenticationFailureHandler;
 import io.github.saxomoose.sca.web.config.security.jdbc.JDBCAuthenticationSuccessHandler;
 import io.github.saxomoose.sca.web.config.security.jdbc.JDBCUserDetailsService;
-import io.github.saxomoose.sca.web.config.security.pki.AuthenticationProcessingFilter;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationFailureHandler;
+import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProcessingFilter;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationSuccessHandler;
 
-@Configuration
+@Configuration 
 @EnableWebSecurity
 public class SecurityConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
+
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final DaoAuthenticationProvider jdbcAuthenticationProvider;
     private final JDBCAuthenticationFailureHandler jdbcAuthenticationFailureHandler;
     private final JDBCAuthenticationSuccessHandler jdbcAuthenticationSuccessHandler;
-    private final JDBCUserDetailsService jdbcUserDetailsService;
     private final ObjectMapper objectMapper;
-    private final PasswordEncoder passwordEncoder;
     private final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler;
     private final PKIAuthenticationProvider pkiAuthenticationProvider;
     private final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler;
 
     @Autowired
-    public SecurityConfiguration(
+    public SecurityConfiguration (
         AuthenticationEntryPoint authenticationEntryPoint,
+        AuthenticationManagerBuilder authenticationManagerBuilder,
         JDBCAuthenticationFailureHandler authenticationFailureHandler,
         JDBCAuthenticationSuccessHandler authenticationSuccessHandler,
         JDBCUserDetailsService jdbcUserDetailsService,
@@ -47,16 +53,17 @@ public class SecurityConfiguration {
         PasswordEncoder passwordEncoder,
         PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
         PKIAuthenticationProvider pkiAuthenticationProvider,
-        PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler) {
+        PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler) throws Exception
+    {
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.jdbcAuthenticationFailureHandler = authenticationFailureHandler;
         this.jdbcAuthenticationSuccessHandler = authenticationSuccessHandler;
-        this.jdbcUserDetailsService = jdbcUserDetailsService;
         this.objectMapper = objectMapper;
-        this.passwordEncoder = passwordEncoder;
         this.pkiAuthenticationFailureHandler = pkiAuthenticationFailureHandler;
         this.pkiAuthenticationProvider = pkiAuthenticationProvider;
         this.pkiAuthenticationSuccessHandler = pkiAuthenticationSuccessHandler;
+        this.jdbcAuthenticationProvider = new DaoAuthenticationProvider(passwordEncoder);
+        this.jdbcAuthenticationProvider.setUserDetailsService(jdbcUserDetailsService);
     }
 
     @Bean
@@ -64,41 +71,63 @@ public class SecurityConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Autowired
-    public void registerProvider(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(pkiAuthenticationProvider)
-            .userDetailsService(jdbcUserDetailsService).passwordEncoder(passwordEncoder);
+    @Bean
+    @Order(1)
+    public SecurityFilterChain pkiSecurityFilterChain( 
+        AuthenticationManager authenticationManager,
+        HttpSecurity httpSecurity) throws Exception
+    {
+        httpSecurity
+            .securityMatcher("/pki/**")
+            .authenticationProvider(pkiAuthenticationProvider)
+            .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+            .addFilterBefore(new PKIAuthenticationProcessingFilter(
+                authenticationManager,
+                pkiAuthenticationFailureHandler,
+                pkiAuthenticationSuccessHandler,
+                objectMapper,
+                new HttpSessionSecurityContextRepository(),
+                "/pki/login"
+                ), UsernamePasswordAuthenticationFilter.class)
+            .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/pki/challenge").permitAll()
+                .anyRequest().authenticated());
+            // .logout()
+            //     .logoutUrl("/logout")
+            //     .deleteCookies("JSESSIONID")
+            //     .logoutSuccessUrl("/");
+        return httpSecurity.build();
     }
 
     /**
      * Spring Security uses session created by redis integration.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(AuthenticationManager authenticationManager, HttpSecurity http) throws Exception {
-        http.requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-            .sessionManagement((session) -> session
-                .sessionFixation().changeSessionId()
-                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
-            .addFilterBefore(new AuthenticationProcessingFilter(
-                authenticationManager,
-                pkiAuthenticationFailureHandler,
-                pkiAuthenticationSuccessHandler,
-                objectMapper,
-                "/pki/login"), UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-            .authorizeHttpRequests().requestMatchers("/", "/css/**", "/js/**", "/login", "/ping", "/pki/**", "/svg/**", "/svg-bootstrap/**").permitAll()
-            .anyRequest().authenticated()    
-                .and()
+    public SecurityFilterChain formSecurityFilterChain(HttpSecurity httpSecurity) throws Exception 
+    {
+        httpSecurity
+            .authenticationProvider(jdbcAuthenticationProvider)
+            .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+            .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/", "/css/**", "/js/**", "/login", "/logout", "/ping", "/svg/**", "/svg-bootstrap/**").permitAll()
+                .anyRequest().authenticated())
+//            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+//                .and()
+            // .sessionManagement((session) -> session
+            //         .sessionFixation().changeSessionId()
+            //         .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             // Deactivate basic auth.
             // .authorizeHttpRequests().requestMatchers("/**").permitAll()
-            .formLogin().loginPage("/login").permitAll()
+            .formLogin().loginPage("/login")
             // Redirect to closings
-            .successHandler(jdbcAuthenticationSuccessHandler)
-            .failureHandler(jdbcAuthenticationFailureHandler)
+                .successHandler(jdbcAuthenticationSuccessHandler)
+                .failureHandler(jdbcAuthenticationFailureHandler)
                 .and()
-            .logout().logoutUrl("/logout")
-            .permitAll().logoutSuccessUrl("/");
-        return http.build();
+            .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/");
+        return httpSecurity.build();
     }
+
+
 }

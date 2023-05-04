@@ -1,7 +1,7 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
-import java.util.List;
-
+import eu.webeid.security.challenge.ChallengeNonceStore;
+import eu.webeid.security.validator.AuthTokenValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import eu.webeid.security.challenge.ChallengeNonceStore;
-import eu.webeid.security.validator.AuthTokenValidator;
+import java.util.List;
 
 /**
  * Custom authentication provider that uses the authentication token validator for authentication.
@@ -22,7 +21,7 @@ import eu.webeid.security.validator.AuthTokenValidator;
 @Component
 public class PKIAuthenticationProvider implements AuthenticationProvider {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationProvider.class);
-    private static final GrantedAuthority GRANTED_AUTHORITY = new SimpleGrantedAuthority("ROLE_ADMIN");
+    private static final GrantedAuthority GRANTED_AUTHORITY = new SimpleGrantedAuthority("ROLE_SIGNATORY");
 
     private final AuthTokenValidator authTokenValidator;
     private final ChallengeNonceStore challengeNonceStore;
@@ -30,13 +29,15 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     public PKIAuthenticationProvider(
         AuthTokenValidator authTokenValidator,
-        ChallengeNonceStore challengeNonceStore) {
+        ChallengeNonceStore challengeNonceStore) 
+    {
         this.authTokenValidator = authTokenValidator;
         this.challengeNonceStore = challengeNonceStore;
     }
 
     @Override
-    public Authentication authenticate(Authentication auth) throws AuthenticationException {
+    public Authentication authenticate(Authentication auth) throws AuthenticationException 
+    {
         logger.info(String.format("authenticate(): %s", auth));
         final var authentication = (PreAuthenticatedAuthenticationToken) auth;
         final var authToken = ((AuthToken) authentication.getCredentials()).token();
@@ -52,7 +53,8 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public boolean supports(Class<?> authentication) {
+    public boolean supports(Class<?> authentication) 
+    {
         return PreAuthenticatedAuthenticationToken.class.equals(authentication);
     }
 
