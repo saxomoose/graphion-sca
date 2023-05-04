@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -81,6 +82,9 @@ public class SecurityConfiguration {
             .securityMatcher("/pki/**")
             .authenticationProvider(pkiAuthenticationProvider)
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+            .sessionManagement((session) -> session
+                .sessionFixation().changeSessionId()
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .addFilterBefore(new PKIAuthenticationProcessingFilter(
                 authenticationManager,
                 pkiAuthenticationFailureHandler,
@@ -92,10 +96,6 @@ public class SecurityConfiguration {
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/pki/challenge").permitAll()
                 .anyRequest().authenticated());
-            // .logout()
-            //     .logoutUrl("/logout")
-            //     .deleteCookies("JSESSIONID")
-            //     .logoutSuccessUrl("/");
         return httpSecurity.build();
     }
 
@@ -103,19 +103,19 @@ public class SecurityConfiguration {
      * Spring Security uses session created by redis integration.
      */
     @Bean
-    public SecurityFilterChain formSecurityFilterChain(HttpSecurity httpSecurity) throws Exception 
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception 
     {
         httpSecurity
             .authenticationProvider(jdbcAuthenticationProvider)
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
+           .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+               .and()
+            .sessionManagement((session) -> session
+                .sessionFixation().changeSessionId()
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/css/**", "/js/**", "/login", "/logout", "/ping", "/svg/**", "/svg-bootstrap/**").permitAll()
-                .anyRequest().authenticated())
-//            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-//                .and()
-            // .sessionManagement((session) -> session
-            //         .sessionFixation().changeSessionId()
-            //         .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+               .requestMatchers("/", "/css/**", "/js/**", "/login", "/logout", "/ping", "/svg/**", "/svg-bootstrap/**").permitAll()
+               .anyRequest().authenticated())
             // Deactivate basic auth.
             // .authorizeHttpRequests().requestMatchers("/**").permitAll()
             .formLogin().loginPage("/login")
