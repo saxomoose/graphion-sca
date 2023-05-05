@@ -11,19 +11,23 @@ public class TenantService {
     private final TenantRepository tenantRepository;
 
     @Autowired
-    public TenantService(TenantRepository tenantRepository) {
+    public TenantService(TenantRepository tenantRepository) 
+    {
         this.tenantRepository = tenantRepository;
     }
 
-    public Tenant selectByTenantId(Long id) {
+    public Tenant selectByTenantId(Long id) 
+    {
         return tenantRepository.findById(id).orElseThrow();
     }
 
-    public Tenant selectByUserId(Long id) {
+    public Tenant selectByUserId(Long id) 
+    {
         return tenantRepository.select(id);
     }
 
-    public Tenant select(String username) {
+    public Tenant select(String username) 
+    {
         return tenantRepository.select(username);
     }
 }

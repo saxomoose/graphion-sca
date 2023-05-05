@@ -1,18 +1,16 @@
 package io.github.saxomoose.sca.web.config.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,51 +30,32 @@ import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationSuccessH
 @Configuration 
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
-
     private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final DaoAuthenticationProvider jdbcAuthenticationProvider;
-    private final JDBCAuthenticationFailureHandler jdbcAuthenticationFailureHandler;
-    private final JDBCAuthenticationSuccessHandler jdbcAuthenticationSuccessHandler;
-    private final ObjectMapper objectMapper;
-    private final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler;
-    private final PKIAuthenticationProvider pkiAuthenticationProvider;
-    private final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler;
 
     @Autowired
-    public SecurityConfiguration (
-        AuthenticationEntryPoint authenticationEntryPoint,
-        AuthenticationManagerBuilder authenticationManagerBuilder,
-        JDBCAuthenticationFailureHandler authenticationFailureHandler,
-        JDBCAuthenticationSuccessHandler authenticationSuccessHandler,
-        JDBCUserDetailsService jdbcUserDetailsService,
-        ObjectMapper objectMapper,
-        PasswordEncoder passwordEncoder,
-        PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
-        PKIAuthenticationProvider pkiAuthenticationProvider,
-        PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler) throws Exception
-    {
+    public SecurityConfiguration (AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
-        this.jdbcAuthenticationFailureHandler = authenticationFailureHandler;
-        this.jdbcAuthenticationSuccessHandler = authenticationSuccessHandler;
-        this.objectMapper = objectMapper;
-        this.pkiAuthenticationFailureHandler = pkiAuthenticationFailureHandler;
-        this.pkiAuthenticationProvider = pkiAuthenticationProvider;
-        this.pkiAuthenticationSuccessHandler = pkiAuthenticationSuccessHandler;
-        this.jdbcAuthenticationProvider = new DaoAuthenticationProvider(passwordEncoder);
-        this.jdbcAuthenticationProvider.setUserDetailsService(jdbcUserDetailsService);
     }
 
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     @Order(1)
     public SecurityFilterChain pkiSecurityFilterChain( 
-        AuthenticationManager authenticationManager,
-        HttpSecurity httpSecurity) throws Exception
+        final AuthenticationManager authenticationManager,
+        final ObjectMapper objectMapper,
+        final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
+        final PKIAuthenticationProvider pkiAuthenticationProvider,
+        final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler,
+        final HttpSecurity httpSecurity) throws Exception
     {
         httpSecurity
             .securityMatcher("/pki/**")
@@ -103,18 +82,27 @@ public class SecurityConfiguration {
      * Spring Security uses session created by redis integration.
      */
     @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity httpSecurity) throws Exception 
+    public SecurityFilterChain defaultSecurityFilterChain(
+        final HttpSecurity httpSecurity,
+        final JDBCAuthenticationFailureHandler jdbcAuthenticationFailureHandler,
+        final JDBCAuthenticationSuccessHandler jdbcAuthenticationSuccessHandler,
+        final JDBCUserDetailsService jdbcUserDetailsService,
+        final PasswordEncoder passwordEncoder) throws Exception 
     {
+        final var jdbcAuthenticationProvider = new DaoAuthenticationProvider(passwordEncoder);
+        jdbcAuthenticationProvider.setUserDetailsService(jdbcUserDetailsService);
         httpSecurity
             .authenticationProvider(jdbcAuthenticationProvider)
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-           .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                .and()
             .sessionManagement((session) -> session
                 .sessionFixation().changeSessionId()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .authorizeHttpRequests((requests) -> requests
-               .requestMatchers("/", "/css/**", "/js/**", "/login", "/logout", "/ping", "/svg/**", "/svg-bootstrap/**").permitAll()
+               .requestMatchers(
+                    "/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**",
+                    "/", "/login", "/logout", "/ping").permitAll()
                .anyRequest().authenticated())
             // Deactivate basic auth.
             // .authorizeHttpRequests().requestMatchers("/**").permitAll()
@@ -128,6 +116,4 @@ public class SecurityConfiguration {
                 .logoutSuccessUrl("/");
         return httpSecurity.build();
     }
-
-
 }

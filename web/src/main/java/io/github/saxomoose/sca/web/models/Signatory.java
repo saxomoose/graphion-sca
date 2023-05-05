@@ -40,7 +40,8 @@ public class Signatory {
             String firstName,
             String lastName,
             String email) {
-        return new Signatory(tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
+        return new Signatory(
+            tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
     }
 
     public Signatory(

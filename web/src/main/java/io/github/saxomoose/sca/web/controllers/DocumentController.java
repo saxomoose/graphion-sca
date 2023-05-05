@@ -42,8 +42,12 @@ public class DocumentController {
     private final TenantService tenantService;
 
     @Autowired
-    public DocumentController(DocumentService documentService, HttpSession httpSession,
-            MinIOService minIOService, TenantService tenantService) {
+    public DocumentController(
+        DocumentService documentService,
+        HttpSession httpSession,
+        MinIOService minIOService,
+        TenantService tenantService) 
+    {
         this.documentService = documentService;
         this.httpSession = httpSession;
         this.minIOService = minIOService;
@@ -52,7 +56,8 @@ public class DocumentController {
 
     // Read
     @GetMapping("/documents")
-    public ModelAndView index(final HttpServletRequest request) {
+    public ModelAndView index(final HttpServletRequest request) 
+    {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var documents = documentService.select(tenantId);
         final var modelAndView = new ModelAndView("documents/index");
@@ -66,9 +71,11 @@ public class DocumentController {
 
     @GetMapping(value = "/files/{tenantId}/{rawFileUUID}", produces = "application/pdf")
     // @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable final Long tenantId,
-            @PathVariable final String rawFileUUID, @RequestParam final Boolean download)
-            throws Exception {
+    public ResponseEntity<Resource> serveFile(
+        @PathVariable final Long tenantId,
+        @PathVariable final String rawFileUUID,
+        @RequestParam final Boolean download) throws Exception 
+    {
         final var path = documentService.convertToValidArgs(rawFileUUID);
         // TODO validate tenantId (uuid)
         final var tenant = tenantService.selectByTenantId(tenantId);
@@ -78,26 +85,31 @@ public class DocumentController {
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
-                httpHeaders.setContentDisposition(ContentDisposition.attachment()
-                        .filename(String.format("%s.pdf", document.filename())).build());
+                httpHeaders
+                    .setContentDisposition(ContentDisposition.attachment()
+                    .filename(String.format("%s.pdf", document.filename())).build());
             }
         }).body(inputStreamResource);
     }
 
     // Create
     @GetMapping("/documents/create")
-    public ModelAndView create(final HttpServletRequest request) {
+    public ModelAndView create(final HttpServletRequest request) 
+    {
         final var modelAndView = new ModelAndView("documents/create");
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
-            modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
+            modelAndView.addObject(
+                "notifications", inputFlashMap.get("notifications"));
         }
         return modelAndView;
     }
 
     @PostMapping(value = "/documents", consumes = "multipart/form-data")
-    public RedirectView store(final HttpServletRequest request,
-            final RedirectAttributes redirectAttributes) throws Exception {
+    public RedirectView store(
+        final HttpServletRequest request,
+        final RedirectAttributes redirectAttributes) throws Exception 
+    {
         final var parts = request.getParts();
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -116,7 +128,6 @@ public class DocumentController {
                 rawFilename =
                         new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             } else if (part.getName().equals("file")) {
-                final var test = part.getSize();
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
                     throw new BusinessLogicException("document.file.unsupportedfileformat");
                 } else if (part.getSize() != clientSideFileSize) {
@@ -134,21 +145,25 @@ public class DocumentController {
         minIOService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize,
                 rawFileInputStream);
         documentService.create(tenant.id(), tuple.filename(), tuple.path());
-        redirectAttributes.addFlashAttribute("notifications",
-                List.of(new Notification(Notification.Type.SUCCESS, "notification.success",
-                        "documents.create.success")));
+        redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
+            Notification.Type.SUCCESS, 
+            "notification.success",
+            "documents.create.success")));
         return new RedirectView("/documents");
     }
 
     // Exception handling
     @ExceptionHandler(value = {BusinessLogicException.class,})
-    public RedirectView handle(final HttpServletRequest request,
-            final BusinessLogicException businessLogicException,
-            final RedirectAttributes redirectAttributes) {
+    public RedirectView handle(
+        final HttpServletRequest request,
+        final BusinessLogicException businessLogicException,
+        final RedirectAttributes redirectAttributes) 
+    {
         final var path = URI.create(request.getHeader("referer")).getPath();
-        redirectAttributes.addFlashAttribute("notifications",
-                List.of(new Notification(Notification.Type.ERROR, "notification.error.validation",
-                        businessLogicException.messageKey())));
+        redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
+            Notification.Type.ERROR,
+            "notification.error.validation",
+            businessLogicException.messageKey())));
         return new RedirectView(path);
     }
 }

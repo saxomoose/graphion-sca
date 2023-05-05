@@ -9,34 +9,40 @@ public class Notification implements Serializable {
     private final String header;
     private final String body;
 
-    public Notification(Type type, String header, String body) {
+    public Notification(Type type, String header, String body) 
+    {
         this.type = type;
         this.header = header;
         this.body = body;
     }
 
-    public Notification(Type type) {
+    public Notification(Type type) 
+    {
         this.type = type;
         this.header = null;
         this.body = null;
     }
 
     @JsonProperty("type")
-    public Type type() {
+    public Type type() 
+    {
         return type;
     }
 
     @JsonProperty("header")
-    public String header() {
+    public String header() 
+    {
         return header;
     }
 
     @JsonProperty("body")
-    public String body() {
+    public String body() 
+    {
         return body;
     }
 
-    public enum Type {
+    public enum Type 
+    {
         ERROR, INFORMATION, SUCCESS
     }
 }

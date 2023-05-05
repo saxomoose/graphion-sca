@@ -31,19 +31,16 @@ public class PKIConfiguration {
     private static final String TRUSTED_CERTIFICATES_JKS = "trusted_certificates.jks";
 
     private final ConfigurationService configurationService;
-    private final ChallengeNonceStore challengeNonceStore;
 
-    public PKIConfiguration(ConfigurationService configurationService,
-            ChallengeNonceStore challengeNonceStore) {
+    public PKIConfiguration(ConfigurationService configurationService) {
         this.configurationService = configurationService;
-        this.challengeNonceStore = challengeNonceStore;
     }
 
     /**
      * Challenge nonce generator.
      */
     @Bean
-    public ChallengeNonceGenerator generator() 
+    public ChallengeNonceGenerator generator(final ChallengeNonceStore challengeNonceStore) 
     {
         return new ChallengeNonceGeneratorBuilder()
                 .withNonceTtl(Duration.ofMinutes(CHALLENGE_NONCE_TTL_MINUTES))
@@ -59,12 +56,13 @@ public class PKIConfiguration {
     {
         List<X509Certificate> caCertificates = new ArrayList<>();
         try {
-            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            Resource[] resources = resolver.getResources(
-                String.format("%s%s%s", CERTS_RESOURCE_PATH, configurationService.activeProfile(), CERTS_GLOB_PATTERN));
+            final var certFactory = CertificateFactory.getInstance("X.509");
+            final var resolver = new PathMatchingResourcePatternResolver();
+            final var resources = resolver.getResources(String.format("%s%s%s", 
+                CERTS_RESOURCE_PATH, configurationService.activeProfile(), CERTS_GLOB_PATTERN));
             for (Resource resource : resources) {
-                X509Certificate caCertificate = (X509Certificate) certFactory.generateCertificate(resource.getInputStream());
+                X509Certificate caCertificate = 
+                    (X509Certificate) certFactory.generateCertificate(resource.getInputStream());
                 caCertificates.add(caCertificate);
             }
         } catch (Exception exception) {

@@ -14,7 +14,8 @@ public class IndexController {
     private static final Logger logger = LoggerFactory.getLogger(IndexController.class);
 
     @GetMapping("/")
-    public ModelAndView index(final HttpServletRequest request) {
+    public ModelAndView index(final HttpServletRequest request) 
+    {
         // Locale locale = LocaleContextHolder.getLocale();
         // var test = session.getAttribute("session.current.locale");
         // var test2 = session.getAttribute("session.current.timezone");
@@ -29,13 +30,15 @@ public class IndexController {
     }
 
     @GetMapping("/ping")
-    public ModelAndView ping(HttpServletRequest request) {
+    public ModelAndView ping(HttpServletRequest request) 
+    {
         final var principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 
     @GetMapping("/pki/ping")
-    public ModelAndView pkiPing(HttpServletRequest request) {
+    public ModelAndView pkiPing(HttpServletRequest request) 
+    {
         final var principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
