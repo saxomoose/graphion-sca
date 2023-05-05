@@ -27,7 +27,10 @@ public class JDBCAuthController {
     }
 
     @GetMapping("/register")
-    public ModelAndView register(final HttpServletRequest request, final Principal principal) {
+    public ModelAndView register(
+        final HttpServletRequest request,
+        final Principal principal) 
+    {
         final var modelAndView = new ModelAndView();
         if (principal == null) {
             modelAndView.setViewName("auth/register");
@@ -78,7 +81,10 @@ public class JDBCAuthController {
     // }
 
     @GetMapping("/login")
-    public ModelAndView login(final Principal principal, final HttpServletRequest request) {
+    public ModelAndView login(
+        final Principal principal,
+        final HttpServletRequest request) 
+    {
         final var modelAndView = new ModelAndView();
         if (principal == null) {
             modelAndView.setViewName("auth/login");

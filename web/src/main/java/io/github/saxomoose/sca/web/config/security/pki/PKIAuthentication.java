@@ -20,7 +20,7 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
 
     public static Authentication of(X509Certificate userCertificate, List<GrantedAuthority> authorities) throws CertificateEncodingException 
     {
-        final var principalName = getPrincipalNameFromCertificate(userCertificate);
+        final var principalName = principalNameFromCertificate(userCertificate);
         final var idCode = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
         return new PKIAuthentication(principalName, idCode, authorities);
     }
@@ -36,7 +36,7 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
         this.idCode = idCode;
     }
 
-    private static String getPrincipalNameFromCertificate(X509Certificate userCertificate) 
+    private static String principalNameFromCertificate(X509Certificate userCertificate) 
     {
         try {
             return String.format(

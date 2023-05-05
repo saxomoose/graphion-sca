@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.services;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,9 @@ import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.github.saxomoose.sca.web.enums.Redis;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.utils.Job;
@@ -30,9 +33,13 @@ public class RedisService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    public RedisService(HttpSession httpSession, ObjectMapper objectMapper,
-            RedisConnection redisConnection, RedisScript<String> script,
-            StringRedisTemplate stringRedisTemplate) {
+    public RedisService(
+        HttpSession httpSession,
+        ObjectMapper objectMapper,
+        RedisConnection redisConnection,
+        RedisScript<String> script,
+        StringRedisTemplate stringRedisTemplate) 
+    {
         this.httpSession = httpSession;
         this.objectMapper = objectMapper;
         this.redisConnection = redisConnection;
@@ -43,7 +50,8 @@ public class RedisService {
     /**
      * XADD graphionscaweb:jobs MAXLEN ~ 5 * "payload" "test1"
      */
-    public void sendJobToQueue() {
+    public void sendJobToQueue() 
+    {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var job = new Job(tenantId, Job.Type.UPLOAD, "message", Map.of("", ""));
         String serializedJob;

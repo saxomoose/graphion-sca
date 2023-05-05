@@ -36,7 +36,8 @@ public class RedisConfiguration {
     // }
     @Bean
     public RedisScript<String> script() {
-        final var scriptSource = new ResourceScriptSource(new ClassPathResource("redis/job-id.lua")).getResource();
+        final var scriptSource = new ResourceScriptSource(
+            new ClassPathResource("redis/job-id.lua")).getResource();
         return RedisScript.of(scriptSource, String.class);
     }
 
