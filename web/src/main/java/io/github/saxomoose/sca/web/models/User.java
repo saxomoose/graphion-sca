@@ -40,7 +40,8 @@ public class User implements UserDetails {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static User of(Long tenantId, String username, String password) {
+    public static User of(Long tenantId, String username, String password)
+    {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
@@ -48,8 +49,8 @@ public class User implements UserDetails {
     }
 
     // remove public?
-    public User(Long tenant, Long id, String username, String password, Boolean enabled,
-            Role role) {
+    public User(Long tenant, Long id, String username, String password, Boolean enabled, Role role)
+    {
         this.tenant = tenant;
         this.id = id;
         this.username = username;
@@ -58,55 +59,66 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public Long tenantId() {
+    public Long tenantId()
+    {
         return tenant;
     }
 
-    public Long id() {
+    public Long id()
+    {
         return id;
     }
 
     @Override
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
 
     @Override
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
     @Override
-    public boolean isAccountNonExpired() {
+    public boolean isAccountNonExpired()
+    {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
+    public boolean isAccountNonLocked()
+    {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
+    public boolean isCredentialsNonExpired()
+    {
         return true;
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled()
+    {
         return enabled;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities()
+    {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public void setEnabled(Boolean enabled) {
+    public void setEnabled(Boolean enabled)
+    {
         this.enabled = enabled;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -116,7 +128,8 @@ public class User implements UserDetails {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(id);
     }
 }

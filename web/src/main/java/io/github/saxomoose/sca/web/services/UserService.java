@@ -17,18 +17,18 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) 
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder)
     {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User select(Long id) 
+    public User select(Long id)
     {
         return userRepository.findById(id).orElseThrow();
     }
 
-    public User select(String username) 
+    public User select(String username)
     {
         return userRepository.findByUsername(username);
     }

@@ -9,25 +9,28 @@ public interface TenantRepository extends CrudRepository<Tenant, Long> {
     @Query("SELECT *  FROM sca.tenant LIMIT 1")
     Tenant select();
 
-    @Query("""
-            SELECT *
-            FROM sca.tenant
-            WHERE id = (
-                SELECT tenant
-                FROM sca.user
-                WHERE id = :userId
-            )
-            """)
-    Tenant select(Long userId);
+    @Query("SELECT * FROM sca.tenant WHERE id = :id")
+    Tenant select(Long id);
 
-    @Query("""
-            SELECT *
-            FROM sca.tenant
-            WHERE id = (
-                SELECT tenant
-                FROM sca.user
-                WHERE username = :username
-            )
-            """)
-    Tenant select(String username);
+    // @Query("""
+    //         SELECT *
+    //         FROM sca.tenant
+    //         WHERE id = (
+    //             SELECT tenant
+    //             FROM sca.user
+    //             WHERE id = :userId
+    //         )
+    //         """)
+    // Tenant select(Long userId);
+
+    // @Query("""
+    //         SELECT *
+    //         FROM sca.tenant
+    //         WHERE id = (
+    //             SELECT tenant
+    //             FROM sca.user
+    //             WHERE username = :username
+    //         )
+    //         """)
+    // Tenant select(String username);
 }

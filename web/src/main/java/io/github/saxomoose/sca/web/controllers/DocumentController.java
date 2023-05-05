@@ -78,7 +78,7 @@ public class DocumentController {
     {
         final var path = documentService.convertToValidArgs(rawFileUUID);
         // TODO validate tenantId (uuid)
-        final var tenant = tenantService.selectByTenantId(tenantId);
+        final var tenant = tenantService.select(tenantId);
         final var document = documentService.select(tenant.id(), path);
         final Resource inputStreamResource = new InputStreamResource(
                 minIOService.readAsStream(tenant.bucket(), document.path()));

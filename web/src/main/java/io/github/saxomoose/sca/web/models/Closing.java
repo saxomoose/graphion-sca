@@ -37,11 +37,13 @@ public class Closing {
     private Set<ClosingSignatory> naturalPersonSignatories = new HashSet<>();
     private Set<ClosingLegalPerson> legalPersonSignatories = new HashSet<>();
 
-    public static Closing of(Long tenantId, String name, ZoneId zoneId, LocalDateTime timestamp) {
+    public static Closing of(Long tenantId, String name, ZoneId zoneId, LocalDateTime timestamp)
+    {
         return new Closing(tenantId, null, name, zoneId, timestamp);
     }
 
-    public Closing(Long tenant, Long id, String name, ZoneId zoneId, LocalDateTime timestamp) {
+    public Closing(Long tenant, Long id, String name, ZoneId zoneId, LocalDateTime timestamp)
+    {
         this.tenant = tenant;
         this.id = id;
         this.name = name;
@@ -49,36 +51,44 @@ public class Closing {
         this.timestamp = timestamp;
     }
 
-    public Long tenantId() {
+    public Long tenantId()
+    {
         return tenant;
     }
 
-    public Long id() {
+    public Long id()
+    {
         return id;
     }
 
-    public String name() {
+    public String name()
+    {
         return name;
     }
 
-    public ZoneId zoneId() {
+    public ZoneId zoneId()
+    {
         return zoneId;
     }
 
-    public LocalDateTime timestamp() {
+    public LocalDateTime timestamp()
+    {
         return timestamp;
     }
 
-    public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories) {
+    public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories)
+    {
         this.naturalPersonSignatories = naturalPersonSignatories;
     }
 
-    public void setLegalPersonSignatories(Set<ClosingLegalPerson> legalPersonSignatories) {
+    public void setLegalPersonSignatories(Set<ClosingLegalPerson> legalPersonSignatories)
+    {
         this.legalPersonSignatories = legalPersonSignatories;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -88,26 +98,31 @@ public class Closing {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(id);
     }
 
-    public void addNaturalPersonSignatory(Long signatory, Long document) {
+    public void addNaturalPersonSignatory(Long signatory, Long document)
+    {
         this.naturalPersonSignatories.add(naturalPersonSignatory(signatory, document));
     }
 
-    private ClosingSignatory naturalPersonSignatory(Long signatory, Long document) {
+    private ClosingSignatory naturalPersonSignatory(Long signatory, Long document)
+    {
         final var closingSignatory = new ClosingSignatory();
         closingSignatory.signatory = signatory;
         closingSignatory.document = document;
         return closingSignatory;
     }
 
-    public void addLegalPersonSignatory(Long legalPerson) {
+    public void addLegalPersonSignatory(Long legalPerson)
+    {
         this.legalPersonSignatories.add(legalPersonSignatory(legalPerson));
     }
 
-    private ClosingLegalPerson legalPersonSignatory(Long legalPerson) {
+    private ClosingLegalPerson legalPersonSignatory(Long legalPerson)
+    {
         final var closingLegalPerson = new ClosingLegalPerson();
         closingLegalPerson.legalPerson = legalPerson;
         return closingLegalPerson;

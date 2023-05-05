@@ -4,10 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
@@ -21,26 +23,31 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository) {
+    public DocumentService(DocumentRepository documentRepository)
+    {
         this.documentRepository = documentRepository;
     }
 
     // Database
-    public Set<Document> select(final Long tenantId) {
+    public Set<Document> select(final Long tenantId)
+    {
         final var documents = documentRepository.findAllByTenant(tenantId);
         return new HashSet<>(documents);
     }
 
-    public Document select(final Long tenantId, final String path) {
+    public Document select(final Long tenantId, final String path)
+    {
         return documentRepository.select(tenantId, path);
     }
 
-    public void create(final Long tenantId, final String filename, final String path) {
+    public void create(final Long tenantId, final String filename, final String path)
+    {
         final var document = Document.of(tenantId, filename, path);
         documentRepository.save(document);
     }
 
-    private Boolean exists(final Long tenantId, final String path) {
+    private Boolean exists(final Long tenantId, final String path)
+    {
         return documentRepository.exists(tenantId, path);
     }
 
@@ -48,7 +55,8 @@ public class DocumentService {
      * Validation
      */
     public Tuple<String, String> converToValidArgs(final Long tenantId, final String filename)
-            throws BusinessLogicException {
+            throws BusinessLogicException
+    {
         final var messageKey = "document.filename.invalid";
         if (filename.isBlank()) {
             throw new BusinessLogicException(messageKey);
@@ -66,7 +74,8 @@ public class DocumentService {
         return Tuple.of(filename, path);
     }
 
-    public String convertToValidArgs(String uuid) throws BusinessLogicException {
+    public String convertToValidArgs(String uuid) throws BusinessLogicException
+    {
         final var pattern = Pattern.compile(
                 "^([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-3[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12})$",
                 Pattern.CASE_INSENSITIVE);
@@ -77,7 +86,8 @@ public class DocumentService {
         return generatePath(UUID.fromString(uuid));
     }
 
-    private String generatePath(final UUID fileUUID) {
+    private String generatePath(final UUID fileUUID)
+    {
         return String.format("%s%s", UPLOADED_FILES_PATH, fileUUID);
     }
 }
