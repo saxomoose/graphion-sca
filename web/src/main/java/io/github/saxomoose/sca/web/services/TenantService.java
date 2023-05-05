@@ -16,18 +16,13 @@ public class TenantService {
         this.tenantRepository = tenantRepository;
     }
 
-    public Tenant selectByTenantId(Long id) 
-    {
-        return tenantRepository.findById(id).orElseThrow();
-    }
-
-    public Tenant selectByUserId(Long id) 
+    public Tenant select(Long id) 
     {
         return tenantRepository.select(id);
     }
 
-    public Tenant select(String username) 
-    {
-        return tenantRepository.select(username);
-    }
+    // public Tenant select(String username) 
+    // {
+    //     return tenantRepository.select(username);
+    // }
 }

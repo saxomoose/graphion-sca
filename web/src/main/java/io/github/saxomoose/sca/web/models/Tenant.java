@@ -28,30 +28,36 @@ public class Tenant implements Serializable {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Tenant of(String name) {
+    public static Tenant of(String name)
+    {
         return new Tenant(null, name, name);
     }
 
-    public Tenant(Long id, String name, String bucket) {
+    public Tenant(Long id, String name, String bucket)
+    {
         this.id = id;
         this.name = name;
         this.bucket = bucket;
     }
 
-    public Long id() {
+    public Long id()
+    {
         return id;
     }
 
-    public String name() {
+    public String name()
+    {
         return name;
     }
 
-    public String bucket() {
+    public String bucket()
+    {
         return bucket;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -61,7 +67,8 @@ public class Tenant implements Serializable {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hash(id);
     }
 

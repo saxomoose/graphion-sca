@@ -15,7 +15,8 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @Configuration
 public class WebApplicationConfiguration implements WebMvcConfigurer {
     @Bean
-    public MessageSource messageSource() {
+    public MessageSource messageSource() 
+    {
         final var messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasenames("classpath:i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
@@ -23,7 +24,8 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public LocaleResolver localeResolver() {
+    public LocaleResolver localeResolver() 
+    {
         final var sessionLocaleResolver = new SessionLocaleResolver();
         sessionLocaleResolver.setDefaultLocale(Locale.US);
         // sessionLocaleResolver.setLocaleAttributeName("session.current.locale");
@@ -31,7 +33,8 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-	public CookieSerializer cookieSerializer() {
+	public CookieSerializer cookieSerializer() 
+    {
 		DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setSameSite("Strict");
 		return serializer;

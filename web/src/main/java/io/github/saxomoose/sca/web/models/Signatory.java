@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -12,7 +13,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table(schema = "sca")
-public class Signatory {
+public class Signatory implements Serializable {
     private final Long tenant;
     @Id
     private final Long id;
@@ -39,7 +40,8 @@ public class Signatory {
             Long nationalRegistrationNumber,
             String firstName,
             String lastName,
-            String email) {
+            String email) 
+    {
         return new Signatory(
             tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
     }
@@ -51,7 +53,8 @@ public class Signatory {
             String firstName,
             String lastName,
             String email,
-            Boolean consent) {
+            Boolean consent) 
+    {
         this.tenant = tenant;
         this.id = id;
         this.nationalRegistrationNumber = nationalRegistrationNumber;
@@ -61,36 +64,44 @@ public class Signatory {
         this.consent = consent;
     }
 
-    public Long tenantId() {
+    public Long tenantId() 
+    {
         return this.tenant;
     }
 
-    public Long id() {
+    public Long id() 
+    {
         return id;
     }
 
-    public Long nationalRegistrationNumber() {
+    public Long nationalRegistrationNumber() 
+    {
         return nationalRegistrationNumber;
     }
 
-    public String firstName() {
+    public String firstName() 
+    {
         return firstName;
     }
 
-    public String lastName() {
+    public String lastName() 
+    {
         return lastName;
     }
 
-    public String email() {
+    public String email() 
+    {
         return email;
     }
 
-    public Boolean consent() {
+    public Boolean consent() 
+    {
         return consent;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o) 
+    {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -100,7 +111,8 @@ public class Signatory {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode() 
+    {
         return Objects.hash(id);
     }
 }

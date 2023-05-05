@@ -25,7 +25,6 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
     {
         final var flashMap = new FlashMap();
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
-        authException.printStackTrace(System.out);
         if (authException instanceof InsufficientAuthenticationException) {
             final var notifications = List.of(new Notification(
                 Notification.Type.ERROR,

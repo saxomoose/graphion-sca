@@ -33,12 +33,8 @@ public class RedisService {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    public RedisService(
-        HttpSession httpSession,
-        ObjectMapper objectMapper,
-        RedisConnection redisConnection,
-        RedisScript<String> script,
-        StringRedisTemplate stringRedisTemplate) 
+    public RedisService(HttpSession httpSession, ObjectMapper objectMapper, RedisConnection redisConnection,
+            RedisScript<String> script, StringRedisTemplate stringRedisTemplate)
     {
         this.httpSession = httpSession;
         this.objectMapper = objectMapper;
@@ -50,7 +46,7 @@ public class RedisService {
     /**
      * XADD graphionscaweb:jobs MAXLEN ~ 5 * "payload" "test1"
      */
-    public void sendJobToQueue() 
+    public void sendJobToQueue()
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var job = new Job(tenantId, Job.Type.UPLOAD, "message", Map.of("", ""));
@@ -62,13 +58,13 @@ public class RedisService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        final var record =
-                StreamRecords.rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
-                        .withStreamKey(Redis.Queue.KEY.toString().getBytes());
+        final var record = StreamRecords.rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
+                .withStreamKey(Redis.Queue.KEY.toString().getBytes());
         RecordId recordId;
         try {
-            recordId = redisConnection.streamCommands().xAdd(record,
-                    RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE));
+            recordId = redisConnection.streamCommands().xAdd(
+                record,
+                RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE));
             Objects.requireNonNull(recordId);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -76,8 +72,7 @@ public class RedisService {
         }
         final var outputStringKey = String.format("%s:%s:%s", Redis.Queue.KEY, tenantId, recordId);
         try {
-            stringRedisTemplate.opsForValue().setIfAbsent(outputStringKey, serializedJob,
-                    Duration.ofDays(1));
+            stringRedisTemplate.opsForValue().setIfAbsent(outputStringKey, serializedJob, Duration.ofDays(1));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);

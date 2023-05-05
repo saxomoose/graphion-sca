@@ -11,24 +11,33 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.saxomoose.sca.web.models.Signatory;
+import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Component
 public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationSuccessHandler.class);
 
+    private HttpSession httpSession;
     private ObjectMapper objectMapper;
+    private TenantService tenantService;
 
-    public PKIAuthenticationSuccessHandler(ObjectMapper objectMapper)
+    public PKIAuthenticationSuccessHandler(HttpSession httpSession, ObjectMapper objectMapper, TenantService tenantService)
     {
+        this.httpSession = httpSession;
         this.objectMapper = objectMapper;
+        this.tenantService = tenantService;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException
+    public void onAuthenticationSuccess(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Authentication authentication) throws IOException, ServletException
     {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setHeader("Content-Type", "application/json");
@@ -36,5 +45,9 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
                 authentication.getAuthorities().stream().map(GrantedAuthority::toString).toList()));
         ;
         response.getWriter().write(serializedAuthSuccess);
+
+        final var tenantId = ((Signatory) authentication.getPrincipal()).tenantId();
+        final var tenant = tenantService.select(tenantId);
+        httpSession.setAttribute("tenant", tenant);
     }
 }

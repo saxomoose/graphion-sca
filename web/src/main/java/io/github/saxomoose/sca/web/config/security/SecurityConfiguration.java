@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -100,10 +101,11 @@ public class SecurityConfiguration {
                 .sessionFixation().changeSessionId()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .authorizeHttpRequests((requests) -> requests
-               .requestMatchers(
+                .requestMatchers(
                     "/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**",
                     "/", "/login", "/logout", "/ping").permitAll()
-               .anyRequest().authenticated())
+                .requestMatchers("/documents").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') or hasRole('SIGNATORY')"))
+                .anyRequest().hasRole("ADMIN"))
             // Deactivate basic auth.
             // .authorizeHttpRequests().requestMatchers("/**").permitAll()
             .formLogin().loginPage("/login")

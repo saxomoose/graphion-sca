@@ -7,8 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
-import io.github.saxomoose.sca.web.services.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,25 +18,23 @@ import jakarta.servlet.http.HttpSession;
 public class JDBCAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final HttpSession httpSession;
     private final TenantService tenantService;
-    private final UserService userService;
 
     @Autowired
     public JDBCAuthenticationSuccessHandler(
         HttpSession httpSession,
-        TenantService tenantService,
-        UserService userService) {
+        TenantService tenantService) {
         this.httpSession = httpSession;
         this.tenantService = tenantService;
-        this.userService = userService;
     }
 
     @Override
     public void onAuthenticationSuccess(
         HttpServletRequest request,
         HttpServletResponse response,
-        Authentication authentication) throws IOException, ServletException {
-        final var userId = userService.select(authentication.getName()).id();
-        final var tenant = tenantService.selectByUserId(userId);
+        Authentication authentication) throws IOException, ServletException 
+    {
+        final var tenantId = ((User) authentication.getPrincipal()).tenantId();
+        final var tenant = tenantService.select(tenantId);
         httpSession.setAttribute("tenant", tenant);
         // final var uri =
         // UriComponentsBuilder.fromPath("/documents").queryParam("tenant",

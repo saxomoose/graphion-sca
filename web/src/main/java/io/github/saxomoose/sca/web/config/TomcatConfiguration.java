@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TomcatConfiguration {
     @Bean
-    public TomcatServletWebServerFactory tomcatFactory() {
+    public TomcatServletWebServerFactory tomcatFactory() 
+    {
         return new TomcatServletWebServerFactory() {
             @Override
             protected void postProcessContext(Context context) {

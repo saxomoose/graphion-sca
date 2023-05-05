@@ -13,7 +13,8 @@ public class ConfigurationService {
     private final String objectStorageSecretkey;
 
     @Autowired
-    public ConfigurationService(Environment environment) {
+    public ConfigurationService(Environment environment) 
+    {
         this.activeProfile = environment.getProperty("spring.profiles.active");
         this.localOrigin = environment.getProperty("web-eid-auth-token.validation.local-origin");
         this.objectStorageAccesskey = environment.getProperty("objectstorage.accesskey");
@@ -21,23 +22,28 @@ public class ConfigurationService {
         this.objectStorageSecretkey = environment.getProperty("objectstorage.secretkey");
     }
 
-    public String activeProfile() {
+    public String activeProfile() 
+    {
         return activeProfile;
     }
 
-    public String localOrigin() {
+    public String localOrigin() 
+    {
         return localOrigin;
     }
 
-    public String objectStorageAccesskey() {
+    public String objectStorageAccesskey() 
+    {
         return objectStorageAccesskey;
     }
 
-    public String objectStorageEndpoint() {
+    public String objectStorageEndpoint() 
+    {
         return objectStorageEndpoint;
     }
 
-    public String objectStorageSecretkey() {
+    public String objectStorageSecretkey() 
+    {
         return objectStorageSecretkey;
     }
 }
