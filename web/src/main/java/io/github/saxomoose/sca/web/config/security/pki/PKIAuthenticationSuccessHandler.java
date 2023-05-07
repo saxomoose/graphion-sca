@@ -1,16 +1,13 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
 import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.github.saxomoose.sca.web.models.Signatory;
 import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;

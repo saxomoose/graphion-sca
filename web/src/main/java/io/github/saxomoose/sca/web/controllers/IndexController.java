@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
@@ -14,7 +13,7 @@ public class IndexController {
     private static final Logger logger = LoggerFactory.getLogger(IndexController.class);
 
     @GetMapping("/")
-    public ModelAndView index(final HttpServletRequest request) 
+    public ModelAndView index(final HttpServletRequest request)
     {
         // Locale locale = LocaleContextHolder.getLocale();
         // var test = session.getAttribute("session.current.locale");
@@ -24,23 +23,27 @@ public class IndexController {
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
-        logger.info("A info message");
-        modelAndView.setViewName("index");
+        modelAndView.setViewName("sign");
         return modelAndView;
     }
 
+    @GetMapping("/pki/sign")
+    public ModelAndView sign()
+    {
+        return new ModelAndView("sign");
+    }
+
     @GetMapping("/ping")
-    public ModelAndView ping(HttpServletRequest request) 
+    public ModelAndView ping(HttpServletRequest request)
     {
         final var principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 
     @GetMapping("/pki/ping")
-    public ModelAndView pkiPing(HttpServletRequest request) 
+    public ModelAndView pkiPing(HttpServletRequest request)
     {
         final var principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
-
 }

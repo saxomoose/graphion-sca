@@ -1,7 +1,6 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import eu.webeid.security.authtoken.WebEidAuthToken;
 
 public class AuthToken {
