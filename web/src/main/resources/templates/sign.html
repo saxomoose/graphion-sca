@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head data-th-replace="~{fragments/head :: frag(~{::title})}">
+    <title>Sign</title>
+</head>
+
+<body class="d-flex flex-column h-100">
+    <header data-th-replace="~{fragments/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+    <button id="webeid-sign-button" class="btn btn-info">Sign document</button>
+    <div id="error-message" class="alert alert-danger" style="display: none;" role="alert">
+        <div class="message"></div>
+        <pre class="details"></pre>
+    </div>
+    <footer data-th-replace="~{fragments/footer}"></footer>
+    <script data-th-replace="~{fragments/scripts}"></script>
+    <script data-th-replace="~{fragments/toast-scripts}"></script>
+    <script data-th-inline="javascript">
+        "use strict";
+        const signButton = document.querySelector("#webeid-sign-button");
+
+        const exampleDocument = document.querySelector("#example-document");
+
+        const lang = new URLSearchParams(window.location.search).get("lang") || "en";
+
+        signButton.addEventListener("click", async () => {
+            webeiderrors.hideErrorMessage();
+            signButton.disabled = true;
+
+            try {
+                const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
+
+                const prepareSigningResponse = await fetch("/pki/sign/prepare", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": [[${ _csrf.token }]]
+                    },
+                    body: JSON.stringify({ certificate, supportedSignatureAlgorithms }),
+                });
+                await webeiderrors.checkHttpError(prepareSigningResponse);
+                const { hash, hashFunction } = await prepareSigningResponse.json();
+
+                const { signatureAlgorithm, signature } = await webeid.sign(certificate, hash, hashFunction, { lang });
+
+                const finalizeSigningResponse = await fetch("/pki/sign/sign", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": [[${ _csrf.token }]]
+                    },
+                    body: JSON.stringify({ signature, signatureAlgorithm }),
+                });
+                await webeiderrors.checkHttpError(finalizeSigningResponse);
+                const signResult = await finalizeSigningResponse.json();
+                console.log("Signature successful! Result:", signResult);
+            } catch (error) {
+                webeiderrors.showErrorMessage(error);
+                throw error;
+            } finally {
+                signButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,11 +1,27 @@
 [versions]
 
 [libraries]
-digidoc4j = { module = "org.digidoc4j:digidoc4j", version = "latest.release" }
+# digidoc4j = { module = "org.digidoc4j:digidoc4j", version = "latest.release" }
+# Common code which is shared between dss-pades-pdfbox and dss-pades-openpdf.
+dss-pades = { module = "eu.europa.ec.joinup.sd-dss:dss-pades", version = "latest.release" }
+# Implementation of the PAdES signature, augmentation and validation with PDFBox.
+dss-pades-pdfbox = { module = "eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox", version = "latest.release" }
+# Implementations to communicate with online resources (TSP, CRL, OCSP).
+dss-pdfa = { module = "eu.europa.ec.joinup.sd-dss:dss-pdfa", version = "latest.release" }
+dss-service = { module = "eu.europa.ec.joinup.sd-dss:dss-service", version = "latest.release" }
+# Token definitions and implementations for MS CAPI, MacOS Keychain, PKCS#11, PKCS#12.
+dss-token = { module = "eu.europa.ec.joinup.sd-dss:dss-token", version = "latest.release" }
+# Module which allows loading / parsing / validating of LOTL and TSLs.
+dss-tsl-validation = { module = "eu.europa.ec.joinup.sd-dss:dss-tsl-validation", version = "latest.release" }
+# API with utility methods for String, Collection, I/O,…​ implemented with Apache Commons libraries.
+dss-utils-apache-commons = { module = "eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons", version = "latest.release" }
 flywaycore = { module = "org.flywaydb:flyway-core", version = "latest.release" }
-jaxbcore = { module = "com.sun.xml.bind:jaxb-core", version = "2.3.0.1" } 
+# jaxbcore = { module = "com.sun.xml.bind:jaxb-core", version = "2.3.0.1" } 
 minio = { module = "io.minio:minio", version = "latest.release" }
+pdfbox = { module = "org.apache.pdfbox:pdfbox", version = "latest.release" }
 webeid = { module = "org.webeid.security:authtoken-validation", version = "latest.release" }
+
+
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version = "latest.release" }

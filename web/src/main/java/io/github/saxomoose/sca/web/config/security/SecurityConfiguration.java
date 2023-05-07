@@ -17,12 +17,12 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.github.saxomoose.sca.web.config.security.jdbc.JDBCAuthenticationFailureHandler;
-import io.github.saxomoose.sca.web.config.security.jdbc.JDBCAuthenticationSuccessHandler;
-import io.github.saxomoose.sca.web.config.security.jdbc.JDBCUserDetailsService;
+import io.github.saxomoose.sca.web.config.security.fallback.AccessDeniedHandler;
+import io.github.saxomoose.sca.web.config.security.fallback.AuthenticationEntryPoint;
+import io.github.saxomoose.sca.web.config.security.fallback.JDBCAuthenticationFailureHandler;
+import io.github.saxomoose.sca.web.config.security.fallback.JDBCAuthenticationSuccessHandler;
+import io.github.saxomoose.sca.web.config.security.fallback.JDBCUserDetailsService;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationFailureHandler;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProcessingFilter;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
@@ -83,7 +83,8 @@ public class SecurityConfiguration {
      * Spring Security uses session created by redis integration.
      */
     @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(
+    public SecurityFilterChain fallbackSecurityFilterChain(
+        final AccessDeniedHandler accessDeniedHandler,
         final HttpSecurity httpSecurity,
         final JDBCAuthenticationFailureHandler jdbcAuthenticationFailureHandler,
         final JDBCAuthenticationSuccessHandler jdbcAuthenticationSuccessHandler,
@@ -95,7 +96,9 @@ public class SecurityConfiguration {
         httpSecurity
             .authenticationProvider(jdbcAuthenticationProvider)
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+            .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
                .and()
             .sessionManagement((session) -> session
                 .sessionFixation().changeSessionId()

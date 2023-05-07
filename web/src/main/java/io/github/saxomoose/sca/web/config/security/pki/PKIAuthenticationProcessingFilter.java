@@ -1,7 +1,6 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
 import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -11,9 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,10 +26,10 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
     public PKIAuthenticationProcessingFilter(
         final AuthenticationManager authenticationManager,
         final PKIAuthenticationFailureHandler authenticationFailureHandler,
-        final PKIAuthenticationSuccessHandler authenticationSuccessHandler,
-        final ObjectMapper objectMapper, 
+        final PKIAuthenticationSuccessHandler authenticationSuccessHandler, 
+        final ObjectMapper objectMapper,
         final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
-        final String defaultFilterProcessesUrl) 
+        final String defaultFilterProcessesUrl)
     {
         super(defaultFilterProcessesUrl);
         this.setAuthenticationManager(authenticationManager);
@@ -43,8 +40,9 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-        throws AuthenticationException, IOException, ServletException 
+    public Authentication attemptAuthentication(
+        HttpServletRequest request,
+        HttpServletResponse response) throws AuthenticationException, IOException, ServletException
     {
 
         if (!HttpMethod.POST.name().equals(request.getMethod())) {
@@ -65,19 +63,19 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
 
     // @Override
     // public void successfulAuthentication(
-    //     HttpServletRequest request,
-    //     HttpServletResponse response,
-    //     FilterChain chain,
-    //     Authentication authResult) throws IOException, ServletException 
+    // HttpServletRequest request,
+    // HttpServletResponse response,
+    // FilterChain chain,
+    // Authentication authResult) throws IOException, ServletException
     // {
-    //     final var context = super.securityContextHolderStrategy.createEmptyContext();
-    //     context.setAuthentication(authResult);
-    //     this.securityContextHolderStrategy.setContext(context);
-    //     this.securityContextRepository.saveContext(context, request, response);
-    //     if (this.logger.isDebugEnabled()) {
-    //         this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
-    //     }
-    //     this.successHandler.onAuthenticationSuccess(request, response, authResult);
-    // }       
+    // final var context = super.securityContextHolderStrategy.createEmptyContext();
+    // context.setAuthentication(authResult);
+    // this.securityContextHolderStrategy.setContext(context);
+    // this.securityContextRepository.saveContext(context, request, response);
+    // if (this.logger.isDebugEnabled()) {
+    // this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
+    // }
+    // this.successHandler.onAuthenticationSuccess(request, response, authResult);
+    // }
 
 }

@@ -6,14 +6,12 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
 import eu.webeid.security.challenge.ChallengeNonceGenerator;
 import eu.webeid.security.challenge.ChallengeNonceGeneratorBuilder;
 import eu.webeid.security.challenge.ChallengeNonceStore;
@@ -48,6 +46,7 @@ public class PKIConfiguration {
     }
 
     /**
+     * TODO: evaluate whether loading should be refactored in configuration service.
      * Specify which **intermediate** certificate authorities (CAs) are trusted to issue the eID
      * authentication and OCSP responder certificates.
      */
