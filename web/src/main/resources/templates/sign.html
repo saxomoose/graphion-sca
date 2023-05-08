@@ -31,7 +31,7 @@
             try {
                 const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
 
-                const prepareSigningResponse = await fetch("/pki/sign/prepare", {
+                const prepareSigningResponse = await fetch("/pki/sign/dtbsr/dd465658-a13b-352b-8ced-ddd13920283e", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
@@ -18,7 +19,6 @@ import io.github.saxomoose.sca.web.utils.Tuple;
 @Service
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    private static final String UPLOADED_FILES_PATH = "/uploads/";
 
     private final DocumentRepository documentRepository;
 
@@ -35,26 +35,21 @@ public class DocumentService {
         return new HashSet<>(documents);
     }
 
-    public Document select(final Long tenantId, final String path)
+    public Document select(final Long tenantId, final UUID fileUUID)
     {
-        return documentRepository.select(tenantId, path);
+        return documentRepository.select(tenantId, fileUUID);
     }
 
-    public void create(final Long tenantId, final String filename, final String path)
+    public void create(final Long tenantId, final String filename, final UUID fileUUID)
     {
-        final var document = Document.of(tenantId, filename, path);
+        final var document = Document.of(tenantId, filename, fileUUID);
         documentRepository.save(document);
-    }
-
-    private Boolean exists(final Long tenantId, final String path)
-    {
-        return documentRepository.exists(tenantId, path);
     }
 
     /**
      * Validation
      */
-    public Tuple<String, String> converToValidArgs(final Long tenantId, final String filename)
+    public Tuple<String, UUID> validateArgs(final Long tenantId, final String filename)
             throws BusinessLogicException
     {
         final var messageKey = "document.filename.invalid";
@@ -67,27 +62,19 @@ public class DocumentService {
             throw new BusinessLogicException(messageKey);
         }
         final var fileUUID = UUID.nameUUIDFromBytes(filename.getBytes());
-        final var path = generatePath(fileUUID);
-        if (exists(tenantId, path)) {
-            throw new BusinessLogicException("document.filename.duplicate");
+        if (documentRepository.exists(tenantId, fileUUID)) {
+            throw new BusinessLogicException("document.file_uuid.duplicate");
         }
-        return Tuple.of(filename, path);
+        return Tuple.of(filename, fileUUID);
     }
 
-    public String convertToValidArgs(String uuid) throws BusinessLogicException
+    public UUID validateArgs(String uuid)
     {
-        final var pattern = Pattern.compile(
-                "^([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-3[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12})$",
-                Pattern.CASE_INSENSITIVE);
-        final var matcher = pattern.matcher(uuid);
-        if (!matcher.matches()) {
-            throw new BusinessLogicException("files.path.invalid");
-        }
-        return generatePath(UUID.fromString(uuid));
+        return UUID.fromString(uuid);
     }
 
-    private String generatePath(final UUID fileUUID)
+    public String filePath(Path path, final UUID fileUUID)
     {
-        return String.format("%s%s", UPLOADED_FILES_PATH, fileUUID);
+        return String.format("%s%s", path, fileUUID);
     }
 }

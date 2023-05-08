@@ -16,12 +16,12 @@ dss-tsl-validation = { module = "eu.europa.ec.joinup.sd-dss:dss-tsl-validation",
 # API with utility methods for String, Collection, I/O,…​ implemented with Apache Commons libraries.
 dss-utils-apache-commons = { module = "eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons", version = "latest.release" }
 flywaycore = { module = "org.flywaydb:flyway-core", version = "latest.release" }
-# jaxbcore = { module = "com.sun.xml.bind:jaxb-core", version = "2.3.0.1" } 
+xmlbind = { module = "javax.xml.bind:jaxb-api", version = "2.3.1" }
+# jaxb-core = { module = "org.glassfish.jaxb:jaxb-core", version = "latest.release" }
+jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version = "2.3.1" }
 minio = { module = "io.minio:minio", version = "latest.release" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version = "latest.release" }
 webeid = { module = "org.webeid.security:authtoken-validation", version = "latest.release" }
-
-
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version = "latest.release" }

@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ public class Signatory implements Serializable {
     private final Long nationalRegistrationNumber;
     private final String firstName;
     private final String lastName;
+    private final LocalDate dateOfBirth;
     private final String email;
     // Art. 1:5 New Belgian Civil Code.
     private final Boolean consent;
@@ -40,10 +42,11 @@ public class Signatory implements Serializable {
             Long nationalRegistrationNumber,
             String firstName,
             String lastName,
+            LocalDate dateOfBirth,
             String email) 
     {
         return new Signatory(
-            tenantId, null, nationalRegistrationNumber, firstName, lastName, email, Boolean.FALSE);
+            tenantId, null, nationalRegistrationNumber, firstName, lastName, dateOfBirth, email, Boolean.FALSE);
     }
 
     public Signatory(
@@ -52,6 +55,7 @@ public class Signatory implements Serializable {
             Long nationalRegistrationNumber,
             String firstName,
             String lastName,
+            LocalDate dateOfBirth,
             String email,
             Boolean consent) 
     {
@@ -60,6 +64,7 @@ public class Signatory implements Serializable {
         this.nationalRegistrationNumber = nationalRegistrationNumber;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
         this.email = email;
         this.consent = consent;
     }
@@ -87,6 +92,11 @@ public class Signatory implements Serializable {
     public String lastName() 
     {
         return lastName;
+    }
+
+    public LocalDate dateOfBirth()
+    {
+        return dateOfBirth;
     }
 
     public String email() 

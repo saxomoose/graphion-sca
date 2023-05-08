@@ -1,12 +1,14 @@
 package io.github.saxomoose.sca.web.utils;
 
+import java.util.UUID;
+
 public class Tuple<X, Y> {
     final X first;
     final Y second;
 
-    public static Tuple<String, String> of(String filename, String path)
+    public static Tuple<String, UUID> of(String filename, UUID fileUUID)
     {
-        return new Tuple<>(filename, path);
+        return new Tuple<>(filename, fileUUID);
     }
 
     private Tuple(X first, Y second)
@@ -21,9 +23,9 @@ public class Tuple<X, Y> {
         return (String) first;
     }
 
-    public String path()
+    public UUID fileUUID()
     {
-        return (String) second;
+        return (UUID) second;
     }
 
 }

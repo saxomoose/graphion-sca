@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
+import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
@@ -69,25 +70,25 @@ public class DocumentController {
         return modelAndView;
     }
 
-    @GetMapping(value = "/files/{tenantId}/{rawFileUUID}", produces = "application/pdf")
+    @GetMapping(value = "/files/{rawFileUUID}", produces = "application/pdf")
     // @ResponseBody
     public ResponseEntity<Resource> serveFile(
-        @PathVariable final Long tenantId,
         @PathVariable final String rawFileUUID,
         @RequestParam final Boolean download) throws Exception 
     {
-        final var path = documentService.convertToValidArgs(rawFileUUID);
+        final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
+        final var uuid = documentService.validateArgs(rawFileUUID);
+        final var filePath = documentService.filePath(Path.UPLOADS, uuid);
+        final var fileName = documentService.select(tenant.id(), uuid).filename();
         // TODO validate tenantId (uuid)
-        final var tenant = tenantService.select(tenantId);
-        final var document = documentService.select(tenant.id(), path);
         final Resource inputStreamResource = new InputStreamResource(
-                minIOService.readAsStream(tenant.bucket(), document.path()));
+                minIOService.objectAsStream(tenant.bucket(), filePath));
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
                 httpHeaders
                     .setContentDisposition(ContentDisposition.attachment()
-                    .filename(String.format("%s.pdf", document.filename())).build());
+                    .filename(String.format("%s.pdf", fileName)).build());
             }
         }).body(inputStreamResource);
     }
@@ -129,7 +130,7 @@ public class DocumentController {
                         new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             } else if (part.getName().equals("file")) {
                 if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
-                    throw new BusinessLogicException("document.file.unsupportedfileformat");
+                    throw new BusinessLogicException("document.file.unsupported_file_format");
                 } else if (part.getSize() != clientSideFileSize) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
                 }
@@ -141,10 +142,11 @@ public class DocumentController {
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        final var tuple = documentService.converToValidArgs(tenant.id(), rawFilename);
-        minIOService.storeFile(tenant.bucket(), tuple.path(), clientSideFileSize,
+        final var tuple = documentService.validateArgs(tenant.id(), rawFilename);
+        final var filePath = documentService.filePath(Path.UPLOADS, tuple.fileUUID());
+        minIOService.storeFile(tenant.bucket(), filePath, clientSideFileSize,
                 rawFileInputStream);
-        documentService.create(tenant.id(), tuple.filename(), tuple.path());
+        documentService.create(tenant.id(), tuple.filename(), tuple.fileUUID());
         redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
             Notification.Type.SUCCESS, 
             "notification.success",

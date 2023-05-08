@@ -49,7 +49,16 @@ public class MinIOService {
         }
     }
 
-    public InputStream readAsStream(final String bucket, final String path)
+    public byte[] objectAsBytes(final String bucket, final String path) {
+        try {
+            return objectAsStream(bucket, path).readAllBytes();
+        } catch(Exception exception) {
+            logger.error(exception.getMessage());
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public InputStream objectAsStream(final String bucket, final String path)
     {
         // Handle exception if file does not exist.
         try {

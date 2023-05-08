@@ -2,6 +2,7 @@ package io.github.saxomoose.sca.web.services;
 
 import java.io.FileInputStream;
 import java.util.UUID;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -51,7 +52,7 @@ public class ObjectStorageServiceTest {
 
     @Test
     public void getObjectAsStream() throws Exception {
-        final var objectInputStream = minIOService.readAsStream(bucket, path());
+        final var objectInputStream = minIOService.objectAsStream(bucket, path());
     }
 
     private String path() {

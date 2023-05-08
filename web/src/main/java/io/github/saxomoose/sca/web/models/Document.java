@@ -2,6 +2,7 @@ package io.github.saxomoose.sca.web.models;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,7 +18,7 @@ public class Document {
     @Id
     private final Long id;
     private final String filename;
-    private final String path;
+    private final UUID fileUUID;
 
     @Version
     private Long version;
@@ -30,15 +31,15 @@ public class Document {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static Document of(Long tenantId, String filename, String path) {
-        return new Document(tenantId, null, filename, path);
+    public static Document of(Long tenantId, String filename, UUID fileUUID) {
+        return new Document(tenantId, null, filename, fileUUID);
     }
 
-    public Document(Long tenant, Long id, String filename, String path) {
+    public Document(Long tenant, Long id, String filename, UUID fileUUID) {
         this.tenant = tenant;
         this.id = id;
         this.filename = filename;
-        this.path = path;
+        this.fileUUID = fileUUID;
     }
 
     public Long tenantId() {
@@ -53,8 +54,8 @@ public class Document {
         return filename;
     }
 
-    public String path() {
-        return path;
+    public UUID fileUUID() {
+        return fileUUID;
     }
 
     @Override

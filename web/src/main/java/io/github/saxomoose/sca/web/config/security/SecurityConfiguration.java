@@ -17,7 +17,9 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.github.saxomoose.sca.web.config.security.fallback.AccessDeniedHandler;
 import io.github.saxomoose.sca.web.config.security.fallback.AuthenticationEntryPoint;
 import io.github.saxomoose.sca.web.config.security.fallback.JDBCAuthenticationFailureHandler;
@@ -75,7 +77,8 @@ public class SecurityConfiguration {
                 ), UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/pki/challenge").permitAll()
-                .anyRequest().authenticated());
+                // .anyRequest().authenticated());
+                .anyRequest().permitAll());
         return httpSecurity.build();
     }
 
