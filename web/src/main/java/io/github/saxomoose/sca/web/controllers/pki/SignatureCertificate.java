@@ -42,7 +42,6 @@ public class SignatureCertificate {
         return supportedSignatureAlgorithms
             .stream()
             .map(SignatureAlgorithm::hashAlgorithm)
-            .distinct()
             .toList();
     }
 
