@@ -1,26 +1,37 @@
 package io.github.saxomoose.sca.web.controllers.pki;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Digest {
-    private String hash;
-    private String hashFunction;
+    private String base64Digest;
+    private String digestAlgorithm;
+
+    public Digest() { }
     
-    public String hash()
-    {
-        return hash;
+    public Digest(String base64Digest, String digestAlgorithm) {
+        this.base64Digest = base64Digest;
+        this.digestAlgorithm = digestAlgorithm;
     }
 
-    public String hashFunction()
+    @JsonProperty("hash")
+    public String base64Digest()
     {
-        return hashFunction;
+        return base64Digest;
     }
 
-    public void setHash(String hash)
+    @JsonProperty("hashFunction")
+    public String digestAlgorithm()
     {
-        this.hash = hash;
+        return digestAlgorithm;
     }
 
-    public void setHashFunction(String hashFunction)
+    public void setBase64Digest(String hash)
     {
-        this.hashFunction = hashFunction;
+        this.base64Digest = hash;
+    }
+
+    public void setDigestAlgorithm(String hashFunction)
+    {
+        this.digestAlgorithm = hashFunction;
     }
 }

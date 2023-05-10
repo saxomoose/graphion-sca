@@ -3,13 +3,11 @@ package io.github.saxomoose.sca.web.config.security.pki;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
 import eu.webeid.security.certificate.CertificateData;
 import io.github.saxomoose.sca.web.models.Signatory;
 

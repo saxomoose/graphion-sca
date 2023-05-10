@@ -4,7 +4,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,12 +35,13 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException
     {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setHeader("Content-Type", "application/json");
-        final var serializedAuthSuccess = objectMapper.writeValueAsString(new AuthSuccess(authentication.getName(),
-                authentication.getAuthorities().stream().map(GrantedAuthority::toString).toList()));
-        ;
-        response.getWriter().write(serializedAuthSuccess);
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        // response.setHeader("Content-Type", "application/json");
+        // final var serializedAuthSuccess = objectMapper.writeValueAsString(
+        //     new AuthSuccess(
+        //         authentication.getName(),
+        //         authentication.getAuthorities().stream().map(GrantedAuthority::toString).toList()));
+        // response.getWriter().write(serializedAuthSuccess);
 
         final var tenantId = ((Signatory) authentication.getPrincipal()).tenantId();
         final var tenant = tenantService.select(tenantId);

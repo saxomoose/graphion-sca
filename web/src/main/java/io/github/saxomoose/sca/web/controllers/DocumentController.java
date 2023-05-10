@@ -5,7 +5,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -24,13 +23,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-
 import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.MinIOService;
 import io.github.saxomoose.sca.web.services.TenantService;
+import io.github.saxomoose.sca.web.services.ValidationService;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -41,18 +40,21 @@ public class DocumentController {
     private final HttpSession httpSession;
     private final MinIOService minIOService;
     private final TenantService tenantService;
+    private final ValidationService validationService;
 
     @Autowired
     public DocumentController(
         DocumentService documentService,
         HttpSession httpSession,
         MinIOService minIOService,
-        TenantService tenantService) 
+        TenantService tenantService,
+        ValidationService validationService) 
     {
         this.documentService = documentService;
         this.httpSession = httpSession;
         this.minIOService = minIOService;
         this.tenantService = tenantService;
+        this.validationService = validationService;
     }
 
     // Read
@@ -77,7 +79,7 @@ public class DocumentController {
         @RequestParam final Boolean download) throws Exception 
     {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
-        final var uuid = documentService.validateArgs(rawFileUUID);
+        final var uuid = validationService.uuid(rawFileUUID);
         final var filePath = documentService.filePath(Path.UPLOADS, uuid);
         final var fileName = documentService.select(tenant.id(), uuid).filename();
         // TODO validate tenantId (uuid)
@@ -142,7 +144,7 @@ public class DocumentController {
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        final var tuple = documentService.validateArgs(tenant.id(), rawFilename);
+        final var tuple = validationService.documentArgs(tenant.id(), rawFilename);
         final var filePath = documentService.filePath(Path.UPLOADS, tuple.fileUUID());
         minIOService.storeFile(tenant.bucket(), filePath, clientSideFileSize,
                 rawFileInputStream);

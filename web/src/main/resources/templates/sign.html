@@ -30,7 +30,6 @@
 
             try {
                 const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
-
                 const prepareSigningResponse = await fetch("/pki/sign/dtbsr/dd465658-a13b-352b-8ced-ddd13920283e", {
                     method: "POST",
                     headers: {
@@ -42,9 +41,9 @@
                 await webeiderrors.checkHttpError(prepareSigningResponse);
                 const { hash, hashFunction } = await prepareSigningResponse.json();
 
-                const { signatureAlgorithm, signature } = await webeid.sign(certificate, hash, hashFunction, { lang });
+                const { signature, signatureAlgorithm } = await webeid.sign(certificate, hash, hashFunction, { lang });
 
-                const finalizeSigningResponse = await fetch("/pki/sign/sign", {
+                const finalizeSigningResponse = await fetch("/pki/sign/apply/dd465658-a13b-352b-8ced-ddd13920283e", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -53,8 +52,7 @@
                     body: JSON.stringify({ signature, signatureAlgorithm }),
                 });
                 await webeiderrors.checkHttpError(finalizeSigningResponse);
-                const signResult = await finalizeSigningResponse.json();
-                console.log("Signature successful! Result:", signResult);
+                window.location.href = "/documents";
             } catch (error) {
                 webeiderrors.showErrorMessage(error);
                 throw error;

@@ -1,12 +1,10 @@
 package io.github.saxomoose.sca.web.services;
 
 import java.io.InputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
@@ -67,6 +65,10 @@ public class MinIOService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
+    }
+
+    public void storeFile(final String bucket, final String path, final InputStream inputStream) {
+        store(bucket, path, inputStream);
     }
 
     public void storeFile(final String bucket, final String path, final Long clientSideFileSize,

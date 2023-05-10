@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.config.security.pki;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-
 import eu.webeid.security.challenge.ChallengeNonce;
 
 public class SerializableChallengeNonce implements Serializable {
