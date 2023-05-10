@@ -1,12 +1,10 @@
 package io.github.saxomoose.sca.web.repositories.db;
 
 import java.time.Instant;
-
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-
 import io.github.saxomoose.sca.web.models.Closing;
 
 public interface ClosingRepository extends CrudRepository<Closing, Long> {

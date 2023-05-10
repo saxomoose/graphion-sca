@@ -1,7 +1,6 @@
 package io.github.saxomoose.sca.web.services;
 
 import org.springframework.stereotype.Service;
-
 import io.github.saxomoose.sca.web.models.Signatory;
 import io.github.saxomoose.sca.web.repositories.db.SignatoryRepository;
 

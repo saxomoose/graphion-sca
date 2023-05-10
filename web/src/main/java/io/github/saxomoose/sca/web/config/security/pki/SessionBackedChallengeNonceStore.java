@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.config.security.pki;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import eu.webeid.security.challenge.ChallengeNonce;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import jakarta.servlet.http.HttpSession;

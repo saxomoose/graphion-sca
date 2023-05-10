@@ -2,10 +2,8 @@ package io.github.saxomoose.sca.web.services;
 
 import java.io.FileInputStream;
 import java.util.UUID;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
@@ -16,7 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Tag("target")
+// @Tag("target")
 public class ObjectStorageServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(ObjectStorageServiceTest.class);
 
@@ -35,27 +33,30 @@ public class ObjectStorageServiceTest {
     }
 
     @Test
-    public void storeObject() throws Exception {
+    public void storeObject() throws Exception 
+    {
         final var name = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
         final var path = String.format("/uploads/%s", name);
-        final var inputStream = new FileInputStream(
-                new ClassPathResource("minio/20230308-test-document.pdf").getFile());
+        final var inputStream = new FileInputStream(new ClassPathResource("minio/20230308-test-document.pdf").getFile());
         final var clientSideFileSize = (long) inputStream.available();
         minIOService.storeFile(bucket, path, clientSideFileSize, inputStream);
     }
 
     // given → when → then
     @Test
-    public void statObject() throws Exception {
+    public void statObject() throws Exception 
+    {
         final var statObjectResponse = minIOService.stat(bucket, path());
     }
 
     @Test
-    public void getObjectAsStream() throws Exception {
+    public void getObjectAsStream() throws Exception 
+    {
         final var objectInputStream = minIOService.objectAsStream(bucket, path());
     }
 
-    private String path() {
+    private String path() 
+    {
         final var name = UUID.nameUUIDFromBytes("20230308-seed-document".getBytes());
         return String.format("/uploads/%s", name);
     }

@@ -47,10 +47,7 @@
                     body: `{"auth-token": ${JSON.stringify(authToken)}}`
                 });
                 await webeiderrors.checkHttpError(authTokenResponse);
-                const authTokenResult = await authTokenResponse.json();
-                console.log("Authentication successful! Result:", authTokenResult);
                 window.location.href = "/pki/sign";
-
             } catch (error) {
                 webeiderrors.showErrorMessage(error);
                 throw error;

@@ -14,4 +14,5 @@ web/src/main/resources/application.yml
 web/src/main/resources/dev-indexes/
 web/src/main/resources/static/svg-bootstrap/
 web/src/main/java/io/github/saxomoose/sca/web/config/initialization/Seeder.java
+web/src/test/resources/json/**
 
