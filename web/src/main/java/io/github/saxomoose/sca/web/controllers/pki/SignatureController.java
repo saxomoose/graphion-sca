@@ -17,9 +17,11 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.support.SessionFlashMapManager;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import io.github.saxomoose.sca.web.enums.Path;
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.MinIOService;
 import io.github.saxomoose.sca.web.services.PKISignatureService;
+import io.github.saxomoose.sca.web.services.RedisService;
 import io.github.saxomoose.sca.web.services.ValidationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +32,7 @@ public class SignatureController {
     private final HttpSession httpSession;
     private final MinIOService minioService;
     private final PKISignatureService signatureService;
+    private final RedisService redisService;
     private final ResourceLoader resourceLoader;
     private final ValidationService validationService;
 
@@ -37,11 +40,14 @@ public class SignatureController {
         HttpSession httpSession, 
         MinIOService minioService, 
         PKISignatureService signatureService,
+        RedisService redisService,
         ResourceLoader resourceLoader,
-        ValidationService validationService) {
+        ValidationService validationService) 
+    {
         this.httpSession = httpSession;
         this.minioService = minioService;
         this.signatureService = signatureService;
+        this.redisService = redisService;
         this.resourceLoader = resourceLoader;
         this.validationService = validationService;
     }
@@ -53,10 +59,11 @@ public class SignatureController {
         HttpServletResponse response,
         @PathVariable final String rawFileUUID,
         @RequestBody final SignatureCertificate signatureCertificate
-    ) throws CertificateException, NoSuchAlgorithmException, IOException
+    ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
         final var fileUUID = validationService.uuid(rawFileUUID);
+        redisService.lockFile(fileUUID);
         final var inputStream = minioService.objectAsStream(
             "graphion", 
             String.format("%s%s", Path.UPLOADS, rawFileUUID));
@@ -79,16 +86,17 @@ public class SignatureController {
     ) throws CertificateException, IOException
     {
         final var fileUUID = validationService.uuid(rawFileUUID);
+        final var path = String.format("%s%s%s%s", "file:", System.getProperty("user.dir"), Path.WORKBENCH, fileUUID);
+        final var file = resourceLoader.getResource(path).getFile();
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final var parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");
-        final var path = String.format("%s%s%s", System.getProperty("user.dir"), Path.WORKBENCH, fileUUID);
-        final var file = resourceLoader.getResource(String.format("%s%s", "file:", path)).getFile();
         final var signedDocument = signatureService.applySignature(file, parameters, signature);
         minioService.storeFile(
             "graphion", 
             String.format("%s%s", Path.SIGNED, fileUUID),
             signedDocument.openStream());
         file.delete();
+        redisService.unlockFile(fileUUID);
         return ResponseEntity.noContent().build();
     }
 }

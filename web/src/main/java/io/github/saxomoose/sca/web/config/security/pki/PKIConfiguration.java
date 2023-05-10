@@ -106,11 +106,11 @@ public class PKIConfiguration {
     {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
-                    .withSiteOrigin(URI.create(configurationService.localOrigin()))
-                    .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles())
-                    // TODO: Investigate OCSP.
-                    .withoutUserCertificateRevocationCheckWithOcsp();
-            // .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromTrustStore());
+                .withSiteOrigin(URI.create(configurationService.localOrigin()))
+                .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles())
+                // TODO: Investigate OCSP.
+                .withoutUserCertificateRevocationCheckWithOcsp();
+                // .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromTrustStore());
             if (configurationService.activeProfile().equals("dev")) {
                 // TODO: Enable support for ESTEID 2015 test certificates in development profile.
                 // validatorBuilder = validatorBuilder
