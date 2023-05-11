@@ -12,6 +12,9 @@ public interface DocumentRepository extends CrudRepository<Document, Long> {
 
     Collection<Document> findAllByTenant(Long tenantId);
 
+    @Query("SELECT * FROM sca.document WHERE id = :id")
+    Document select(Long tenant, Long id);
+
     @Query("SELECT *  FROM sca.document WHERE tenant = :tenant AND file_uuid = :fileUUID")
     Document select(Long tenant, UUID fileUUID);
 

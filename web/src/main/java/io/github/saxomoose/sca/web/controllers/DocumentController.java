@@ -23,11 +23,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
-import io.github.saxomoose.sca.web.services.MinIOService;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.ValidationService;
 import io.github.saxomoose.sca.web.utils.Notification;
@@ -38,7 +36,6 @@ import jakarta.servlet.http.HttpSession;
 public class DocumentController {
     private final DocumentService documentService;
     private final HttpSession httpSession;
-    private final MinIOService minIOService;
     private final TenantService tenantService;
     private final ValidationService validationService;
 
@@ -46,13 +43,11 @@ public class DocumentController {
     public DocumentController(
         DocumentService documentService,
         HttpSession httpSession,
-        MinIOService minIOService,
         TenantService tenantService,
         ValidationService validationService) 
     {
         this.documentService = documentService;
         this.httpSession = httpSession;
-        this.minIOService = minIOService;
         this.tenantService = tenantService;
         this.validationService = validationService;
     }
@@ -79,18 +74,16 @@ public class DocumentController {
         @RequestParam final Boolean download) throws Exception 
     {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
-        final var uuid = validationService.uuid(rawFileUUID);
-        final var filePath = documentService.filePath(Path.UPLOADS, uuid);
-        final var fileName = documentService.select(tenant.id(), uuid).filename();
+        final var fileUUID = validationService.uuid(rawFileUUID);
         // TODO validate tenantId (uuid)
-        final Resource inputStreamResource = new InputStreamResource(
-                minIOService.objectAsStream(tenant.bucket(), filePath));
+        final var filename = documentService.select(tenant.id(), fileUUID).filename();
+        final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
                 httpHeaders
                     .setContentDisposition(ContentDisposition.attachment()
-                    .filename(String.format("%s.pdf", fileName)).build());
+                    .filename(String.format("%s.pdf", filename)).build());
             }
         }).body(inputStreamResource);
     }
@@ -144,11 +137,8 @@ public class DocumentController {
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        final var tuple = validationService.documentArgs(tenant.id(), rawFilename);
-        final var filePath = documentService.filePath(Path.UPLOADS, tuple.fileUUID());
-        minIOService.storeFile(tenant.bucket(), filePath, clientSideFileSize,
-                rawFileInputStream);
-        documentService.create(tenant.id(), tuple.filename(), tuple.fileUUID());
+        final var filename = validationService.documentArgs(rawFilename);
+        documentService.create(tenant, filename, clientSideFileSize, rawFileInputStream);
         redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
             Notification.Type.SUCCESS, 
             "notification.success",
