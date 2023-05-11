@@ -19,7 +19,7 @@ public class ObjectStorageServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(ObjectStorageServiceTest.class);
 
     @Autowired
-    private MinIOService minIOService;
+    private MinIOService minioService;
     private String bucket;
 
     @BeforeAll
@@ -29,7 +29,7 @@ public class ObjectStorageServiceTest {
 
     @AfterAll
     public void deleteObject() throws Exception {
-        minIOService.delete(bucket, path());
+        minioService.deleteObject(bucket, path());
     }
 
     @Test
@@ -39,20 +39,20 @@ public class ObjectStorageServiceTest {
         final var path = String.format("/uploads/%s", name);
         final var inputStream = new FileInputStream(new ClassPathResource("minio/20230308-test-document.pdf").getFile());
         final var clientSideFileSize = (long) inputStream.available();
-        minIOService.storeFile(bucket, path, clientSideFileSize, inputStream);
+        minioService.storeObject(bucket, path, inputStream);
     }
 
     // given → when → then
     @Test
     public void statObject() throws Exception 
     {
-        final var statObjectResponse = minIOService.stat(bucket, path());
+        final var statObjectResponse = minioService.statObject(bucket, path());
     }
 
     @Test
     public void getObjectAsStream() throws Exception 
     {
-        final var objectInputStream = minIOService.objectAsStream(bucket, path());
+        final var objectInputStream = minioService.objectAsStream(bucket, path());
     }
 
     private String path() 

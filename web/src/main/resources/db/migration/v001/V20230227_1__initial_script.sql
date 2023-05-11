@@ -81,7 +81,7 @@ CREATE TABLE sca.document (
     tenant bigint NOT NULL,
     id bigserial PRIMARY KEY,
     filename character varying(255) NOT NULL,
-    file_uuid uuid NOT NULL,
+    file_uuid uuid DEFAULT gen_random_uuid (),
     version bigint NOT NULL,
     created_by bigint,
     last_modified_by bigint,
