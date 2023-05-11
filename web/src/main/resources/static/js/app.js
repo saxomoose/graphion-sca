@@ -10,7 +10,7 @@ window.bootstrap = bootstrap;
 import * as webeid from "@web-eid/web-eid-library/dist/es/web-eid";
 window.webeid = webeid;
 import * as webeiderrors from "./errors.js";
-window.webeiderrors = webeiderrors
+window.webeiderrors = webeiderrors;
 
 // Option 2
 // import 'bootstrap/js/dist/alert';

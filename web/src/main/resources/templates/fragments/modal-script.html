@@ -1,0 +1,14 @@
+<script>
+    const tableRowsElList = document.querySelectorAll(".clickableRow");
+    const modalsElList = document.querySelectorAll('.modal');
+    if (tableRowsElList !== 0) {
+        const modalList = [...modalsElList].map(
+            modalEl => new bootstrap.Modal(modalEl, {}));
+        console.log(modalList);
+        tableRowsElList.forEach(
+            (tableRowEl, index) => tableRowEl.addEventListener(
+                "click",
+                () => modalList[index].show()));
+    }
+
+</script>

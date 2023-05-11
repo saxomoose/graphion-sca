@@ -8,8 +8,11 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -54,12 +57,17 @@ public class DocumentController {
 
     // Read
     @GetMapping("/documents")
-    public ModelAndView index(final HttpServletRequest request) 
+    public ModelAndView index(
+        final HttpServletRequest request,
+        @SortDefault(sort = "filename") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var documents = documentService.select(tenantId);
+        final var documentPage = documentService.selectPage(pageable, tenantId);
+        if (documentPage.isEmpty()) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404));
+        }
         final var modelAndView = new ModelAndView("documents/index");
-        modelAndView.addObject("documents", documents);
+        modelAndView.addObject("documentPage", documentPage);
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
