@@ -15,7 +15,7 @@
     </div>
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/scripts}"></script>
-    <script data-th-replace="~{fragments/toast-scripts}"></script>
+    <script data-th-replace="~{fragments/toast-script}"></script>
     <script data-th-inline="javascript">
         "use strict";
         const signButton = document.querySelector("#webeid-sign-button");
@@ -30,7 +30,7 @@
 
             try {
                 const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
-                const prepareSigningResponse = await fetch("/pki/sign/dtbsr/dd465658-a13b-352b-8ced-ddd13920283e", {
+                const prepareSigningResponse = await fetch("/pki/sign/dtbsr/d2a91861-b2e6-45f1-88c7-084ddec98975", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -43,7 +43,7 @@
 
                 const { signature, signatureAlgorithm } = await webeid.sign(certificate, hash, hashFunction, { lang });
 
-                const finalizeSigningResponse = await fetch("/pki/sign/apply/dd465658-a13b-352b-8ced-ddd13920283e", {
+                const finalizeSigningResponse = await fetch("/pki/sign/apply/d2a91861-b2e6-45f1-88c7-084ddec98975", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

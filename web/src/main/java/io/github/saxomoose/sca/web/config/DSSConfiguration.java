@@ -2,7 +2,6 @@ package io.github.saxomoose.sca.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;

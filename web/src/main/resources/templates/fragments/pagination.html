@@ -1,0 +1,14 @@
+<nav data-th-fragment="frag(route,page)" class="d-flex flex-row-reverse">
+    <ul class="pagination">
+        <li class="page-item" data-th-classappend="${page.isFirst() ? 'disabled' : _}">
+            <a data-th-href="@{/{route}(route = __${route}__, page = __${page.getNumber() - 1}__)}" class="page-link">
+                <span>&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item" data-th-classappend="${page.isLast() ? 'disabled' : _}">
+            <a data-th-href="@{/{route}(route = __${route}__, page = __${page.getNumber() + 1}__)}" class="page-link">
+                <span>&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
