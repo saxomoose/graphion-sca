@@ -32,16 +32,16 @@
                     </nav>
                     <!-- Modal -->
                     <div data-th-each="document: ${documentPage}" class="modal fade" tabindex="-1">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <a data-th-href="@{/documents/{fileUUID}(fileUUID = __${document.fileUUID()}__)}"
-                                        class="btn btn-primary">View</a>
-                                    <a class="btn btn-primary">Edit</a>
-                                    <a class="btn btn-danger">Delete</a>
+                                <div class="modal-body d-flex align-items-center">
+                                    <a data-th-href="@{/files/{fileUUID}(fileUUID = __${document.fileUUID()}__, download = false)}"
+                                        class="btn btn-primary me-2">View</a>
+                                    <a data-th-href="@{/files/{fileUUID}(fileUUID = __${document.fileUUID()}__, download = true)}"
+                                        class="btn btn-primary me-2">Download</a>
+                                    <a class="btn btn-primary me-2">Edit</a>
+                                    <a class="btn btn-danger me-2">Delete</a>
+                                    <button type="button" class="ms-auto btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                             </div>
                         </div>
