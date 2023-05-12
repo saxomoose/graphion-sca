@@ -147,10 +147,12 @@ public class DocumentController {
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
         final var filename = validationService.documentArgs(rawFilename);
         documentService.create(tenant, filename, clientSideFileSize, rawFileInputStream);
-        redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
-            Notification.Type.SUCCESS, 
-            "notification.success",
-            "documents.create.success")));
+        redirectAttributes.addFlashAttribute(
+            "notifications",
+            List.of(new Notification(
+                Notification.Type.SUCCESS, 
+                "notification.success",
+                "documents.create.success")));
         return new RedirectView("/documents");
     }
 

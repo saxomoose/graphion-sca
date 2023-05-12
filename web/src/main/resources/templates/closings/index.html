@@ -1,81 +1,48 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 
-<head data-th-replace="~{fragments/head :: frag(~{::title})}">
-    <title>Closings</title>
-</head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Closings'})}"></head>
 
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=1)}"></aside>
-                <main class="col-md-10">
-                    <table class="table table-striped">
+                <main class="col-md-6">
+                    <div>
+                        <a data-th-href="@{/closings/create}">Add closing</a>
+                    </div>
+                    <!-- Table -->
+                    <table id="closingTable" class="table table-hover">
                         <thead>
                             <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Date</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Time</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <th-block data-th-each="closing : ${closings}">
-                                <tr>
-                                    <td data-th-text="${closing.id}"></td>
-                                    <td data-th-text="${#dates.format(closing.date, 'yyyy-MM-dd')}"></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3">
-                                        <table class="table mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">First name</th>
-                                                    <th scope="col">Last name</th>
-                                                    <th scope="col">Filename</th>
-                                                    <th scope="col">Signature timestamp</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <data-th-block
-                                                    data-th-each="closingSignatory : ${closing.closingSignatories}">
-                                                    <tr>
-                                                        <td data-th-text="${closingSignatory.signatory.firstName}"></td>
-                                                        <td data-th-text="${closingSignatory.signatory.lastName}"></td>
-                                                        <td
-                                                            data-th-text="${closingSignatory.document.friendlyFilename}">
-                                                        </td>
-                                                        <td
-                                                            data-th-text="${#dates.format(closingSignatory.signatureTimestamp, 'yyyy-MM-dd HH:mm:ss')} ?: 'Not signed'">
-                                                        </td>
-                                                    </tr>
-                                                </data-th-block>
-                                            </tbody>
-                                        </table>
+                        <tbody class="table-group-divider">
+                            <th-block data-th-each="closing : ${closingPage}">
+                                <tr data-th-id="${closing.id()}" class="clickableRow" role="button">
+                                    <td data-th-text="${closing.name()}"></td>
+                                    <td
+                                        data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
                                     </td>
                                 </tr>
                             </th-block>
                         </tbody>
                     </table>
-
-                    <div class="btn-group dropup">
-                        <button type="button" class="btn btn-secondary">
-                            Split dropup
-                        </button>
-                        <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="visually-hidden">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <!-- Dropdown menu links -->
-                        </ul>
-                    </div>
+                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'closings', page = ${closingPage})}">
+                    </nav>
                 </main>
             </div>
         </div>
     </div>
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/scripts}"></script>
+    <div data-th-replace="~{fragments/toast-script}"></div>
+    <div data-th-replace="~{fragments/modal-script}"></div>
 </body>
 
 </html>

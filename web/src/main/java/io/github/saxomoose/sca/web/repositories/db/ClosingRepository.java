@@ -1,13 +1,19 @@
 package io.github.saxomoose.sca.web.repositories.db;
 
 import java.time.Instant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import io.github.saxomoose.sca.web.models.Closing;
 
-public interface ClosingRepository extends CrudRepository<Closing, Long> {
+public interface ClosingRepository extends CrudRepository<Closing, Long>, PagingAndSortingRepository<Closing, Long> {
+
+    Page<Closing> findAllByTenant(Pageable pageable, Long tenantId);
+
     @Query("SELECT *  FROM sca.closing LIMIT 1")
     Closing select();
 

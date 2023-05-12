@@ -2,10 +2,10 @@ package io.github.saxomoose.sca.web.models;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -74,6 +74,11 @@ public class Closing {
     public LocalDateTime timestamp()
     {
         return timestamp;
+    }
+
+    public ZonedDateTime zonedTimestamp()
+    {
+        return ZonedDateTime.of(timestamp(), zoneId());
     }
 
     public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories)
