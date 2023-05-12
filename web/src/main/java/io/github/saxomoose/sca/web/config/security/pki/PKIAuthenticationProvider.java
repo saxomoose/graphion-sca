@@ -2,23 +2,23 @@ package io.github.saxomoose.sca.web.config.security.pki;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
-import io.github.saxomoose.sca.web.models.Signatory;
+import io.github.saxomoose.sca.web.enums.Target;
+import io.github.saxomoose.sca.web.models.Authenticable;
 import io.github.saxomoose.sca.web.services.SignatoryService;
+import io.github.saxomoose.sca.web.services.UserService;
 
 /**
  * Custom authentication provider that uses the authentication token validator for authentication.
@@ -26,21 +26,23 @@ import io.github.saxomoose.sca.web.services.SignatoryService;
 @Component
 public class PKIAuthenticationProvider implements AuthenticationProvider {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationProvider.class);
-    private static final GrantedAuthority GRANTED_AUTHORITY = new SimpleGrantedAuthority("ROLE_SIGNATORY");
 
     private final AuthTokenValidator authTokenValidator;
     private final ChallengeNonceStore challengeNonceStore;
     private final SignatoryService signatoryService;
+    private final UserService userService;
 
     @Autowired
     public PKIAuthenticationProvider(
         AuthTokenValidator authTokenValidator,
         ChallengeNonceStore challengeNonceStore,
-        SignatoryService signatoryService) 
+        SignatoryService signatoryService,
+        UserService userService) 
     {
         this.authTokenValidator = authTokenValidator;
         this.challengeNonceStore = challengeNonceStore;
         this.signatoryService = signatoryService;
+        this.userService = userService;
     }
 
     @Override
@@ -48,13 +50,12 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
     {
         logger.info(String.format("authenticate(): %s", auth));
         final var authentication = (PreAuthenticatedAuthenticationToken) auth;
-        final var authToken = ((AuthToken) authentication.getCredentials()).token();
-        final var authorities = List.of(GRANTED_AUTHORITY);
+        final var credentials = ((io.github.saxomoose.sca.web.config.security.pki.Authentication) authentication.getCredentials());
         try {
             final var nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
-            final var userCertificate = authTokenValidator.validate(authToken, nonce);
-            final var signatory = signatoryFromCertificate(userCertificate);
-            return PKIAuthentication.of(signatory, authorities);
+            final var userCertificate = authTokenValidator.validate(credentials.token(), nonce);
+            final var authenticable = authenticableFromCertificate(credentials.target(), userCertificate);
+            return PKIAuthentication.of(authenticable);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
@@ -67,11 +68,16 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
         return PreAuthenticatedAuthenticationToken.class.equals(authentication);
     }
 
-    private Signatory signatoryFromCertificate(X509Certificate userCertificate) throws CertificateEncodingException 
-    {   
+    private Authenticable authenticableFromCertificate(String target, X509Certificate userCertificate) throws CertificateEncodingException 
+    {
         final var nationalRegistrationNumber = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
-        return signatoryService.select(Long.parseLong(nationalRegistrationNumber));
+        final var uuid = UUID.nameUUIDFromBytes(nationalRegistrationNumber.getBytes());
+        if (Target.valueOf(target) == Target.TENANT) {
+            return userService.select(uuid);
+        } else if (Target.valueOf(target) == Target.CLOSING) {
+            return signatoryService.select(uuid);
+        }
+        // Unreachable.
+        return null;
     }
-
-
 }

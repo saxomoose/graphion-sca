@@ -3,8 +3,9 @@ package io.github.saxomoose.sca.web.models;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
-
+import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -12,13 +13,16 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
-public class Signatory implements Serializable {
+public class Signatory implements Authenticable, Serializable {
     private final Long tenant;
     @Id
     private final Long id;
-    private final Long nationalRegistrationNumber;
+    private final UUID uuid;
     private final String firstName;
     private final String lastName;
     private final LocalDate dateOfBirth;
@@ -39,20 +43,20 @@ public class Signatory implements Serializable {
 
     public static Signatory of(
             Long tenantId,
-            Long nationalRegistrationNumber,
+            UUID uuid,
             String firstName,
             String lastName,
             LocalDate dateOfBirth,
             String email) 
     {
         return new Signatory(
-            tenantId, null, nationalRegistrationNumber, firstName, lastName, dateOfBirth, email, Boolean.FALSE);
+            tenantId, null, uuid, firstName, lastName, dateOfBirth, email, Boolean.FALSE);
     }
 
     public Signatory(
             Long tenant,
             Long id,
-            Long nationalRegistrationNumber,
+            UUID uuid,
             String firstName,
             String lastName,
             LocalDate dateOfBirth,
@@ -61,7 +65,7 @@ public class Signatory implements Serializable {
     {
         this.tenant = tenant;
         this.id = id;
-        this.nationalRegistrationNumber = nationalRegistrationNumber;
+        this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
@@ -79,9 +83,9 @@ public class Signatory implements Serializable {
         return id;
     }
 
-    public Long nationalRegistrationNumber() 
+    public UUID uuid() 
     {
-        return nationalRegistrationNumber;
+        return uuid;
     }
 
     public String firstName() 
@@ -124,5 +128,10 @@ public class Signatory implements Serializable {
     public int hashCode() 
     {
         return Objects.hash(id);
+    }
+
+    @Override
+    public List<GrantedAuthority> role() {
+        return List.of(new SimpleGrantedAuthority(Role.ROLE_SIGNATORY.name()));
     }
 }

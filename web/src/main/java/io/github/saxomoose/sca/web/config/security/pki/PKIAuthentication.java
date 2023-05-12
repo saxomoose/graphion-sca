@@ -1,38 +1,37 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
 import java.security.cert.X509Certificate;
-import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import eu.webeid.security.certificate.CertificateData;
-import io.github.saxomoose.sca.web.models.Signatory;
+import io.github.saxomoose.sca.web.models.Authenticable;
 
 public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthentication.class);
 
     /**
-     * TODO: necessary?
+     * TODO: necessary? Parent works without it.
      */
-    private final Long subjectIdCode;
+    private final UUID subjectIdCode;
 
-    public static Authentication of(Signatory signatory, List<GrantedAuthority> authorities)
+    public static Authentication of(Authenticable authenticable)
     {
-        final var subjectIdCode = signatory.nationalRegistrationNumber();
-        return new PKIAuthentication(signatory, subjectIdCode, authorities);
+        final var subjectIdCode = authenticable.uuid();
+        return new PKIAuthentication(authenticable, subjectIdCode);
     }
 
-    public Long subjectIdCode() 
+    public UUID subjectIdCode() 
     {
         return subjectIdCode;
     }
 
-    private PKIAuthentication(Signatory principal, Long subjectIdCode, List<GrantedAuthority> authorities) 
+    private PKIAuthentication(Authenticable principal, UUID subjectIdCode) 
     {
-        super(principal, null, authorities);
+        super(principal, null, principal.role());
         this.subjectIdCode = subjectIdCode;
     }
 

@@ -1,5 +1,8 @@
 package io.github.saxomoose.sca.web.services;
 
+import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.Signatory;
 import io.github.saxomoose.sca.web.repositories.db.SignatoryRepository;
@@ -13,9 +16,14 @@ public class SignatoryService {
         this.signatoryRepository = signatoryRepository;
     }
 
-    public Signatory select(Long nationalRegistrationNumber)
+    public Page<Signatory> selectPage(final Pageable pageable, final Long tenantId)
     {
-        return signatoryRepository.select(nationalRegistrationNumber);
+        return signatoryRepository.findAllByTenant(pageable, tenantId);
+    }
+
+    public Signatory select(UUID uuid)
+    {
+        return signatoryRepository.select(uuid);
     }
 
 }

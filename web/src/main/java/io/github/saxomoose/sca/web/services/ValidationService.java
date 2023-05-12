@@ -4,6 +4,8 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import io.github.saxomoose.sca.web.config.security.pki.Authentication;
+import io.github.saxomoose.sca.web.enums.Target;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
 
@@ -38,6 +40,13 @@ public class ValidationService {
         return UUID.fromString(uuid);
     }
 
-
-    
+    // TODO: validate incoming JSON
+    public void authentication(Authentication auth) throws BusinessLogicException 
+    {
+        try {
+            Target.valueOf(auth.target());
+        } catch(IllegalArgumentException exception) {
+            throw new BusinessLogicException("TODO");
+        }
+    }
 }

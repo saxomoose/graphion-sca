@@ -11,6 +11,8 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.services.ValidationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,24 +21,27 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationProcessingFilter.class);
 
     private final ObjectMapper objectMapper;
+    private final ValidationService validationService;
 
     /**
-     * TODO: Look into alternative.
+     * TODO: error handling? How to report back to user.
      */
     public PKIAuthenticationProcessingFilter(
         final AuthenticationManager authenticationManager,
+        final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
         final PKIAuthenticationFailureHandler authenticationFailureHandler,
         final PKIAuthenticationSuccessHandler authenticationSuccessHandler, 
         final ObjectMapper objectMapper,
-        final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
-        final String defaultFilterProcessesUrl)
+        final String defaultFilterProcessesUrl,
+        final ValidationService validationService)
     {
         super(defaultFilterProcessesUrl);
         this.setAuthenticationManager(authenticationManager);
+        this.setSecurityContextRepository(httpSessionSecurityContextRepository);
         this.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         this.setAuthenticationFailureHandler(authenticationFailureHandler);
-        this.setSecurityContextRepository(httpSessionSecurityContextRepository);
         this.objectMapper = objectMapper;
+        this.validationService = validationService;
     }
 
     @Override
@@ -45,7 +50,7 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
         HttpServletResponse response) throws AuthenticationException, IOException, ServletException
     {
 
-        if (!HttpMethod.POST.name().equals(request.getMethod())) {
+        if (HttpMethod.valueOf(request.getMethod()) != HttpMethod.POST) {
             logger.error("HTTP method not supported: %s", request.getMethod());
             throw new RuntimeException();
         }
@@ -54,8 +59,14 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
             logger.error("Content type not supported: %s", contentType);
             throw new RuntimeException();
         }
-        AuthToken authToken = objectMapper.readValue(request.getReader(), AuthToken.class);
-        final var token = new PreAuthenticatedAuthenticationToken(null, authToken);
+        final var auth = objectMapper.readValue(request.getReader(), io.github.saxomoose.sca.web.config.security.pki.Authentication.class);
+        final var token = new PreAuthenticatedAuthenticationToken(null, auth);
+        try {
+            validationService.authentication(auth);
+        } catch (BusinessLogicException exception) {
+            logger.error(exception.getMessage());
+            throw new RuntimeException();
+        }
         return getAuthenticationManager().authenticate(token);
     }
 

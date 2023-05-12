@@ -8,25 +8,33 @@
             <div class="d-flex flex-column">
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a data-th-href="@{/closings}" data-th-classappend="${activeNavLink == 0} ? active : _"
+                        <a data-th-href="@{/dashboard}" data-th-classappend="${activeNavLink == 0} ? active : _"
                             class="nav-link">
-                            <img data-th-src="@{/svg/vector-pen{color}.svg(color=(__${activeNavLink == 0}__ ? '-white' : ''))}"
+                            <img data-th-src="@{/svg/ui-checks{color}.svg(color=(__${activeNavLink == 0}__ ? '-white' : ''))}"
+                                alt="vector-pen" width="32" height="32" class="me-2">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a data-th-href="@{/closings}" data-th-classappend="${activeNavLink == 1} ? active : _"
+                            class="nav-link">
+                            <img data-th-src="@{/svg/vector-pen{color}.svg(color=(__${activeNavLink == 1}__ ? '-white' : ''))}"
                                 alt="vector-pen" width="32" height="32" class="me-2">
                             Closings
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a data-th-href="@{/signatories}" data-th-classappend="${activeNavLink == 1} ? active : _"
+                        <a data-th-href="@{/signatories}" data-th-classappend="${activeNavLink == 2} ? active : _"
                             class="nav-link">
-                            <img data-th-src="@{/svg/person-vcard{color}.svg(color=(__${activeNavLink == 1}__ ? '-white' : ''))}"
+                            <img data-th-src="@{/svg/person-vcard{color}.svg(color=(__${activeNavLink == 2}__ ? '-white' : ''))}"
                                 alt="person-card" width="32" height="32" class="me-2">
                             Signatories
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a data-th-href="@{/documents}" data-th-classappend="${activeNavLink == 2} ? active : _"
+                        <a data-th-href="@{/documents}" data-th-classappend="${activeNavLink == 3} ? active : _"
                             class="nav-link">
-                            <img data-th-src="@{/svg/files{color}.svg(color=(__${activeNavLink == 2}__ ? '-white' : ''))}"
+                            <img data-th-src="@{/svg/files{color}.svg(color=(__${activeNavLink == 3}__ ? '-white' : ''))}"
                                 alt="files" width="32" height="32" class="me-2">
                             Documents
                         </a>

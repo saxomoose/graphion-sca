@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-
+import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -15,11 +15,10 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
-public class User implements UserDetails {
+public class User implements Authenticable, UserDetails {
     private final Long tenant;
     @Id
     private final Long id;
@@ -131,5 +130,16 @@ public class User implements UserDetails {
     public int hashCode()
     {
         return Objects.hash(id);
+    }
+
+    @Override
+    public UUID uuid() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'uniqueIdentifier'");
+    }
+
+    @Override
+    public List<GrantedAuthority> role() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 }
