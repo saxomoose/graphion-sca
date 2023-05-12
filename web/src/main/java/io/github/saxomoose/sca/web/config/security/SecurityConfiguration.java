@@ -17,9 +17,7 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.github.saxomoose.sca.web.config.security.fallback.AccessDeniedHandler;
 import io.github.saxomoose.sca.web.config.security.fallback.AuthenticationEntryPoint;
 import io.github.saxomoose.sca.web.config.security.fallback.JDBCAuthenticationFailureHandler;
@@ -29,6 +27,7 @@ import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationFailureH
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProcessingFilter;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationSuccessHandler;
+import io.github.saxomoose.sca.web.services.ValidationService;
 
 @Configuration 
 @EnableWebSecurity
@@ -54,11 +53,12 @@ public class SecurityConfiguration {
     @Order(1)
     public SecurityFilterChain pkiSecurityFilterChain( 
         final AuthenticationManager authenticationManager,
+        final HttpSecurity httpSecurity,
         final ObjectMapper objectMapper,
         final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
         final PKIAuthenticationProvider pkiAuthenticationProvider,
         final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler,
-        final HttpSecurity httpSecurity) throws Exception
+        final ValidationService validationService) throws Exception
     {
         httpSecurity
             .securityMatcher("/pki/**")
@@ -69,11 +69,12 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER))
             .addFilterBefore(new PKIAuthenticationProcessingFilter(
                 authenticationManager,
+                new HttpSessionSecurityContextRepository(),
                 pkiAuthenticationFailureHandler,
                 pkiAuthenticationSuccessHandler,
                 objectMapper,
-                new HttpSessionSecurityContextRepository(),
-                "/pki/login"
+                "/pki/login",
+                validationService
                 ), UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/pki/challenge").permitAll()

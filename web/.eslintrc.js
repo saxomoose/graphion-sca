@@ -13,6 +13,7 @@ module.exports = {
     ],
     "rules": {
         "indent": ["error", 4],
+        "no-template-curly-in-string": "off",
         "quotes": [2, "double"],
         "quote-props": [2, "always"]
     }

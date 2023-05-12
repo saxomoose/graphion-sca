@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 
-<head data-th-replace="~{fragments/head :: frag(~{::title})}">
-    <title>Home</title>
-</head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Home'})}"></head>
 
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
@@ -42,9 +40,10 @@
                     headers: {
                         "Accept": "application/json",
                         "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": [[${ _csrf.token }]]
+                        "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
                     },
-                    body: `{"auth-token": ${JSON.stringify(authToken)}}`
+                    // retrieve target based on clicked button
+                    body: `{"auth-token": ${JSON.stringify(authToken)}, "target": "TENANT"}`
                 });
                 await webeiderrors.checkHttpError(authTokenResponse);
                 window.location.href = "/pki/sign";

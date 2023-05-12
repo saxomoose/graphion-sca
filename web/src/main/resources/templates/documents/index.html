@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 
-<head data-th-replace="~{fragments/head :: frag(~{::title})}">
-    <title>Documents</title>
-</head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Documents'})}"></head>
 
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
@@ -11,11 +9,12 @@
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
-                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=2)}"></aside>
+                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=3)}"></aside>
                 <main class="col-md-6">
                     <div>
                         <a data-th-href="@{/documents/create}">Add document</a>
                     </div>
+                    <!-- Table -->
                     <table id="documentTable" class="table table-hover">
                         <thead>
                             <tr>
@@ -23,9 +22,11 @@
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <tr data-th-each="document : ${documentPage}" role="button" class="clickableRow">
-                                <td data-th-text="${document.filename()}"></td>
-                            </tr>
+                            <th-block data-th-each="document : ${documentPage}">
+                                <tr data-th-id="${document.id()}" class="clickableRow" role="button">
+                                    <td data-th-text="${document.filename()}"></td>
+                                </tr>
+                            </th-block>
                         </tbody>
                     </table>
                     <nav data-th-replace="~{fragments/pagination :: frag(route = 'documents', page = ${documentPage})}">
