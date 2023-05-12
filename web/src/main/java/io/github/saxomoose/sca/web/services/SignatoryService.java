@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.services;
 
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import io.github.saxomoose.sca.web.repositories.db.SignatoryRepository;
 public class SignatoryService {
     private final SignatoryRepository signatoryRepository;
 
+    @Autowired
     public SignatoryService(SignatoryRepository signatoryRepository)
     {
         this.signatoryRepository = signatoryRepository;

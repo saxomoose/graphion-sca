@@ -5,9 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import io.github.saxomoose.sca.web.models.Signatory;
 
-public interface SignatoryRepository extends CrudRepository<Signatory, Long> {
+public interface SignatoryRepository extends CrudRepository<Signatory, Long>, PagingAndSortingRepository<Signatory, Long> {
     
     Page<Signatory> findAllByTenant(Pageable pageable, Long tenantId);
 
