@@ -1,41 +1,33 @@
-<aside data-th-fragment="frag(activeNavLink)" class="col-md-2">
-    <div id="sidebar" class="offcanvas-md offcanvas-start" data-bs-backdrop="static" tabindex="-1">
+<aside class="col-md-2" data-th-fragment="frag(activeNavLink)">
+    <div class="offcanvas-md offcanvas-start" id="sidebar" data-bs-backdrop="static" tabindex="-1">
         <div class="offcanvas-header border-bottom">
-            <h5 id="sidebarOffcanvasLabel" class="offcanvas-title">Menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button>
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
+            <button class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" type="button"></button>
         </div>
         <div class="offcanvas-body">
             <div class="d-flex flex-column">
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a data-th-href="@{/dashboard}" data-th-classappend="${activeNavLink == 0} ? active : _"
-                            class="nav-link">
-                            <img data-th-src="@{/svg/ui-checks{color}.svg(color=(__${activeNavLink == 0}__ ? '-white' : ''))}"
-                                alt="vector-pen" width="32" height="32" class="me-2">
+                        <a class="nav-link" data-th-classappend="${activeNavLink == 0} ? active : _" data-th-href="@{/dashboard}">
+                            <img class="me-2" data-th-src="@{/svg/ui-checks{color}.svg(color=(__${activeNavLink == 0}__ ? '-white' : ''))}" alt="vector-pen" width="32" height="32">
                             Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a data-th-href="@{/closings}" data-th-classappend="${activeNavLink == 1} ? active : _"
-                            class="nav-link">
-                            <img data-th-src="@{/svg/vector-pen{color}.svg(color=(__${activeNavLink == 1}__ ? '-white' : ''))}"
-                                alt="vector-pen" width="32" height="32" class="me-2">
+                        <a class="nav-link" data-th-classappend="${activeNavLink == 1} ? active : _" data-th-href="@{/closings}">
+                            <img class="me-2" data-th-src="@{/svg/vector-pen{color}.svg(color=(__${activeNavLink == 1}__ ? '-white' : ''))}" alt="vector-pen" width="32" height="32">
                             Closings
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a data-th-href="@{/signatories}" data-th-classappend="${activeNavLink == 2} ? active : _"
-                            class="nav-link">
-                            <img data-th-src="@{/svg/person-vcard{color}.svg(color=(__${activeNavLink == 2}__ ? '-white' : ''))}"
-                                alt="person-card" width="32" height="32" class="me-2">
+                        <a class="nav-link" data-th-classappend="${activeNavLink == 2} ? active : _" data-th-href="@{/signatories}">
+                            <img class="me-2" data-th-src="@{/svg/person-vcard{color}.svg(color=(__${activeNavLink == 2}__ ? '-white' : ''))}" alt="person-card" width="32" height="32">
                             Signatories
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a data-th-href="@{/documents}" data-th-classappend="${activeNavLink == 3} ? active : _"
-                            class="nav-link">
-                            <img data-th-src="@{/svg/files{color}.svg(color=(__${activeNavLink == 3}__ ? '-white' : ''))}"
-                                alt="files" width="32" height="32" class="me-2">
+                        <a class="nav-link" data-th-classappend="${activeNavLink == 3} ? active : _" data-th-href="@{/documents}">
+                            <img class="me-2" data-th-src="@{/svg/files{color}.svg(color=(__${activeNavLink == 3}__ ? '-white' : ''))}" alt="files" width="32" height="32">
                             Documents
                         </a>
                     </li>

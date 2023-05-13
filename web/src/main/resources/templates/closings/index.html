@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html class="h-100" lang="en">
 
 <head data-th-replace="~{fragments/head :: frag(~{title = 'Closings'})}"></head>
 
@@ -15,20 +15,21 @@
                         <a data-th-href="@{/closings/create}">Add closing</a>
                     </div>
                     <!-- Table -->
-                    <table id="closingTable" class="table table-hover">
+                    <table class="table table-hover" id="closingTable">
                         <thead>
                             <tr>
                                 <th scope="col">Name</th>
                                 <th scope="col">Time</th>
+                                <th scope="col">Location</th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="closing : ${closingPage}">
-                                <tr data-th-id="${closing.id()}" class="clickableRow" role="button">
+                                <tr class="clickableRow" data-th-id="${closing.id()}" role="button">
                                     <td data-th-text="${closing.name()}"></td>
-                                    <td
-                                        data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
+                                    <td data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
                                     </td>
+                                    <td data-th-text="${closing.location()}"></td>
                                 </tr>
                             </th-block>
                         </tbody>

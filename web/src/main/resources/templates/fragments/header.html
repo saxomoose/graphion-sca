@@ -1,22 +1,21 @@
 <header class="container-fluid bg-light border-bottom">
     <nav class="d-flex navbar navbar-expand-md align-items-center">
-        <a data-th-href="@{/}" class="me-auto">
+        <a class="me-auto" data-th-href="@{/}">
             <img data-th-src="@{/svg/house.svg}" alt="graphion-logo" width="32" height="32">
         </a>
-        <button data-sec-authorize="isAuthenticated()" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
-            class="navbar-toggler">
+        <button class="navbar-toggler" data-bs-target="#sidebar" data-bs-toggle="offcanvas" data-sec-authorize="isAuthenticated()">
             <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32">
         </button>
         <ul class="nav">
-            <li data-sec-authorize="!isAuthenticated()" class="nav-item">
-                <a data-th-href="@{/login}" class="nav-link px-2 link-dark">Login</a>
+            <li class="nav-item" data-sec-authorize="!isAuthenticated()">
+                <a class="nav-link px-2 link-dark" data-th-href="@{/login}">Login</a>
             </li>
-            <li data-sec-authorize="!isAuthenticated()" class="nav-item">
-                <a data-th-href="@{/register}" class="nav-link px-2 link-dark">Register</a>
+            <li class="nav-item" data-sec-authorize="!isAuthenticated()">
+                <a class="nav-link px-2 link-dark" data-th-href="@{/register}">Register</a>
             </li>
         </ul>
         <form data-sec-authorize="isAuthenticated()" data-th-action="@{/logout}" method="post">
-            <input type="submit" value="Log out" />
+            <input type="submit" value="Log out">
         </form>
     </nav>
 </header>

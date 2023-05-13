@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html class="h-100" lang="en">
 
 <head data-th-replace="~{fragments/head :: frag(~{::title})}">
     <title>Signatories</title>
@@ -17,7 +17,7 @@
                         <a data-th-href="@{/signatories/create}">Add signatory</a>
                     </div>
                     <!-- Table -->
-                    <table id="signatoryTable" class="table table-hover">
+                    <table class="table table-hover" id="signatoryTable">
                         <thead>
                             <tr>
                                 <th scope="col">Last name</th>
@@ -28,7 +28,7 @@
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="signatory : ${signatoryPage}">
-                                <tr data-th-id="${signatory.id()}" class="clickableRow" role="button">
+                                <tr class="clickableRow" data-th-id="${signatory.id()}" role="button">
                                     <td data-th-text="${signatory.lastName()}"></td>
                                     <td data-th-text="${signatory.firstName()}"></td>
                                     <td data-th-text="${signatory.email()}"></td>
@@ -37,8 +37,7 @@
                             </th-block>
                         </tbody>
                     </table>
-                    <nav
-                        data-th-replace="~{fragments/pagination :: frag(route = 'signatories', page = ${signatoryPage})}">
+                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'signatories', page = ${signatoryPage})}">
                     </nav>
                     <!-- Modal -->
                     <!-- <div data-th-each="signatory: ${signatoryPage}" class="modal fade" tabindex="-1">

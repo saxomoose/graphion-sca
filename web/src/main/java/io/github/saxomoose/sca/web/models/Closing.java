@@ -20,8 +20,9 @@ public class Closing {
     @Id
     private final Long id;
     private final String name;
-    private final ZoneId zoneId;
     private final LocalDateTime timestamp;
+    private final ZoneId zoneId;
+    private final String location;
 
     @Version
     private Long version;
@@ -37,18 +38,19 @@ public class Closing {
     private Set<ClosingSignatory> naturalPersonSignatories = new HashSet<>();
     private Set<ClosingLegalPerson> legalPersonSignatories = new HashSet<>();
 
-    public static Closing of(Long tenantId, String name, ZoneId zoneId, LocalDateTime timestamp)
+    public static Closing of(Long tenantId, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {
-        return new Closing(tenantId, null, name, zoneId, timestamp);
+        return new Closing(tenantId, null, name, timestamp, zoneId, location);
     }
 
-    public Closing(Long tenant, Long id, String name, ZoneId zoneId, LocalDateTime timestamp)
+    public Closing(Long tenant, Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {
         this.tenant = tenant;
         this.id = id;
         this.name = name;
         this.zoneId = zoneId;
         this.timestamp = timestamp;
+        this.location = location;
     }
 
     public Long tenantId()
@@ -66,19 +68,24 @@ public class Closing {
         return name;
     }
 
-    public ZoneId zoneId()
-    {
-        return zoneId;
-    }
-
     public LocalDateTime timestamp()
     {
         return timestamp;
     }
 
+    public ZoneId zoneId()
+    {
+        return zoneId;
+    }
+
     public ZonedDateTime zonedTimestamp()
     {
         return ZonedDateTime.of(timestamp(), zoneId());
+    }
+
+    public String location()
+    {
+        return location;
     }
 
     public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories)
