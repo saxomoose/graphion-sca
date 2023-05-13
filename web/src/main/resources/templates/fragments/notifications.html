@@ -1,10 +1,10 @@
-<div data-th-fragment="frag(notifications)" class="position-relative">
+<div class="position-relative" data-th-fragment="frag(notifications)">
     <div class="toast-container top-0 end-0 p-3">
         <th-block data-th-each="notification :${notifications}">
-            <div class="toast" role="alert" data-bs-autohide="false">
+            <div class="toast" data-bs-autohide="false" role="alert">
                 <div class="toast-header">
-                    <strong data-th-text="#{${notification.header}}" class="me-auto"></strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    <strong class="me-auto" data-th-text="#{${notification.header}}"></strong>
+                    <button class="btn-close" data-bs-dismiss="toast" type="button"></button>
                 </div>
                 <div class="toast-body">
                     <p data-th-text="#{${notification.body}}"></p>

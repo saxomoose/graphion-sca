@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="h-100">
+<html class="h-100" lang="en">
 
 <head data-th-replace="~{fragments/head :: frag(~{title = 'Sign'})}"></head>
 
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
     <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
-    <button id="webeid-sign-button" class="btn btn-info">Sign document</button>
-    <div id="error-message" class="alert alert-danger" style="display: none;" role="alert">
+    <button class="btn btn-info" id="webeid-sign-button">Sign document</button>
+    <div class="alert alert-danger" id="error-message" role="alert" style="display: none;">
         <div class="message"></div>
         <pre class="details"></pre>
     </div>

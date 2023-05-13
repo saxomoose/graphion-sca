@@ -44,4 +44,17 @@ public class ClosingController {
         }
         return modelAndView;
     }
+
+        // Create
+        @GetMapping("/closings/create")
+        public ModelAndView create(final HttpServletRequest request) 
+        {
+            final var modelAndView = new ModelAndView("closings/create");
+            final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+            if (inputFlashMap != null) {
+                modelAndView.addObject(
+                    "notifications", inputFlashMap.get("notifications"));
+            }
+            return modelAndView;
+        }
 }
