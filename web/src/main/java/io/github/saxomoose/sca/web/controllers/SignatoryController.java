@@ -78,8 +78,9 @@ public class SignatoryController {
     /**
      * TODO
      */
-    @PostMapping(value = "/signatories", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(value = "/signatories/{rawIdentificationMethod}", consumes = "application/x-www-form-urlencoded")
     public RedirectView store(
+        final String rawIdentificationMethod,
         final Signatory rawSignatory,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
@@ -91,8 +92,8 @@ public class SignatoryController {
             List.of(new Notification(
                 Notification.Type.SUCCESS, 
                 "notification.success",
-                "documents.create.success")));
-        return new RedirectView("/documents");
+                "signatories.create.success")));
+        return new RedirectView("/signatories");
     }
     
 }
