@@ -38,11 +38,11 @@ public class SignatureController {
 
 
     @PostMapping(value = "/pki/sign/dtbsr/{rawFileUUID}", produces = "application/json")
-    public ResponseEntity<Digest> dataToSign(
+    public ResponseEntity<DigestPayload> dataToSign(
         HttpServletRequest request,
         HttpServletResponse response,
         @PathVariable final String rawFileUUID,
-        @RequestBody final SignatureCertificate signatureCertificate
+        @RequestBody final SignatureCertificatePayload signatureCertificate
     ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
@@ -59,7 +59,7 @@ public class SignatureController {
     public ResponseEntity sign(
         HttpServletRequest request,
         @PathVariable final String rawFileUUID,
-        @RequestBody final Signature signature
+        @RequestBody final SignaturePayload signature
     ) throws CertificateException, IOException
     {
         final var fileUUID = validationService.uuid(rawFileUUID);

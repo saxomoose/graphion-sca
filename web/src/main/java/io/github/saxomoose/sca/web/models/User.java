@@ -1,10 +1,8 @@
 package io.github.saxomoose.sca.web.models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -12,21 +10,17 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
-public class User implements Authenticable, UserDetails {
-    private final Long tenant;
+public class User implements Serializable {
     @Id
     private final Long id;
-    private final String username;
-    private final String password;
-    // Required by UserDetails interface.
-    private Boolean enabled;
-    private Role role;
+    private final String nrn;
+    private String firstName;
+    private String lastName;
+    private String username;
+    // Art. 1:5 New Belgian Civil Code.
+    private Boolean electronicSignatureConsent;
 
     @Version
     private Long version;
@@ -39,80 +33,81 @@ public class User implements Authenticable, UserDetails {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    public static User of(Long tenantId, String username, String password)
+    public static User of(
+        String firstName,
+        String lastName,
+        String username,
+        Boolean electronicSignatureConsent)
     {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
-        return new User(tenantId, null, username, password, Boolean.TRUE, Role.ROLE_ADMIN);
+        return new User(null, null, firstName, lastName, username, Boolean.FALSE);
+    }
+
+    // Only used in seeder.
+    public static User of(
+        String nrn,
+        String firstName,
+        String lastName,
+        String username,
+        Boolean electronicSignatureConsent
+    )
+    {
+        return new User(null, nrn, firstName, lastName, username, Boolean.FALSE);
     }
 
     // remove public?
-    public User(Long tenant, Long id, String username, String password, Boolean enabled, Role role)
+    public User(
+        Long id,
+        String nrn,
+        String firstName,
+        String lastName,
+        String username,
+        Boolean electronicSignatureConsent
+    )
     {
-        this.tenant = tenant;
         this.id = id;
+        this.nrn = nrn;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
-        this.password = password;
-        this.enabled = enabled;
-        this.role = role;
+        this.electronicSignatureConsent = electronicSignatureConsent;
     }
 
-    public Long tenantId()
-    {
-        return tenant;
-    }
+    // public Long tenantId()
+    // {
+    //     return tenant;
+    // }
 
     public Long id()
     {
         return id;
     }
 
-    @Override
-    public String getUsername()
+    public String nrn()
+    {
+        return nrn;
+    }
+
+    public String firstName()
+    {
+        return firstName;
+    }
+
+    public String lastName()
+    {
+        return lastName;
+    }
+
+    public String username()
     {
         return username;
     }
 
-    @Override
-    public String getPassword()
+    public Boolean electronicSignatureConsent()
     {
-        return password;
-    }
-
-    @Override
-    public boolean isAccountNonExpired()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled()
-    {
-        return enabled;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities()
-    {
-        return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    public void setEnabled(Boolean enabled)
-    {
-        this.enabled = enabled;
+        return electronicSignatureConsent;
     }
 
     @Override
@@ -132,14 +127,12 @@ public class User implements Authenticable, UserDetails {
         return Objects.hash(id);
     }
 
-    @Override
-    public UUID uuid() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'uniqueIdentifier'");
-    }
+    // public List<GrantedAuthority> authorities() {
+    //     return List.of(new SimpleGrantedAuthority(role().toString()));
+    // }
 
-    @Override
-    public List<GrantedAuthority> role() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+    public String email()
+    {
+        return username();
     }
 }

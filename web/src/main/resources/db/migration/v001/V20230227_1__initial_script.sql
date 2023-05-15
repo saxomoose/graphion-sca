@@ -8,41 +8,19 @@ CREATE TABLE sca.tenant (
 );
 
 CREATE TABLE sca.user (
-    tenant bigint NOT NULL,
     id bigserial PRIMARY KEY,
-    username character varying(255) NOT NULL,
-    password character varying(255) NOT NULL,
-    enabled boolean NOT NULL,
-    role character varying(255) NOT NULL,
-    version bigint NOT NULL,
-    created_by bigint,
-    last_modified_by bigint,
-    created_date timestamp(6) NOT NULL,
-    last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_user UNIQUE(tenant, username),
-    CONSTRAINT fk_21hn1a5ja1tve7ae02fnn4cld FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
-    CONSTRAINT fk_xrm5kc7fcipmupq47qb7erbca FOREIGN KEY (created_by) REFERENCES sca.user(id),
-    CONSTRAINT fk_fvofgwr9u29o5c9wm5t7rxmf3 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
-);
-
-CREATE TABLE sca.signatory (
-    tenant bigint NOT NULL,
-    id bigserial PRIMARY KEY,
-    uuid uuid,
+    nrn character varying(255) NOT NULL,
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
-    date_of_birth date, 
-    email character varying(255) NOT NULL,
-    consent boolean DEFAULT false,
+    username character varying(255) NOT NULL UNIQUE,
+    electronic_signature_consent boolean DEFAULT false,
     version bigint NOT NULL,
     created_by bigint,
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_signatory UNIQUE(tenant,email),
-    CONSTRAINT fk_gy9ohx5nb3iqb3w4zmiztitnh FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
-    CONSTRAINT fk_9oyvpg7hbksavchjtdxdqdjbn FOREIGN KEY (created_by) REFERENCES sca.user(id),
-    CONSTRAINT fk_k5ro5xzq35qp34s2d3jtww2u5 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
+    CONSTRAINT fk_xrm5kc7fcipmupq47qb7erbca FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_fvofgwr9u29o5c9wm5t7rxmf3 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
 CREATE TABLE sca.legal_person (
@@ -54,7 +32,7 @@ CREATE TABLE sca.legal_person (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_legal_person UNIQUE(tenant, enterprise_number),
+    CONSTRAINT unique_constraint_legal_person_enterprise_number UNIQUE(tenant, enterprise_number),
     CONSTRAINT fk_3w7dqdxa2eq4q4q2rpzdid2c2 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_fo9m7etyd4e3weag5mig43ebu FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_mzprcu2kgq2hjs5bia2bpaia2 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
@@ -72,7 +50,7 @@ CREATE TABLE sca.closing (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_closing UNIQUE(tenant, name),
+    CONSTRAINT unique_constraint_closing_name UNIQUE(tenant, name),
     CONSTRAINT fk_28r54jdf20uxapd9ll4xc9swl FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_npngjh2wzvv74ptuxts7cu9ct FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_dyd3m7iqwxpovnzso95b3qees FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
@@ -94,6 +72,17 @@ CREATE TABLE sca.document (
     CONSTRAINT fk_igz4yymunfjtm3m7aj7cx2z34 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
+CREATE TABLE sca.tenant_user (
+    tenant bigint NOT NULL,
+    "user" bigint NOT NULL,
+    role character varying(255) NOT NULL,
+    enabled boolean DEFAULT true,
+    default_connection boolean DEFAULT false,
+    CONSTRAINT pk_tenant_user PRIMARY KEY (tenant, "user"),
+    CONSTRAINT fk_qsj3awwwowmeyixcg2tnkev42 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
+    CONSTRAINT fk_rmhjty3j34w7h2phsg4rgr22a FOREIGN KEY ("user") REFERENCES sca.user(id)
+);
+
 CREATE TABLE sca.closing_legal_person (
     closing bigint NOT NULL,
     legal_person integer NOT NULL,
@@ -110,7 +99,7 @@ CREATE TABLE sca.officer (
     enterprise_number bigint,
     CONSTRAINT pk_officer PRIMARY KEY (legal_person, signatory),
     CONSTRAINT fk_7foy21sx48iatl2bfugmc9xn1 FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id),
-    CONSTRAINT fk_bu5hcphxwyu0413ea7buxeope FOREIGN KEY (signatory) REFERENCES sca.signatory(id)
+    CONSTRAINT fk_bu5hcphxwyu0413ea7buxeope FOREIGN KEY (signatory) REFERENCES sca.user(id)
 );
 
 CREATE TABLE sca.closing_signatory (
@@ -121,15 +110,32 @@ CREATE TABLE sca.closing_signatory (
     CONSTRAINT pk_closing_signatory PRIMARY KEY (closing, signatory, document),
     CONSTRAINT fk_amkea6t1p36344x6jeb2652jf FOREIGN KEY (closing) REFERENCES sca.closing(id),
     CONSTRAINT fk_gv276xrnywepnpiw1h04johxf FOREIGN KEY (document) REFERENCES sca.document(id),
-    CONSTRAINT fk_4dpb1t6xryd3m4dsr65cs9e8e FOREIGN KEY (signatory) REFERENCES sca.signatory(id)
+    CONSTRAINT fk_4dpb1t6xryd3m4dsr65cs9e8e FOREIGN KEY (signatory) REFERENCES sca.user(id)
 );
 
-ALTER TABLE sca.tenant OWNER TO graphionscaweb;
-ALTER TABLE sca.user OWNER TO graphionscaweb;
-ALTER TABLE sca.signatory OWNER TO graphionscaweb;
-ALTER TABLE sca.legal_person OWNER TO graphionscaweb;
-ALTER TABLE sca.closing OWNER TO graphionscaweb;
-ALTER TABLE sca.document OWNER TO graphionscaweb;
-ALTER TABLE sca.closing_legal_person OWNER TO graphionscaweb;
-ALTER TABLE sca.officer OWNER TO graphionscaweb;
-ALTER TABLE sca.closing_signatory OWNER TO graphionscaweb;
+ALTER TABLE
+    sca.tenant OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.user OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.legal_person OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.closing OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.document OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.tenant_user OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.closing_legal_person OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.officer OWNER TO graphionscaweb;
+
+ALTER TABLE
+    sca.closing_signatory OWNER TO graphionscaweb;

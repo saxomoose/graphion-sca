@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.models.Signatory;
 import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,15 +35,8 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         Authentication authentication) throws IOException, ServletException
     {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-        // response.setHeader("Content-Type", "application/json");
-        // final var serializedAuthSuccess = objectMapper.writeValueAsString(
-        //     new AuthSuccess(
-        //         authentication.getName(),
-        //         authentication.getAuthorities().stream().map(GrantedAuthority::toString).toList()));
-        // response.getWriter().write(serializedAuthSuccess);
-
-        final var tenantId = ((Signatory) authentication.getPrincipal()).tenantId();
-        final var tenant = tenantService.select(tenantId);
-        httpSession.setAttribute("tenant", tenant);
+        // final var tenantId = ((User) authentication.getPrincipal()).tenantId();
+        // final var tenant = tenantService.select(tenantId);
+        // httpSession.setAttribute("tenant", tenant);
     }
 }

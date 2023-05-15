@@ -23,7 +23,7 @@ public class IndexController {
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
-        modelAndView.setViewName("sign");
+        modelAndView.setViewName("index");
         return modelAndView;
     }
 

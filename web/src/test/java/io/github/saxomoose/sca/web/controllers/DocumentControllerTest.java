@@ -62,7 +62,7 @@ public class DocumentControllerTest {
                     new MockPart("_csrf", "".getBytes()),
                     new MockPart("fileSize", "31599".getBytes()),
                     new MockPart("filename", "20230308-test-document".getBytes()), filePart)
-                .with(csrf()).with(user(user)).sessionAttr("tenant", tenant))
+                .with(csrf()).with(user(user.username())).sessionAttr("tenant", tenant))
             .andExpect(status().is3xxRedirection());
     }
 
@@ -78,7 +78,7 @@ public class DocumentControllerTest {
         final var rawFileUUID = UUID.nameUUIDFromBytes("20230308-seed-document".getBytes());
         this.mockMVC
             .perform(get("/files/{tenantId}/{rawFileUUID}", 1, rawFileUUID)
-                .queryParam("download", "true").with(user(user)))
+                .queryParam("download", "true").with(user(user.username())))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andExpect(header().string("Content-Disposition", "attachment; filename=\"20230308-seed-document.pdf\""));

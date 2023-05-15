@@ -2,13 +2,13 @@ package io.github.saxomoose.sca.web.controllers.pki;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Digest {
+public class DigestPayload {
     private String base64Digest;
     private String digestAlgorithm;
 
-    public Digest() { }
+    public DigestPayload() { }
     
-    public Digest(String base64Digest, String digestAlgorithm) {
+    public DigestPayload(String base64Digest, String digestAlgorithm) {
         this.base64Digest = base64Digest;
         this.digestAlgorithm = digestAlgorithm;
     }

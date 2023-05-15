@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.models;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
@@ -13,12 +12,9 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
-public class Signatory implements Authenticable, Serializable {
+public class Signatory implements Serializable {
     private final Long tenant;
     @Id
     private final Long id;
@@ -128,10 +124,5 @@ public class Signatory implements Authenticable, Serializable {
     public int hashCode() 
     {
         return Objects.hash(id);
-    }
-
-    @Override
-    public List<GrantedAuthority> role() {
-        return List.of(new SimpleGrantedAuthority(Role.ROLE_SIGNATORY.name()));
     }
 }

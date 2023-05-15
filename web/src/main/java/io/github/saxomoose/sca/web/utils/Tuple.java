@@ -2,7 +2,7 @@ package io.github.saxomoose.sca.web.utils;
 
 import java.util.UUID;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
-import io.github.saxomoose.sca.web.controllers.pki.Digest;
+import io.github.saxomoose.sca.web.controllers.pki.DigestPayload;
 
 public class Tuple<X, Y> {
     final X first;
@@ -13,7 +13,7 @@ public class Tuple<X, Y> {
         return new Tuple<>(filename, fileUUID);
     }
 
-    public static Tuple<Digest, PAdESSignatureParameters> of(Digest digest, PAdESSignatureParameters parameters)
+    public static Tuple<DigestPayload, PAdESSignatureParameters> of(DigestPayload digest, PAdESSignatureParameters parameters)
     {
         return new Tuple<>(digest, parameters);
     }
@@ -35,9 +35,9 @@ public class Tuple<X, Y> {
         return (UUID) second;
     }
 
-    public Digest digest()
+    public DigestPayload digest()
     {
-        return (Digest) first;
+        return (DigestPayload) first;
     }
 
     public PAdESSignatureParameters parameters()

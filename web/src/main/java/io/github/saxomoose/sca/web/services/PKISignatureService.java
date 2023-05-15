@@ -21,8 +21,8 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.spi.DSSUtils;
-import io.github.saxomoose.sca.web.controllers.pki.Signature;
-import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificate;
+import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
+import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.utils.Tuple;
@@ -42,9 +42,9 @@ public class PKISignatureService {
         this.resourceLoader = resourceLoader;
     }
 
-    public Tuple<io.github.saxomoose.sca.web.controllers.pki.Digest, PAdESSignatureParameters> dataToSign(
+    public Tuple<io.github.saxomoose.sca.web.controllers.pki.DigestPayload, PAdESSignatureParameters> dataToSign(
         final UUID fileUUID,
-        final SignatureCertificate signatureCertificate) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException 
+        final SignatureCertificatePayload signatureCertificate) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException 
     {
         redisService.lockFile(fileUUID);
         final var inputStream = minioService.objectAsStream(
@@ -72,7 +72,7 @@ public class PKISignatureService {
             DSSUtils.digest(DigestAlgorithm.SHA256, toBeSigned.getBytes()));
         final var base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
         return Tuple.of(
-            new io.github.saxomoose.sca.web.controllers.pki.Digest(
+            new io.github.saxomoose.sca.web.controllers.pki.DigestPayload(
                 base64Digest, 
                 DigestAlgorithm.SHA256.getJavaName()),
             parameters);
@@ -80,7 +80,7 @@ public class PKISignatureService {
 
     public void applySignature(
         final UUID fileUUID, 
-        final PAdESSignatureParameters parameters, final Signature signature) throws CertificateException, IOException
+        final PAdESSignatureParameters parameters, final SignaturePayload signature) throws CertificateException, IOException
     {   
         final var path = String.format("%s%s%s%s", "file:", System.getProperty("user.dir"), Path.WORKBENCH, fileUUID);
         final var file = resourceLoader.getResource(path).getFile();

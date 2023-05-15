@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,9 +19,6 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.config.security.fallback.AccessDeniedHandler;
 import io.github.saxomoose.sca.web.config.security.fallback.AuthenticationEntryPoint;
-import io.github.saxomoose.sca.web.config.security.fallback.JDBCAuthenticationFailureHandler;
-import io.github.saxomoose.sca.web.config.security.fallback.JDBCAuthenticationSuccessHandler;
-import io.github.saxomoose.sca.web.config.security.fallback.JDBCUserDetailsService;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationFailureHandler;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProcessingFilter;
 import io.github.saxomoose.sca.web.config.security.pki.PKIAuthenticationProvider;
@@ -45,7 +41,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -90,15 +86,9 @@ public class SecurityConfiguration {
     public SecurityFilterChain fallbackSecurityFilterChain(
         final AccessDeniedHandler accessDeniedHandler,
         final HttpSecurity httpSecurity,
-        final JDBCAuthenticationFailureHandler jdbcAuthenticationFailureHandler,
-        final JDBCAuthenticationSuccessHandler jdbcAuthenticationSuccessHandler,
-        final JDBCUserDetailsService jdbcUserDetailsService,
         final PasswordEncoder passwordEncoder) throws Exception 
     {
-        final var jdbcAuthenticationProvider = new DaoAuthenticationProvider(passwordEncoder);
-        jdbcAuthenticationProvider.setUserDetailsService(jdbcUserDetailsService);
         httpSecurity
-            .authenticationProvider(jdbcAuthenticationProvider)
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
             .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint)
@@ -115,13 +105,11 @@ public class SecurityConfiguration {
                 .anyRequest().hasRole("ADMIN"))
             // Deactivate basic auth.
             // .authorizeHttpRequests().requestMatchers("/**").permitAll()
-            .formLogin().loginPage("/login")
-            // Redirect to closings
-                .successHandler(jdbcAuthenticationSuccessHandler)
-                .failureHandler(jdbcAuthenticationFailureHandler)
-                .and()
+            .formLogin().disable()
+            .httpBasic().disable()
             .logout()
                 .logoutUrl("/logout")
+                .deleteCookies("SESSION")
                 .logoutSuccessUrl("/");
         return httpSecurity.build();
     }
