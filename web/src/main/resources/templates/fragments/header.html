@@ -3,15 +3,33 @@
         <a class="me-auto" data-th-href="@{/}">
             <img data-th-src="@{/svg/house.svg}" alt="graphion-logo" width="32" height="32">
         </a>
-        <button class="navbar-toggler" data-bs-target="#sidebar" data-bs-toggle="offcanvas" data-sec-authorize="isAuthenticated()">
+        <button class="navbar-toggler" data-bs-target="#sidebar" data-bs-toggle="offcanvas"
+            data-sec-authorize="isAuthenticated()">
             <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32">
         </button>
         <ul class="nav">
-            <li class="nav-item" data-sec-authorize="!isAuthenticated()">
-                <a class="nav-link px-2 link-dark" data-th-href="@{/login}">Login</a>
+            <li class="nav-item me-2" data-sec-authorize="!isAuthenticated()">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" data-bs-auto-close="outside"
+                        data-bs-toggle="dropdown" type="button">
+                        Log in
+                    </button>
+                    <div class="dropdown-menu p-4">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label" for="username">Username</label>
+                                <input class="form-control" id="username" name="username" type="email"
+                                    placeholder="email@example.com" required>
+                            </div>
+                            <button class="btn btn-primary" id="loginButton" type="submit">Submit</button>
+                        </form>
+                    </div>
+
+                </div>
+
             </li>
             <li class="nav-item" data-sec-authorize="!isAuthenticated()">
-                <a class="nav-link px-2 link-dark" data-th-href="@{/register}">Register</a>
+                <a class="btn btn-primary" data-th-href="@{/tenants/create}">Create organisation</a>
             </li>
         </ul>
         <form data-sec-authorize="isAuthenticated()" data-th-action="@{/logout}" method="post">

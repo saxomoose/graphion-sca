@@ -59,10 +59,11 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
             logger.error("Content type not supported: %s", contentType);
             throw new RuntimeException();
         }
-        final var auth = objectMapper.readValue(request.getReader(), io.github.saxomoose.sca.web.config.security.pki.Authentication.class);
-        final var token = new PreAuthenticatedAuthenticationToken(null, auth);
+        final var authenticationPayload = objectMapper.readValue(request.getReader(), AuthenticationPayload.class);
+        final var token = new PreAuthenticatedAuthenticationToken(null, authenticationPayload);
+        // TODO: validation should happen sooner
         try {
-            validationService.authentication(auth);
+            validationService.authentication(authenticationPayload);
         } catch (BusinessLogicException exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException();

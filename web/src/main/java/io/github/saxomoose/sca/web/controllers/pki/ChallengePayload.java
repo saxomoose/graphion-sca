@@ -2,10 +2,10 @@ package io.github.saxomoose.sca.web.controllers.pki;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Challenge {
+public class ChallengePayload {
     private String nonce;
 
-    public Challenge() {}
+    public ChallengePayload() {}
 
     @JsonProperty("nonce")
     public String nonce() {

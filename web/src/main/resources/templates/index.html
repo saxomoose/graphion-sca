@@ -6,7 +6,6 @@
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
     <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
-    <button class="btn btn-info" id="webeid-auth-button">Authenticate with PKI</button>
     <div class="alert alert-danger" id="error-message" role="alert" style="display: none;">
         <div class="message"></div>
         <pre class="details"></pre>
@@ -19,13 +18,18 @@
 
         webeiderrors.hideErrorMessage();
 
-        const authButton = document.querySelector("#webeid-auth-button");
+        const loginFormEl = document.getElementById("loginForm");
 
-        authButton.addEventListener("click", async () => {
+
+        loginFormEl.addEventListener("submit", async (event) => {
+            event.preventDefault();
             webeiderrors.hideErrorMessage();
-            authButton.disabled = true;
+            // loginForm.disabled = true;
+
+            const username = document.getElementById("username").value;
 
             try {
+                const status = await webeid.status();
                 const challengeResponse = await fetch("/pki/challenge", {
                     method: "GET",
                     headers: {
@@ -42,17 +46,21 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
                     },
-                    // retrieve target based on clicked button
-                    body: `{"auth-token": ${JSON.stringify(authToken)}, "target": "TENANT"}`
+                    body: `{"auth-token": ${JSON.stringify(authToken)}, "username":  ${JSON.stringify(username)}}`
                 });
                 await webeiderrors.checkHttpError(authTokenResponse);
-                window.location.href = "/pki/sign";
+                if (authTokenResponse.status === "204") {
+                    window.location.href = "/pki/sign";
+                } else {
+                    window.location.reload();
+                }
             } catch (error) {
                 webeiderrors.showErrorMessage(error);
                 throw error;
-            } finally {
-                authButton.disabled = false;
             }
+            // finally {
+            //     loginForm.disabled = false;
+            // }
         });
     </script>
 </body>

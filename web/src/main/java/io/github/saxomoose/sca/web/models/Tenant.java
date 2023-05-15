@@ -2,13 +2,15 @@ package io.github.saxomoose.sca.web.models;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
-
+import java.util.Set;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
+import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
 public class Tenant implements Serializable {
@@ -18,7 +20,7 @@ public class Tenant implements Serializable {
     // https://stackoverflow.com/questions/50480924/regex-for-s3-bucket-name
     // @Pattern(regexp =
     // "(?!(^xn--|.+-s3alias$))(?=[a-z0-9][a-z0-9-]{1,61}[a-z0-9])")
-    private final String name;
+    private String name;
     private final String bucket;
     // OIDC parameters to connect to Tenant endpoint.
     @Version
@@ -27,6 +29,8 @@ public class Tenant implements Serializable {
     private LocalDateTime createdDate;
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
+
+    private Set<TenantUser> tenantUsers = new HashSet<>();
 
     public static Tenant of(String name)
     {
@@ -55,6 +59,11 @@ public class Tenant implements Serializable {
         return bucket;
     }
 
+    public void setTenantUsers(Set<TenantUser> tenantUsers)
+    {
+        this.tenantUsers = tenantUsers;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -72,4 +81,18 @@ public class Tenant implements Serializable {
         return Objects.hash(id);
     }
 
+    public void addTenantUser(Long user, Role role)
+    {
+        this.tenantUsers.add(tenantUser(user, role));
+    }
+
+    private TenantUser tenantUser(Long user, Role role)
+    {
+        final var tenantUser = new TenantUser();
+        tenantUser.user = user;
+        tenantUser.setRole(role);
+        tenantUser.setEnabled(Boolean.TRUE);
+        tenantUser.setDefaultConnection(Boolean.FALSE);
+        return tenantUser;
+    }
 }

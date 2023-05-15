@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SignatureCertificate {
+public class SignatureCertificatePayload {
     private String signatureCertificate;
     private List<SignatureAlgorithm> supportedSignatureAlgorithms;
     

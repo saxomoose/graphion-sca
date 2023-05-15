@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,12 +27,12 @@ public class JDBCAuthenticationSuccessHandler implements AuthenticationSuccessHa
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException
     {
-        final var tenantId = ((User) authentication.getPrincipal()).tenantId();
-        final var tenant = tenantService.select(tenantId);
-        httpSession.setAttribute("tenant", tenant);
-        // final var uri =
-        // UriComponentsBuilder.fromPath("/documents").queryParam("tenant",
-        // tenant.id()).toUriString();
-        response.sendRedirect("/documents");
+        // final var tenantId = ((User) authentication.getPrincipal()).tenantId();
+        // final var tenant = tenantService.select(tenantId);
+        // httpSession.setAttribute("tenant", tenant);
+        // // final var uri =
+        // // UriComponentsBuilder.fromPath("/documents").queryParam("tenant",
+        // // tenant.id()).toUriString();
+        // response.sendRedirect("/documents");
     }
 }

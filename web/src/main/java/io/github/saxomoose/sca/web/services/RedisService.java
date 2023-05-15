@@ -12,6 +12,7 @@ import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamRecords;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
@@ -29,18 +30,21 @@ public class RedisService {
     private final ObjectMapper objectMapper;
     private final RedisConnection redisConnection;
     private final RedisScript<String> script;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     public RedisService(
         HttpSession httpSession, 
         ObjectMapper objectMapper, 
         RedisConnection redisConnection,
-        RedisScript<String> script)
+        RedisScript<String> script,
+        StringRedisTemplate stringRedisTemplate)
     {
         this.httpSession = httpSession;
         this.objectMapper = objectMapper;
         this.redisConnection = redisConnection;
         this.script = script;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     /**
@@ -88,11 +92,10 @@ public class RedisService {
     public void lockFile(UUID fileUUID) throws BusinessLogicException
     {
         try {
-            final var result = redisConnection.stringCommands().set(
-                String.format("%s:%s", Redis.WORKBENCH_KEY, fileUUID).getBytes(),
-                new byte[]{(byte) 1},
-                Expiration.from(Duration.ofMinutes(1)),
-                SetOption.SET_IF_ABSENT);
+            final var result = stringRedisTemplate.opsForValue().setIfAbsent(
+                String.format("%s:%s", Redis.WORKBENCH_KEY, fileUUID),
+                String.valueOf(1),
+                Duration.ofMinutes(1));
             if (!result) {
                 throw new BusinessLogicException("signature.file.locked");
             }
@@ -108,8 +111,8 @@ public class RedisService {
     public void unlockFile(UUID fileUUID)
     {
         try {
-            redisConnection.keyCommands().del(
-                String.format("%s:%s", Redis.WORKBENCH_KEY, fileUUID).getBytes());
+            stringRedisTemplate.delete(
+                String.format("%s:%s", Redis.WORKBENCH_KEY, fileUUID));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);

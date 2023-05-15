@@ -3,9 +3,9 @@ package io.github.saxomoose.sca.web.config.security.pki;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.webeid.security.authtoken.WebEidAuthToken;
 
-public class Authentication {
+public class AuthenticationPayload {
     private WebEidAuthToken token;
-    private String target;
+    private String username;
 
     @JsonProperty("auth-token")
     public WebEidAuthToken token() 
@@ -13,10 +13,10 @@ public class Authentication {
         return token;
     }
 
-    @JsonProperty("target")
-    public String target()
+    @JsonProperty("username")
+    public String username()
     {
-        return target;
+        return username;
     }
 
     public void setToken(WebEidAuthToken token) 
@@ -24,8 +24,8 @@ public class Authentication {
         this.token = token;
     }
 
-    public void setTarget(String target)
+    public void setUsername(String username)
     {
-        this.target = target;
+        this.username = username;
     }
 }

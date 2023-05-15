@@ -20,8 +20,8 @@ public class ChallengeController {
      * TODO: Secure endpoint.
      */
     @GetMapping(value = "/pki/challenge", produces = "application/json")
-    public ResponseEntity<Challenge> challenge() {
-        final var challenge = new Challenge();
+    public ResponseEntity<ChallengePayload> challenge() {
+        final var challenge = new ChallengePayload();
         challenge.setNonce(challengeNonceGenerator.generateAndStoreNonce().getBase64EncodedNonce());
         return ResponseEntity.ok().body(challenge);
     }

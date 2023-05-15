@@ -2,7 +2,7 @@ package io.github.saxomoose.sca.web.controllers.pki;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Signature {
+public class SignaturePayload {
     private String base64Signature;
     private SignatureAlgorithm signatureAlgorithm;
 
