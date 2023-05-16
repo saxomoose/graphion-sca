@@ -9,17 +9,11 @@ public class TenantUser {
     protected Long user;
 
     private Role role;
-    private Boolean enabled;
     private Boolean defaultConnection;
 
     public Role role() 
     {
         return role;
-    }
-
-    public Boolean enabled() 
-    {
-        return enabled;
     }
 
     public Boolean defaultConnection()
@@ -30,11 +24,6 @@ public class TenantUser {
     public void setRole(Role role) 
     {
         this.role = role;
-    }
-
-    public void setEnabled(Boolean enabled) 
-    {
-        this.enabled = enabled;
     }
 
     public void setDefaultConnection(Boolean defaultConnection)

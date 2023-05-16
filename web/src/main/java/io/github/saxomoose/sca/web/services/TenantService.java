@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.services;
 
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.Tenant;
@@ -15,9 +16,14 @@ public class TenantService {
         this.tenantRepository = tenantRepository;
     }
 
-    public Tenant select(Long id) 
+    public Tenant selectById(Long id) 
     {
-        return tenantRepository.select(id);
+        return tenantRepository.selectById(id);
+    }
+
+    public Collection<Tenant> selectByUserId(Long userId)
+    {
+        return tenantRepository.selectByUserId(userId);
     }
 
     // public Tenant select(String username) 

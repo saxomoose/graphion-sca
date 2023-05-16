@@ -1,10 +1,8 @@
 package io.github.saxomoose.sca.web.services;
 
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.repositories.db.UserRepository;
@@ -14,13 +12,12 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder)
+    public UserService(UserRepository userRepository)
     {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public User select(Long id)
@@ -28,15 +25,11 @@ public class UserService {
         return userRepository.findById(id).orElseThrow();
     }
 
-    public User select(UUID uuid)
-    {
-        return userRepository.select(uuid);
-    }
-
     public User select(String username)
     {
         return userRepository.findByUsername(username);
     }
+
     //
     // public void create(io.github.saxomoose.sca.web.dtos.User userDTO) throws
     // DatabaseConstraintViolationException {

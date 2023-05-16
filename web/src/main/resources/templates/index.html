@@ -49,7 +49,7 @@
                     body: `{"auth-token": ${JSON.stringify(authToken)}, "username":  ${JSON.stringify(username)}}`
                 });
                 await webeiderrors.checkHttpError(authTokenResponse);
-                if (authTokenResponse.status === "204") {
+                if (authTokenResponse.status === "200") {
                     window.location.href = "/pki/sign";
                 } else {
                     window.location.reload();
