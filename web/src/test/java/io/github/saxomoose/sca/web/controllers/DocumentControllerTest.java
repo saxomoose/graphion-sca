@@ -47,7 +47,7 @@ public class DocumentControllerTest {
     public void setUp() 
     {
         mockMVC = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-        tenant = tenantRepository.select();
+        tenant = tenantRepository.selectFirst();
         user = userRepository.select();
     }
 

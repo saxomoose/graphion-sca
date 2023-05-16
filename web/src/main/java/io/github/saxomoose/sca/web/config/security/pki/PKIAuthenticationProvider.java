@@ -2,20 +2,20 @@ package io.github.saxomoose.sca.web.config.security.pki;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDate;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
-import io.github.saxomoose.sca.web.exceptions.IncorrectNRNException;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.SignatoryService;
 import io.github.saxomoose.sca.web.services.UserService;
@@ -29,7 +29,6 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
 
     private final AuthTokenValidator authTokenValidator;
     private final ChallengeNonceStore challengeNonceStore;
-    private final PasswordEncoder encoder;
     private final SignatoryService signatoryService;
     private final UserService userService;
 
@@ -37,13 +36,11 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
     public PKIAuthenticationProvider(
         AuthTokenValidator authTokenValidator,
         ChallengeNonceStore challengeNonceStore,
-        PasswordEncoder encoder,
         SignatoryService signatoryService,
         UserService userService) 
     {
         this.authTokenValidator = authTokenValidator;
         this.challengeNonceStore = challengeNonceStore;
-        this.encoder = encoder;
         this.signatoryService = signatoryService;
         this.userService = userService;
     }
@@ -71,20 +68,45 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
         return PreAuthenticatedAuthenticationToken.class.equals(authentication);
     }
 
+    /**
+     * This method uses case-sensitive string comparison.
+     * Only the first first name is used for comparison.
+     */
     private User userFromCertificate(String username, X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
     {
         final var user = userService.select(username);
-        final var rawNRN = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
-        if(!encoder.matches(rawNRN, user.nrn())) {
-            throw new IncorrectNRNException("TODO");
+        final var countryCode = Objects.requireNonNull(CertificateData.getSubjectCountryCode(userCertificate));
+        final var rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
+        final var firstName = rawFirstName.substring(0, rawFirstName.indexOf(" "));
+        final var lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
+        final var nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
+        final var rawBirthYear = Integer.parseInt(nrn.substring(0, 2));
+        final var birthMonth = Integer.parseInt(nrn.substring(2, 4));
+        final var birthDay = Integer.parseInt(nrn.substring(4, 6));
+        final var numberToCheck = Long.parseLong(String.format("%d%s", 2, nrn.substring(0, 9)));
+        final var controlNumber = Integer.parseInt(nrn.substring(9, 11));
+        final var bornAfter2000 = (97 - (numberToCheck % 97)) == controlNumber;
+        LocalDate dateOfBirth;
+        if(bornAfter2000) {
+            dateOfBirth = LocalDate.of(
+                Integer.parseInt(String.format("%d%d", 20, rawBirthYear)),
+                birthMonth,
+                birthDay);
+        } else {
+            dateOfBirth = LocalDate.of(
+                Integer.parseInt(String.format("%d%d", 19, rawBirthYear)),
+                birthMonth,
+                birthDay);
         }
-        return user;
-        // final var uuid = UUID.nameUUIDFromBytes(nationalRegistrationNumber.getBytes());
-        // if (Target.valueOf(target) == Target.TENANT) {
-        //     return userService.select(uuid);
-        // } else if (Target.valueOf(target) == Target.CLOSING) {
-        //     return signatoryService.select(uuid);
-        // }
-        // Unreachable.
+        if (
+            countryCode.equals("BE") &&
+            firstName.equals(user.firstName()) &&
+            lastName.equals(user.lastName()) &&
+            dateOfBirth.isEqual(user.dateOfBirth())
+        ) {
+            return user;
+        } else {
+            throw new BadCredentialsException("TODO");
+        }
     }
 }

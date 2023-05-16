@@ -9,10 +9,11 @@ CREATE TABLE sca.tenant (
 
 CREATE TABLE sca.user (
     id bigserial PRIMARY KEY,
-    nrn character varying(255) NOT NULL,
+    enabled boolean DEFAULT false,
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
     username character varying(255) NOT NULL UNIQUE,
+    date_of_birth date NOT NULL,
     electronic_signature_consent boolean DEFAULT false,
     version bigint NOT NULL,
     created_by bigint,
@@ -50,7 +51,7 @@ CREATE TABLE sca.closing (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_closing_name UNIQUE(tenant, name),
+    CONSTRAINT unique_constraint_closing_name UNIQUE (tenant, name),
     CONSTRAINT fk_28r54jdf20uxapd9ll4xc9swl FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
     CONSTRAINT fk_npngjh2wzvv74ptuxts7cu9ct FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_dyd3m7iqwxpovnzso95b3qees FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
@@ -76,7 +77,6 @@ CREATE TABLE sca.tenant_user (
     tenant bigint NOT NULL,
     "user" bigint NOT NULL,
     role character varying(255) NOT NULL,
-    enabled boolean DEFAULT true,
     default_connection boolean DEFAULT false,
     CONSTRAINT pk_tenant_user PRIMARY KEY (tenant, "user"),
     CONSTRAINT fk_qsj3awwwowmeyixcg2tnkev42 FOREIGN KEY (tenant) REFERENCES sca.tenant(id),
@@ -86,7 +86,7 @@ CREATE TABLE sca.tenant_user (
 CREATE TABLE sca.closing_legal_person (
     closing bigint NOT NULL,
     legal_person integer NOT NULL,
-    status boolean DEFAULT false,
+    STATUS boolean DEFAULT false,
     CONSTRAINT pk_closing_legal_person PRIMARY KEY (closing, legal_person),
     CONSTRAINT fk_sbfjnolasb7ki47onw6hs1fl5 FOREIGN KEY (closing) REFERENCES sca.closing(id),
     CONSTRAINT fk_hfnec6hphjm63bifwwp4o9pks FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id)
@@ -95,7 +95,7 @@ CREATE TABLE sca.closing_legal_person (
 CREATE TABLE sca.officer (
     legal_person bigint NOT NULL,
     signatory bigint NOT NULL,
-    function character varying(255) NOT NULL,
+    FUNCTION character varying(255) NOT NULL,
     enterprise_number bigint,
     CONSTRAINT pk_officer PRIMARY KEY (legal_person, signatory),
     CONSTRAINT fk_7foy21sx48iatl2bfugmc9xn1 FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id),
@@ -106,7 +106,7 @@ CREATE TABLE sca.closing_signatory (
     closing bigint NOT NULL,
     signatory bigint NOT NULL,
     document bigint NOT NULL,
-    signature_timestamp timestamp(6) with time zone,
+    signature_timestamp timestamp(6) WITH time zone,
     CONSTRAINT pk_closing_signatory PRIMARY KEY (closing, signatory, document),
     CONSTRAINT fk_amkea6t1p36344x6jeb2652jf FOREIGN KEY (closing) REFERENCES sca.closing(id),
     CONSTRAINT fk_gv276xrnywepnpiw1h04johxf FOREIGN KEY (document) REFERENCES sca.document(id),

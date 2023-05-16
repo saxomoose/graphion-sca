@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import org.springframework.data.annotation.CreatedBy;
@@ -15,10 +16,11 @@ import org.springframework.data.relational.core.mapping.Table;
 public class User implements Serializable {
     @Id
     private final Long id;
-    private final String nrn;
+    private Boolean enabled;
     private String firstName;
     private String lastName;
     private String username;
+    private LocalDate dateOfBirth;
     // Art. 1:5 New Belgian Civil Code.
     private Boolean electronicSignatureConsent;
 
@@ -37,41 +39,32 @@ public class User implements Serializable {
         String firstName,
         String lastName,
         String username,
+        LocalDate dateOfBirth,
         Boolean electronicSignatureConsent)
     {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
-        return new User(null, null, firstName, lastName, username, Boolean.FALSE);
-    }
-
-    // Only used in seeder.
-    public static User of(
-        String nrn,
-        String firstName,
-        String lastName,
-        String username,
-        Boolean electronicSignatureConsent
-    )
-    {
-        return new User(null, nrn, firstName, lastName, username, Boolean.FALSE);
+        return new User(null, Boolean.FALSE, firstName, lastName, username, dateOfBirth, Boolean.FALSE);
     }
 
     // remove public?
     public User(
         Long id,
-        String nrn,
+        Boolean enabled,
         String firstName,
         String lastName,
         String username,
+        LocalDate dateOfBirth,
         Boolean electronicSignatureConsent
     )
     {
         this.id = id;
-        this.nrn = nrn;
+        this.enabled = enabled;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
+        this.dateOfBirth = dateOfBirth;
         this.electronicSignatureConsent = electronicSignatureConsent;
     }
 
@@ -85,9 +78,9 @@ public class User implements Serializable {
         return id;
     }
 
-    public String nrn()
+    private Boolean enabled()
     {
-        return nrn;
+        return enabled;
     }
 
     public String firstName()
@@ -103,6 +96,11 @@ public class User implements Serializable {
     public String username()
     {
         return username;
+    }
+
+    public LocalDate dateOfBirth()
+    {
+        return dateOfBirth;
     }
 
     public Boolean electronicSignatureConsent()

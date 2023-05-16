@@ -86,12 +86,14 @@ public class Tenant implements Serializable {
         this.tenantUsers.add(tenantUser(user, role));
     }
 
+    /**
+     * Adding new connection does not affect the default.
+     */
     private TenantUser tenantUser(Long user, Role role)
     {
         final var tenantUser = new TenantUser();
         tenantUser.user = user;
         tenantUser.setRole(role);
-        tenantUser.setEnabled(Boolean.TRUE);
         tenantUser.setDefaultConnection(Boolean.FALSE);
         return tenantUser;
     }

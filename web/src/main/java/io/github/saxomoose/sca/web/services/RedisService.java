@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ public class RedisService {
         }
         final var record = StreamRecords
             .rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
-            .withStreamKey(Redis.JOBS_KEY.toString().getBytes());
+            .withStreamKey(Redis.JOB_KEY.toString().getBytes());
         RecordId recordId;
         try {
             recordId = redisConnection.streamCommands().xAdd(
@@ -74,7 +75,7 @@ public class RedisService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        final var outputStringKey = String.format("%s:%s:%s", Redis.JOBS_KEY, tenantId, recordId);
+        final var outputStringKey = String.format("%s:%s:%s", Redis.JOB_KEY, tenantId, recordId);
         try {
             redisConnection.stringCommands().set(
                 outputStringKey.getBytes(),
@@ -112,12 +113,34 @@ public class RedisService {
     {
         try {
             stringRedisTemplate.delete(
-                String.format("%s:%s", Redis.WORKBENCH_KEY, fileUUID));
+                String.format("%s:%s", Redis.WORKBENCH_KEY, 
+                fileUUID));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
     }
+
+    /**
+     * TODO
+     */
+    public Integer getUserPINCode(Long id)
+    {
+        return 0;
+    }
+
+    /**
+     * TODO
+     */
+    public void setUserPINCode(Long id)
+    {
+        final var pinCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
+        stringRedisTemplate.opsForValue().set(
+            String.format("%s:%s", Redis.USER_PINCODE_KEY, id),
+            String.valueOf(pinCode),
+            Duration.ofDays(2));
+    }
+
 
     // public void consumeUploadJobs() {
     // stringRedisTemplate.execute(new RedisCallback<String>() {

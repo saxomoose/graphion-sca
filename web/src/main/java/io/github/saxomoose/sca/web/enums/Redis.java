@@ -1,9 +1,10 @@
 package io.github.saxomoose.sca.web.enums;
 
 public enum Redis {
-    JOBS_KEY("graphionscaweb:jobs"),
+    JOB_KEY("graphionscaweb:job"),
     STANDARD_CONSUMER_GROUP("standardgroup"),
     STANDARD_CONSUMER("standardconsumer"),
+    USER_PINCODE_KEY("graphionscaweb:user:pincode"),
     WORKBENCH_KEY("graphionscaweb:workbench");
 
     private final String key;

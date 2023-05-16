@@ -21,6 +21,7 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
     private ObjectMapper objectMapper;
     private TenantService tenantService;
 
+    // Should also determine destination as this information should be kept in Authentication object.
     public PKIAuthenticationSuccessHandler(HttpSession httpSession, ObjectMapper objectMapper, TenantService tenantService)
     {
         this.httpSession = httpSession;
@@ -34,7 +35,12 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException
     {
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setHeader("Content-Type", "application/json");
+        final var serializedAuthSuccess = objectMapper.writeValueAsString(
+            new AuthenticationSuccessPayload("TODO"));
+        response.getWriter().write(serializedAuthSuccess);
+
         // final var tenantId = ((User) authentication.getPrincipal()).tenantId();
         // final var tenant = tenantService.select(tenantId);
         // httpSession.setAttribute("tenant", tenant);

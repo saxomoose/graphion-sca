@@ -49,7 +49,6 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
         HttpServletRequest request,
         HttpServletResponse response) throws AuthenticationException, IOException, ServletException
     {
-
         if (HttpMethod.valueOf(request.getMethod()) != HttpMethod.POST) {
             logger.error("HTTP method not supported: %s", request.getMethod());
             throw new RuntimeException();
