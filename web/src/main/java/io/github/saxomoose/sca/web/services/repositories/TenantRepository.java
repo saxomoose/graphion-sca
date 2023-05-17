@@ -1,16 +1,19 @@
-package io.github.saxomoose.sca.web.repositories.db;
+package io.github.saxomoose.sca.web.services.repositories;
 
 import java.util.Collection;
+import java.util.Optional;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.lang.Nullable;
 import io.github.saxomoose.sca.web.models.Tenant;
+import io.github.saxomoose.sca.web.utils.Tuple;
 
 public interface TenantRepository extends CrudRepository<Tenant, Long> {
     @Query("SELECT *  FROM sca.tenant LIMIT 1")
-    Tenant selectFirst();
+    Tenant fistTenant();
 
     @Query("SELECT * FROM sca.tenant WHERE id = :id")
-    Tenant selectById(Long id);
+    Tenant tenantById(Long id);
 
     @Query("""
         SELECT *
@@ -21,16 +24,13 @@ public interface TenantRepository extends CrudRepository<Tenant, Long> {
             WHERE "user" = :userId
         );
     """)
-    Collection<Tenant> selectByUserId(Long userId);
+    Collection<Tenant> tenantsByUserId(Long userId);
 
-    // @Query("""
-    //         SELECT *
-    //         FROM sca.tenant
-    //         WHERE id = (
-    //             SELECT tenant
-    //             FROM sca.user
-    //             WHERE username = :username
-    //         )
-    //         """)
-    // Tenant select(String username);
+    @Nullable
+    @Query("""
+        SELECT tenant AS first, role AS second
+        FROM sca.tenant_user
+        WHERE "user" = :userId AND default_connection = true;
+    """)
+    Optional<Tuple<Long, String>> defaultRole(Long userId);
 }

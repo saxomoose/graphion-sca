@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.config.security.pki.AuthenticationPayload;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
+import io.github.saxomoose.sca.web.services.repositories.DocumentRepository;
 
 @Service
 public class ValidationService {

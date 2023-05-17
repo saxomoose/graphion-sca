@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.repositories.db;
+package io.github.saxomoose.sca.web.services.repositories;
 
 import java.time.Instant;
 import org.springframework.data.domain.Page;

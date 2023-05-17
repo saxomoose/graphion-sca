@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.repositories.db;
+package io.github.saxomoose.sca.web.services.repositories;
 
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;

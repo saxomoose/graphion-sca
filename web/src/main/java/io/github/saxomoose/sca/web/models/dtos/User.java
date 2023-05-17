@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.dtos;
+package io.github.saxomoose.sca.web.models.dtos;
 
 public class User {
 

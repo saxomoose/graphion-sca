@@ -1,7 +1,6 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import java.security.Principal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-
-import io.github.saxomoose.sca.web.dtos.User;
+import io.github.saxomoose.sca.web.models.dtos.User;
 import io.github.saxomoose.sca.web.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 

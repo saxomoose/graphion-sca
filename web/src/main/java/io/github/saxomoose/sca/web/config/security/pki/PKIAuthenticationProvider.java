@@ -16,9 +16,12 @@ import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
+import io.github.saxomoose.sca.web.enums.Role;
+import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.services.SignatoryService;
+import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.UserService;
+import io.github.saxomoose.sca.web.utils.Tuple;
 
 /**
  * Custom authentication provider that uses the authentication token validator for authentication.
@@ -29,19 +32,19 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
 
     private final AuthTokenValidator authTokenValidator;
     private final ChallengeNonceStore challengeNonceStore;
-    private final SignatoryService signatoryService;
+    private final TenantService tenantService;
     private final UserService userService;
 
     @Autowired
     public PKIAuthenticationProvider(
         AuthTokenValidator authTokenValidator,
         ChallengeNonceStore challengeNonceStore,
-        SignatoryService signatoryService,
+        TenantService tenantService,
         UserService userService) 
     {
         this.authTokenValidator = authTokenValidator;
         this.challengeNonceStore = challengeNonceStore;
-        this.signatoryService = signatoryService;
+        this.tenantService = tenantService;
         this.userService = userService;
     }
 
@@ -55,7 +58,12 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
             final var nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
             final var userCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
             final var user = userFromCertificate(authenticationPayload.username(), userCertificate);
-            return PKIAuthentication.of(user);
+            final var defaultTenant = defaultTenant(user);
+            if(defaultTenant != null) {
+                return PKIAuthentication.of(user, defaultTenant.first(), defaultTenant.second());
+            } else {
+                return PKIAuthentication.of(user);
+            }
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
@@ -99,14 +107,19 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
                 birthDay);
         }
         if (
-            countryCode.equals("BE") &&
-            firstName.equals(user.firstName()) &&
-            lastName.equals(user.lastName()) &&
-            dateOfBirth.isEqual(user.dateOfBirth())
+            countryCode.equals("BE") 
+            && firstName.equals(user.firstName())
+            && lastName.equals(user.lastName())
+            && dateOfBirth.isEqual(user.dateOfBirth())
         ) {
             return user;
         } else {
             throw new BadCredentialsException("TODO");
         }
+    }
+
+    private Tuple<Tenant, Role> defaultTenant(User user)
+    {
+        return tenantService.defaultTenant(user.id());
     }
 }

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.Closing;
-import io.github.saxomoose.sca.web.repositories.db.ClosingRepository;
+import io.github.saxomoose.sca.web.services.repositories.ClosingRepository;
 
 @Service
 public class ClosingService {

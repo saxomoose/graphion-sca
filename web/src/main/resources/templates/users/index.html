@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" lang="en">
 
-<head data-th-replace="~{fragments/head :: frag(~{title = 'Signatories'})}"></head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'users'})}"></head>
 
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
@@ -12,10 +12,10 @@
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=2)}"></aside>
                 <main class="col-md-6">
                     <div>
-                        <a data-th-href="@{/signatories/create}">Add signatory</a>
+                        <a data-th-href="@{/users/create}">Add user</a>
                     </div>
                     <!-- Table -->
-                    <table class="table table-hover" id="signatoryTable">
+                    <table class="table table-hover" id="userTable">
                         <thead>
                             <tr>
                                 <th scope="col">Last name</th>
@@ -25,26 +25,26 @@
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <th-block data-th-each="signatory : ${signatoryPage}">
-                                <tr class="clickableRow" data-th-id="${signatory.id()}" role="button">
-                                    <td data-th-text="${signatory.lastName()}"></td>
-                                    <td data-th-text="${signatory.firstName()}"></td>
-                                    <td data-th-text="${signatory.email()}"></td>
-                                    <td data-th-text="${signatory.consent()}"></td>
+                            <th-block data-th-each="user : ${userPage}">
+                                <tr class="clickableRow" data-th-id="${user.id()}" role="button">
+                                    <td data-th-text="${user.lastName()}"></td>
+                                    <td data-th-text="${user.firstName()}"></td>
+                                    <td data-th-text="${user.email()}"></td>
+                                    <td data-th-text="${user.electronicSignatureConsent()}"></td>
                                 </tr>
                             </th-block>
                         </tbody>
                     </table>
-                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'signatories', page = ${signatoryPage})}">
+                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'users', page = ${userPage})}">
                     </nav>
                     <!-- Modal -->
-                    <!-- <div data-th-each="signatory: ${signatoryPage}" class="modal fade" tabindex="-1">
+                    <!-- <div data-th-each="user: ${userPage}" class="modal fade" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-body d-flex align-items-center">
-                                    <a data-th-href="@{/files/{fileUUID}(fileUUID = __${signatory.fileUUID()}__, download = false)}"
+                                    <a data-th-href="@{/files/{fileUUID}(fileUUID = __${user.fileUUID()}__, download = false)}"
                                         class="btn btn-primary me-2">View</a>
-                                    <a data-th-href="@{/files/{fileUUID}(fileUUID = __${signatory.fileUUID()}__, download = true)}"
+                                    <a data-th-href="@{/files/{fileUUID}(fileUUID = __${user.fileUUID()}__, download = true)}"
                                         class="btn btn-primary me-2">Download</a>
                                     <a class="btn btn-primary me-2">Edit</a>
                                     <a class="btn btn-danger me-2">Delete</a>

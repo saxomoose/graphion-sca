@@ -5,11 +5,27 @@ import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
 public class TenantUser {
-    protected Long tenant;
-    protected Long user;
+    private final Long tenant;
+    private final Long user;
 
     private Role role;
     private Boolean defaultConnection;
+
+    public TenantUser(Long tenant, Long user)
+    {
+        this.tenant = tenant;
+        this.user = user;
+    }
+
+    public Long tenant()
+    {
+        return tenant;
+    }
+
+    public Long user()
+    {
+        return user;
+    }
 
     public Role role() 
     {

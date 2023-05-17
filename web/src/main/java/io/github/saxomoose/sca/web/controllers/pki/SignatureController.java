@@ -50,9 +50,9 @@ public class SignatureController {
         final var tuple = signatureService.dataToSign(fileUUID, signatureCertificate);
         final var flashMapManager = new SessionFlashMapManager();
         final var flashMap = new FlashMap();
-        flashMap.put("parameters", tuple.parameters());
+        flashMap.put("parameters", tuple.second());
         flashMapManager.saveOutputFlashMap(flashMap, request, response);
-        return ResponseEntity.ok().body(tuple.digest());
+        return ResponseEntity.ok().body(tuple.first());
     }
 
     @PostMapping(value = "/pki/sign/apply/{rawFileUUID}", produces = "application/json")

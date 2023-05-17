@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
-import io.github.saxomoose.sca.web.repositories.db.DocumentRepository;
+import io.github.saxomoose.sca.web.services.repositories.DocumentRepository;
 
 @Service
 public class DocumentService {
