@@ -1,8 +1,7 @@
-package io.github.saxomoose.sca.web.dtos;
+package io.github.saxomoose.sca.web.models.dtos;
 
 import java.io.IOException;
 import java.util.Objects;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -3,9 +3,12 @@ package io.github.saxomoose.sca.web.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.repositories.db.UserRepository;
+import io.github.saxomoose.sca.web.services.repositories.UserRepository;
 
 @Service
 public class UserService {
@@ -28,6 +31,11 @@ public class UserService {
     public User select(String username)
     {
         return userRepository.findByUsername(username);
+    }
+
+    public Page<User> usersByTenant(final Pageable pageable, final Long tenantId)
+    {
+        return PageableExecutionUtils.getPage(userRepository.usersByTenant(tenantId), pageable, () -> userRepository.countUsersByTenant(tenantId));
     }
 
     //

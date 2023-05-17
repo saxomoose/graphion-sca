@@ -1,9 +1,7 @@
 package io.github.saxomoose.sca.web.config.db;
 
 import java.util.Optional;
-
 import javax.sql.DataSource;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -19,11 +17,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 import io.github.saxomoose.sca.web.models.User;
 
 @Configuration
-@EnableJdbcRepositories(basePackages = "io.github.saxomoose.sca.web.repositories.db")
+@EnableJdbcRepositories(basePackages = "io.github.saxomoose.sca.web.services.repositories")
 @EnableJdbcAuditing
 @EnableTransactionManagement
 public class PersistenceConfiguration extends AbstractJdbcConfiguration {

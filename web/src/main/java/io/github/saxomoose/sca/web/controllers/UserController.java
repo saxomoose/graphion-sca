@@ -13,48 +13,48 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-import io.github.saxomoose.sca.web.dtos.Signatory;
 import io.github.saxomoose.sca.web.models.Tenant;
-import io.github.saxomoose.sca.web.services.SignatoryService;
+import io.github.saxomoose.sca.web.models.dtos.Signatory;
 import io.github.saxomoose.sca.web.services.TenantService;
+import io.github.saxomoose.sca.web.services.UserService;
 import io.github.saxomoose.sca.web.services.ValidationService;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-public class SignatoryController {
+public class UserController {
     private final HttpSession httpSession;
-    private final SignatoryService signatoryService;
+    private final UserService userService;
     private final TenantService tenantService;
     private final ValidationService validationService;
 
     @Autowired
-    public SignatoryController(
+    public UserController(
         HttpSession httpSession,
-        SignatoryService signatoryService,
+        UserService userService,
         TenantService tenantService,
         ValidationService validationService) 
     {
         this.httpSession = httpSession;
-        this.signatoryService = signatoryService;
+        this.userService = userService;
         this.tenantService = tenantService;
         this.validationService = validationService;
     }
 
     // Read
-    @GetMapping("/signatories")
+    @GetMapping("/users")
     public ModelAndView index(
         final HttpServletRequest request,
         @SortDefault(sort = "lastName") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var signatoryPage = signatoryService.selectPage(pageable, tenantId);
-        if (signatoryPage.isEmpty()) {
+        final var userPage = userService.usersByTenant(pageable, tenantId);
+        if (userPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final var modelAndView = new ModelAndView("signatories/index");
-        modelAndView.addObject("signatoryPage", signatoryPage);
+        final var modelAndView = new ModelAndView("users/index");
+        modelAndView.addObject("userPage", userPage);
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
@@ -63,10 +63,10 @@ public class SignatoryController {
     }
 
     // Create
-    @GetMapping("/signatories/create")
+    @GetMapping("/users/create")
     public ModelAndView create(final HttpServletRequest request) 
     {
-        final var modelAndView = new ModelAndView("signatories/create");
+        final var modelAndView = new ModelAndView("users/create");
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject(
@@ -78,7 +78,7 @@ public class SignatoryController {
     /**
      * TODO
      */
-    @PostMapping(value = "/signatories/{rawIdentificationMethod}", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(value = "/users/{rawIdentificationMethod}", consumes = "application/x-www-form-urlencoded")
     public RedirectView store(
         final String rawIdentificationMethod,
         final Signatory rawSignatory,
@@ -92,8 +92,8 @@ public class SignatoryController {
             List.of(new Notification(
                 Notification.Type.SUCCESS, 
                 "notification.success",
-                "signatories.create.success")));
-        return new RedirectView("/signatories");
+                "users.create.success")));
+        return new RedirectView("/users");
     }
     
 }

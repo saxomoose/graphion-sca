@@ -8,9 +8,9 @@ import java.util.Set;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
-import io.github.saxomoose.sca.web.enums.Role;
 
 @Table(schema = "sca")
 public class Tenant implements Serializable {
@@ -30,6 +30,7 @@ public class Tenant implements Serializable {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
+    @Transient
     private Set<TenantUser> tenantUsers = new HashSet<>();
 
     public static Tenant of(String name)
@@ -79,22 +80,5 @@ public class Tenant implements Serializable {
     public int hashCode()
     {
         return Objects.hash(id);
-    }
-
-    public void addTenantUser(Long user, Role role)
-    {
-        this.tenantUsers.add(tenantUser(user, role));
-    }
-
-    /**
-     * Adding new connection does not affect the default.
-     */
-    private TenantUser tenantUser(Long user, Role role)
-    {
-        final var tenantUser = new TenantUser();
-        tenantUser.user = user;
-        tenantUser.setRole(role);
-        tenantUser.setDefaultConnection(Boolean.FALSE);
-        return tenantUser;
     }
 }

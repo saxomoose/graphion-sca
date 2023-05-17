@@ -1,7 +1,6 @@
-package io.github.saxomoose.sca.web.dtos;
+package io.github.saxomoose.sca.web.models.dtos;
 
 import java.util.regex.Pattern;
-
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 
 public class Document {

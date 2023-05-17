@@ -1,12 +1,13 @@
 package io.github.saxomoose.sca.web.config.security.pki;
 
-import java.security.cert.X509Certificate;
-import java.util.Objects;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import eu.webeid.security.certificate.CertificateData;
+import io.github.saxomoose.sca.web.enums.Role;
+import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 
 public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
@@ -16,10 +17,27 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
      * TODO: necessary? Parent works without it.
      */
     // private final UUID subjectIdCode;
+    private final Tenant defaultTenant;
 
     public static Authentication of(User user)
     {
-        return new PKIAuthentication(user);
+        return new PKIAuthentication(user, null, null);
+    }
+    
+    public static Authentication of(User user, Tenant defaultTenant, Role role)
+    {
+        return new PKIAuthentication(user, defaultTenant, role);
+    }
+
+    private PKIAuthentication(User principal, Tenant defaultTenant, Role role) 
+    {
+        // TODO: user.authorities(). Refresh authorities later on.
+        super(
+            principal, 
+            null, 
+            List.of(new SimpleGrantedAuthority(role.toString())));
+        // this.subjectIdCode = subjectIdCode;
+        this.defaultTenant = defaultTenant;
     }
 
     // public UUID subjectIdCode() 
@@ -27,23 +45,9 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
     //     return subjectIdCode;
     // }
 
-    private PKIAuthentication(User principal) 
+    public Tenant defaultTenant()
     {
-        // TODO: user.authorities(). Refresh authorities later on.
-        super(principal, null, null);
-        // this.subjectIdCode = subjectIdCode;
+        return defaultTenant;
     }
 
-    private static String principalNameFromCertificate(X509Certificate userCertificate) 
-    {
-        try {
-            return String.format(
-                "%s %s", 
-                Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate)), 
-                Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate)));
-        } catch (Exception exception) {
-            logger.error(exception.getMessage());
-            throw new RuntimeException(exception);
-        }
-    }
 }

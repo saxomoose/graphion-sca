@@ -122,7 +122,7 @@ public class RedisService {
     }
 
     /**
-     * TODO
+     * TODO: email validation
      */
     public Integer getUserPINCode(Long id)
     {

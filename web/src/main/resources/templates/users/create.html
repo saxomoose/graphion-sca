@@ -13,7 +13,7 @@
                 <main class="col-md-10">
                     <div class="row">
                         <div class="col-md-4">
-                            <form id="uploadForm" data-th-action="@{/signatories/{method}(method = 'dob')}" method="post">
+                            <form id="uploadForm" data-th-action="@{/users/{method}(method = 'dob')}" method="post">
                                 <div class="mb-3">
                                     <label class="form-label" for="firstName">First name</label>
                                     <input class="form-control" id="firstName" name="firstName" type="text" required>
@@ -28,24 +28,30 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Select how the signatory should be identified:</label>
+                                    <label class="form-label">Select how the user should be identified:</label>
                                     <div class="form-check">
-                                        <input class="form-check-input" id="dobOption" name="option" type="radio" checked>
-                                        <label class="form-check-label" for="dobOption">First name, last name and date of birth</label>
+                                        <input class="form-check-input" id="dobOption" name="option" type="radio"
+                                            checked>
+                                        <label class="form-check-label" for="dobOption">First name, last name and date
+                                            of birth</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" id="nrnOption" name="option" type="radio">
-                                        <label class="form-check-label" for="nrnOption">National registration number</label>
+                                        <label class="form-check-label" for="nrnOption">National registration
+                                            number</label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mb-3" id="dobCollapsible">
                                     <label class="form-label" for="dateOfBirth">Date of birth</label>
                                     <input class="form-control" id="dateOfBirth" name="dateOfBirth" type="date">
                                 </div>
                                 <div class="mb-3 d-none" id="nrnCollapsible">
-                                    <label class="form-label" for="nationalRegistrationNumber">National registration number</label>
-                                    <input class="form-control" id="nationalRegistrationNumber" name="nationalRegistrationNumber" data-slots="_" type="text" placeholder="__.__.__-___-__">
+                                    <label class="form-label" for="nationalRegistrationNumber">National registration
+                                        number</label>
+                                    <input class="form-control" id="nationalRegistrationNumber"
+                                        name="nationalRegistrationNumber" data-slots="_" type="text"
+                                        placeholder="__.__.__-___-__">
                                 </div>
                                 <button class="btn btn-primary" type="submit">Submit</button>
                             </form>
@@ -69,13 +75,13 @@
                     nrnDivEl.classList.add("d-none");
                     document.getElementById("dateOfBirth").required = true;
                     document.getElementById("nationalRegistrationNumber").required = false;
-                    document.getElementById("uploadForm").setAttribute("action", "/signatories/dob");
+                    document.getElementById("uploadForm").setAttribute("action", "/users/dob");
                 } else if (event.target.id === "nrnOption") {
                     dobDivEl.classList.add("d-none");
                     nrnDivEl.classList.remove("d-none");
                     document.getElementById("dateOfBirth").required = false;
                     document.getElementById("nationalRegistrationNumber").required = true;
-                    document.getElementById("uploadForm").setAttribute("action", "/signatories/nrn");
+                    document.getElementById("uploadForm").setAttribute("action", "/users/nrn");
                 }
             });
         });
@@ -85,7 +91,7 @@
         const nrnInputEl = document.getElementById("nationalRegistrationNumber");
         const pattern = nrnInputEl.getAttribute("placeholder"),
             slots = new Set(nrnInputEl.dataset.slots || "_"),
-            prev = (j => Array.from(pattern, (c,i) => slots.has(c)? j = i + 1 : j))(0),
+            prev = (j => Array.from(pattern, (c, i) => slots.has(c) ? j = i + 1 : j))(0),
             first = [...pattern].findIndex(c => slots.has(c)),
             accept = new RegExp(nrnInputEl.dataset.accept || "\\d", "g"),
             clean = input => {
@@ -97,7 +103,7 @@
             format = () => {
                 const [i, j] = [nrnInputEl.selectionStart, nrnInputEl.selectionEnd].map(i => {
                     i = clean(nrnInputEl.value.slice(0, i)).findIndex(c => slots.has(c));
-                    return i<0 ? prev[prev.length - 1] : back ? prev[i - 1] || first: i;
+                    return i < 0 ? prev[prev.length - 1] : back ? prev[i - 1] || first : i;
                 });
                 nrnInputEl.value = clean(nrnInputEl.value).join``;
                 nrnInputEl.setSelectionRange(i, j);
@@ -107,7 +113,7 @@
         nrnInputEl.addEventListener("keydown", (e) => back = e.key === "Backspace");
         nrnInputEl.addEventListener("input", format);
         nrnInputEl.addEventListener("focus", format);
-        nrnInputEl.addEventListener("blur", () => nrnInputEl.value === pattern && (nrnInputEl.value=""));
+        nrnInputEl.addEventListener("blur", () => nrnInputEl.value === pattern && (nrnInputEl.value = ""));
     </script>
 </body>
 
