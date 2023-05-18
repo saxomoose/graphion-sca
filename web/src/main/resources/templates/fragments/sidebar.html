@@ -6,7 +6,7 @@
         </div>
         <div class="offcanvas-body">
             <div class="d-flex flex-column">
-                <ul class="nav nav-pills flex-column mb-auto">
+                <ul class="nav nav-pills flex-column mb-3">
                     <li class="nav-item">
                         <a class="nav-link" data-th-classappend="${activeNavLink == 0} ? active : _"
                             data-th-href="@{/dashboard}">
@@ -44,6 +44,23 @@
                         </a>
                     </li>
                 </ul>
+                <div class="dropdown border-top d-flex justify-content-center">
+                    <a class="d-flex align-items-center  p-3 dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                        <img data-th-src="@{/svg/person.svg}" width="32" height="32">
+                    </a>
+                    <ul class="dropdown-menu" style>
+                        <li><a class="dropdown-item bg-transparent" href="#">Settings</a></li>
+                        <li><a class="dropdown-item bg-transparent" href="#">Profile</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form class="dropdown-item bg-transparent" data-th-action="@{/logout}" method="post">
+                                <input class="btn btn-primary" type="submit" value="Log out">
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

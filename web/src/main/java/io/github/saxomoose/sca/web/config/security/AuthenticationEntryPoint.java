@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.fallback;
+package io.github.saxomoose.sca.web.config.security;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +31,6 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
             flashMap.put("notifications", notifications);
             flashMapManager.saveOutputFlashMap(flashMap, request, response);
         }
-        response.sendRedirect("/login");
+        response.sendRedirect("/");
     }
 }

@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.pki;
+package io.github.saxomoose.sca.web.config.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.webeid.security.authtoken.WebEidAuthToken;

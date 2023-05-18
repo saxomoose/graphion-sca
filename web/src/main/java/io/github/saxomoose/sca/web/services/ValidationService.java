@@ -4,7 +4,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import io.github.saxomoose.sca.web.config.security.pki.AuthenticationPayload;
+import io.github.saxomoose.sca.web.config.security.AuthenticationPayload;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.services.repositories.DocumentRepository;
 

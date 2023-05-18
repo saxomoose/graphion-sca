@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.pki;
+package io.github.saxomoose.sca.web.config.security;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;

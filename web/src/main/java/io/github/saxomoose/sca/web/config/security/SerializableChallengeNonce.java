@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.pki;
+package io.github.saxomoose.sca.web.config.security;
 
 import java.io.IOException;
 import java.io.Serializable;
