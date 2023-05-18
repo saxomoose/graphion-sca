@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.fallback;
+package io.github.saxomoose.sca.web.config.security;
 
 // @Service
 // public class JDBCUserDetailsService implements UserDetailsService {

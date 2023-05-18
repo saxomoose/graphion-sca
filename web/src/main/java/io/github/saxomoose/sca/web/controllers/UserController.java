@@ -49,7 +49,7 @@ public class UserController {
         @SortDefault(sort = "lastName") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var userPage = userService.usersByTenant(pageable, tenantId);
+        final var userPage = userService.usersByTenant(tenantId, pageable);
         if (userPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }

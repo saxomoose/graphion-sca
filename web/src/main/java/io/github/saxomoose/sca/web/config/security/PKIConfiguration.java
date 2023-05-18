@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.pki;
+package io.github.saxomoose.sca.web.config.security;
 
 import java.net.URI;
 import java.security.cert.CertificateFactory;

@@ -29,9 +29,13 @@ public class PersistenceConfiguration extends AbstractJdbcConfiguration {
         return new AuditorAware<Long>() {
             @Override
             public Optional<Long> getCurrentAuditor() {
-                return Optional.ofNullable(SecurityContextHolder.getContext())
-                    .map(SecurityContext::getAuthentication).filter(Authentication::isAuthenticated)
-                    .map(Authentication::getPrincipal).map(User.class::cast).map(User::id);
+                return Optional
+                    .ofNullable(SecurityContextHolder.getContext())
+                    .map(SecurityContext::getAuthentication)
+                    .filter(Authentication::isAuthenticated)
+                    .map(Authentication::getPrincipal)
+                    .map(User.class::cast)
+                    .map(User::id);
             }
         };
     }

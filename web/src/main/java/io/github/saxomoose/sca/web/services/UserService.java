@@ -1,11 +1,14 @@
 package io.github.saxomoose.sca.web.services;
 
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.repositories.UserRepository;
@@ -14,12 +17,13 @@ import io.github.saxomoose.sca.web.services.repositories.UserRepository;
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    private final NamedParameterJdbcOperations namedParameterJdbcOperations;
     private final UserRepository userRepository;
 
-
     @Autowired
-    public UserService(UserRepository userRepository)
+    public UserService(NamedParameterJdbcOperations namedParameterJdbcOperations, UserRepository userRepository)
     {
+        this.namedParameterJdbcOperations = namedParameterJdbcOperations;
         this.userRepository = userRepository;
     }
 
@@ -33,9 +37,34 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Page<User> usersByTenant(final Pageable pageable, final Long tenantId)
+    public Page<User> usersByTenant(final Long tenantId, final Pageable pageable)
     {
-        return PageableExecutionUtils.getPage(userRepository.usersByTenant(tenantId), pageable, () -> userRepository.countUsersByTenant(tenantId));
+        final var offset = pageable.getPageNumber() * pageable.getPageSize();
+        final var sql = """
+            SELECT *
+            FROM sca.user
+            WHERE id IN (
+                SELECT "user"
+                FROM sca.tenant_user
+                WHERE tenant = :tenantId)
+            LIMIT :pageSize OFFSET :offset;
+        """;
+        final var params = new MapSqlParameterSource().addValues(
+            Map.of(
+                "tenantId", tenantId,
+                "pageSize", pageable.getPageSize(),
+                "offset", offset));
+        final var tenantUsers = namedParameterJdbcOperations.query(sql, params, (rs, rowNum) -> {
+            return new User(
+                rs.getLong("id"),
+                rs.getBoolean("enabled"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getString("username"),
+                rs.getDate("date_of_birth").toLocalDate(),
+                rs.getBoolean("electronic_signature_consent"));
+        });
+        return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> userRepository.countUsersByTenant(tenantId));
     }
 
     //

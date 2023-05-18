@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.fallback;
+package io.github.saxomoose.sca.web.config.security;
 
 import java.io.IOException;
 import java.util.List;

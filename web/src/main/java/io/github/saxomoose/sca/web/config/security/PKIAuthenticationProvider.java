@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.security.pki;
+package io.github.saxomoose.sca.web.config.security;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;

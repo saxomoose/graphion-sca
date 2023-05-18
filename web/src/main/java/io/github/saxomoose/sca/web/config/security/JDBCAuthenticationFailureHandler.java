@@ -1,15 +1,13 @@
-package io.github.saxomoose.sca.web.config.security.fallback;
+package io.github.saxomoose.sca.web.config.security;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.support.SessionFlashMapManager;
-
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +28,6 @@ public class JDBCAuthenticationFailureHandler
             flashMap.put("notifications", notifications);
             flashMapManager.saveOutputFlashMap(flashMap, request, response);
         }
-        response.sendRedirect("/login");
+        response.sendRedirect("/");
     }
 }
