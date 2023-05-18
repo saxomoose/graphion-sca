@@ -2,12 +2,32 @@ package io.github.saxomoose.sca.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
+import org.springframework.boot.autoconfigure.netty.NettyAutoConfiguration;
+import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration;
+import org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication(exclude = { RedisReactiveAutoConfiguration.class, }) @ComponentScan(basePackages = {
-        "io.github.saxomoose.sca.lib.services", "io.github.saxomoose.sca.web.config",
-        "io.github.saxomoose.sca.web.controllers", "io.github.saxomoose.sca.web.services" })
+@SpringBootApplication(
+    exclude = { 
+        NettyAutoConfiguration.class,
+        PersistenceExceptionTranslationAutoConfiguration.class,
+        PropertyPlaceholderAutoConfiguration.class,
+        RedisReactiveAutoConfiguration.class,
+        SqlInitializationAutoConfiguration.class,
+        TaskExecutionAutoConfiguration.class,
+        TaskSchedulingAutoConfiguration.class,
+        WebSocketServletAutoConfiguration.class }) 
+@ComponentScan(
+    basePackages = {
+        "io.github.saxomoose.sca.lib.services",
+        "io.github.saxomoose.sca.web.config",
+        "io.github.saxomoose.sca.web.controllers", 
+        "io.github.saxomoose.sca.web.services" })
 // @ComponentScan(excludeFilters = @ComponentScan.Filter(
 // type = FilterType.ASSIGNABLE_TYPE,
 // classes = {DatabaseSeeder.class}))

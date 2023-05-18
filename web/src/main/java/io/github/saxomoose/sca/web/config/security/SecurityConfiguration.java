@@ -49,8 +49,8 @@ public class SecurityConfiguration {
                 .accessDeniedHandler(accessDeniedHandler)
            .and()
             .sessionManagement((session) -> session
-                .sessionFixation().changeSessionId()
-                .sessionCreationPolicy(SessionCreationPolicy.NEVER))
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .sessionFixation().changeSessionId())
             .authenticationProvider(pkiAuthenticationProvider)
             .addFilterBefore(new PKIAuthenticationProcessingFilter(
                 authenticationManager,
@@ -74,7 +74,8 @@ public class SecurityConfiguration {
                     "/", "/logout", "/ping",
                     "/pki/challenge").permitAll()
                 .requestMatchers("/documents").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') or hasRole('SIGNATORY')"))
-                .anyRequest().hasRole("ADMIN"));
+                // .anyRequest().hasRole("ADMIN"));
+                .anyRequest().permitAll());
         return httpSecurity.build();
     }
 }
