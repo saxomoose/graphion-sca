@@ -1,12 +1,10 @@
-// noinspection ES6UnusedImports
-
 // Import our custom CSS.
-import "../scss/app.scss";
+// import "../scss/app.scss";
 
 // Option 1
 // eslint-disable-next-line no-unused-vars
-import * as bootstrap from "bootstrap/dist/js/bootstrap.min";
-window.bootstrap = bootstrap;
+// import * as bootstrap from "bootstrap/dist/js/bootstrap.min";
+// window.bootstrap = bootstrap;
 import * as webeid from "@web-eid/web-eid-library/dist/es/web-eid";
 window.webeid = webeid;
 import * as webeiderrors from "./errors.js";

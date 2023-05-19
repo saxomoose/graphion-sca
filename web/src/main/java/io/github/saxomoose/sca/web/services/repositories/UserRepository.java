@@ -6,11 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import io.github.saxomoose.sca.web.models.User;
 
 public interface UserRepository extends CrudRepository<User, Long> {
-    User findByUsername(String username);
-
-    @Query("SELECT * FROM sca.user LIMIT 1")
-    User select();
-
+    // Read
     @Query(value = """
         SELECT *
         FROM sca.user
@@ -30,4 +26,10 @@ public interface UserRepository extends CrudRepository<User, Long> {
             WHERE tenant = :tenantId);        
     """)
     Long countUsersByTenant(Long tenantId);
+
+    @Query("SELECT * FROM sca.user LIMIT 1")
+    User firstUser();
+
+    @Query("SELECT * FROM sca.user WHERE username = :username")
+    User userByUsername(String username);
 }

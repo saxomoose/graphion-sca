@@ -9,16 +9,17 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import io.github.saxomoose.sca.web.models.Document;
 
 public interface DocumentRepository extends CrudRepository<Document, Long>, PagingAndSortingRepository<Document, Long> {
-    @Query("SELECT *  FROM sca.document LIMIT 1")
-    Document selectFirst();
-
+    // Read
     Page<Document> findAllByTenant(Pageable pageable, Long tenantId);
 
+    @Query("SELECT *  FROM sca.document LIMIT 1")
+    Document firstDocument();
+
     @Query("SELECT * FROM sca.document WHERE id = :id")
-    Document select(Long tenant, Long id);
+    Document documentById(Long tenant, Long id);
 
     @Query("SELECT *  FROM sca.document WHERE tenant = :tenant AND file_uuid = :fileUUID")
-    Document select(Long tenant, UUID fileUUID);
+    Document documentByFileUUID(Long tenant, UUID fileUUID);
 
     @Query("SELECT EXISTS (SELECT 1 FROM sca.document WHERE tenant = :tenant AND file_uuid = :fileUUID)")
     Boolean exists(Long tenant, UUID fileUUID);
