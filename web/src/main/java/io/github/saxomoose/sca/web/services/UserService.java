@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.services;
 
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class UserService {
 
     public Page<User> usersByTenant(final Long tenantId, final Pageable pageable)
     {
-        final var offset = pageable.getPageNumber() * pageable.getPageSize();
+        final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
         final var sql = """
             SELECT *
             FROM sca.user
@@ -49,21 +50,12 @@ public class UserService {
                 WHERE tenant = :tenantId)
             LIMIT :pageSize OFFSET :offset;
         """;
-        final var params = new MapSqlParameterSource().addValues(
+        final var params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final var tenantUsers = namedParameterJdbcOperations.query(sql, params, (rs, rowNum) -> {
-            return new User(
-                rs.getLong("id"),
-                rs.getBoolean("enabled"),
-                rs.getString("first_name"),
-                rs.getString("last_name"),
-                rs.getString("username"),
-                rs.getDate("date_of_birth").toLocalDate(),
-                rs.getBoolean("electronic_signature_consent"));
-        });
+        final List<User> tenantUsers = namedParameterJdbcOperations.queryForList(sql, params, User.class);
         return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> userRepository.countUsersByTenant(tenantId));
     }
 

@@ -1,19 +1,21 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.jdbc.core.RowMapper;
 
 @Table(schema = "sca")
-public class Tenant implements Serializable {
+public class Tenant implements RowMapper<Tenant>, Serializable {
     @Id
     private final Long id;
     // Enforces bucket naming rules.
@@ -23,15 +25,17 @@ public class Tenant implements Serializable {
     private String name;
     private final String bucket;
     // OIDC parameters to connect to Tenant endpoint.
+    
     @Version
     private Long version;
+    @CreatedBy
+    private Long createdBy;
+    @LastModifiedBy
+    private Long lastModifiedBy;
     @CreatedDate
     private LocalDateTime createdDate;
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
-
-    @Transient
-    private Set<TenantUser> tenantUsers = new HashSet<>();
 
     public static Tenant of(String name)
     {
@@ -60,11 +64,6 @@ public class Tenant implements Serializable {
         return bucket;
     }
 
-    public void setTenantUsers(Set<TenantUser> tenantUsers)
-    {
-        this.tenantUsers = tenantUsers;
-    }
-
     @Override
     public boolean equals(Object o)
     {
@@ -80,5 +79,14 @@ public class Tenant implements Serializable {
     public int hashCode()
     {
         return Objects.hash(id);
+    }
+
+    @Override
+    public Tenant mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Tenant(
+            rs.getLong("id"),
+            rs.getString("name"),
+            rs.getString("bucket")
+        );
     }
 }

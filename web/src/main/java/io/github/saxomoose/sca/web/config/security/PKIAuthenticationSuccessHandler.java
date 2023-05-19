@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,13 +36,13 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException
     {
-        final var defaultTenant = ((PKIAuthentication) authentication).defaultTenant();
+        final Tenant defaultTenant = ((PKIAuthentication) authentication).defaultTenant();
         String successURL;
         if(defaultTenant != null) {
             httpSession.setAttribute("tenant", defaultTenant);
             successURL = CLOSINGS_URL;
         } else {
-            successURL = String.format("%s/%s", TENANTS_URL, ((User) authentication.getPrincipal()).id());
+            successURL = String.format("%s/%s", TENANTS_URL, ((User) authentication.getPrincipal()).uuid());
         }   
 
         response.setStatus(HttpServletResponse.SC_OK);

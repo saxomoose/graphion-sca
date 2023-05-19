@@ -42,9 +42,9 @@ public class DocumentService {
     public void create(final Tenant tenant, final String filename, final Long clientSideFileSize, final InputStream inputStream)
     {
         final var documentToCreate = Document.of(tenant.id(), filename);
-        final var documentId = documentRepository.save(documentToCreate).id();
-        final var fileUUID = documentRepository.select(tenant.id(), documentId).fileUUID();
-        final var filePath = filePath(Path.UPLOADS, fileUUID);
+        final Long documentId = documentRepository.save(documentToCreate).id();
+        final UUID fileUUID = documentRepository.select(tenant.id(), documentId).fileUUID();
+        final String filePath = filePath(Path.UPLOADS, fileUUID);
         minioService.configureBucket(tenant.bucket());
         minioService.storeObject(tenant.bucket(), filePath, inputStream);
         if (minioService.statObject(tenant.bucket(), filePath).size() != clientSideFileSize) {

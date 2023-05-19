@@ -6,7 +6,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.FlashMap;
-import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.support.SessionFlashMapManager;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.ServletException;
@@ -21,7 +20,7 @@ public class JDBCAuthenticationFailureHandler
             AuthenticationException exception) throws IOException, ServletException
     {
         final var flashMap = new FlashMap();
-        final FlashMapManager flashMapManager = new SessionFlashMapManager();
+        final var flashMapManager = new SessionFlashMapManager();
         if (exception instanceof BadCredentialsException) {
             final var notifications = List.of(new Notification(Notification.Type.ERROR,
                     "notification.error.authentication", "login.error.bad_credentials"));

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import eu.webeid.security.challenge.ChallengeNonceGenerator;
@@ -17,7 +18,6 @@ import eu.webeid.security.challenge.ChallengeNonceGeneratorBuilder;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
 import eu.webeid.security.validator.AuthTokenValidatorBuilder;
-import io.github.saxomoose.sca.web.config.ConfigurationService;
 
 @Configuration
 public class PKIConfiguration {
@@ -28,10 +28,10 @@ public class PKIConfiguration {
     private static final String CERTS_GLOB_PATTERN = "/*.crt";
     private static final String TRUSTED_CERTIFICATES_JKS = "trusted_certificates.jks";
 
-    private final ConfigurationService configurationService;
+    private final Environment environment;
 
-    public PKIConfiguration(ConfigurationService configurationService) {
-        this.configurationService = configurationService;
+    public PKIConfiguration(Environment environment) {
+        this.environment = environment;
     }
 
     /**
@@ -55,10 +55,12 @@ public class PKIConfiguration {
     {
         List<X509Certificate> caCertificates = new ArrayList<>();
         try {
-            final var certFactory = CertificateFactory.getInstance("X.509");
+            final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             final var resolver = new PathMatchingResourcePatternResolver();
-            final var resources = resolver.getResources(String.format("%s%s%s", 
-                CERTS_RESOURCE_PATH, configurationService.activeProfile(), CERTS_GLOB_PATTERN));
+            final Resource[] resources = resolver.getResources(
+                String.format(
+                    "%s%s%s", 
+                    CERTS_RESOURCE_PATH, environment.getProperty("spring.profiles.active"), CERTS_GLOB_PATTERN));
             for (Resource resource : resources) {
                 X509Certificate caCertificate = 
                     (X509Certificate) certFactory.generateCertificate(resource.getInputStream());
@@ -106,12 +108,12 @@ public class PKIConfiguration {
     {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
-                .withSiteOrigin(URI.create(configurationService.localOrigin()))
+                .withSiteOrigin(URI.create(environment.getProperty("web-eid-auth-token.validation.local-origin")))
                 .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles())
                 // TODO: Investigate OCSP.
                 .withoutUserCertificateRevocationCheckWithOcsp();
                 // .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromTrustStore());
-            if (configurationService.activeProfile().equals("dev")) {
+            if (environment.getProperty("spring.profiles.active").equals("dev")) {
                 // TODO: Enable support for ESTEID 2015 test certificates in development profile.
                 // validatorBuilder = validatorBuilder
                 // .withNonceDisabledOcspUrls(URI.create("http://aia.demo.sk.ee/esteid2015"));

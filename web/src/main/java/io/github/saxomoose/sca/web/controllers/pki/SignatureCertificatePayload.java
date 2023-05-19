@@ -34,9 +34,9 @@ public class SignatureCertificatePayload {
     }
 
     public X509Certificate toX509Certificate() throws CertificateException {
-        final var certificateBytes = Base64.getDecoder().decode(signatureCertificate);
-        final var inputStream = new ByteArrayInputStream(certificateBytes);
-        final var certificateFactory = CertificateFactory.getInstance("X.509");
+        final byte[] certificateBytes = Base64.getDecoder().decode(signatureCertificate);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(certificateBytes);
+        final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         return (X509Certificate) certificateFactory.generateCertificate(inputStream);
     }
 

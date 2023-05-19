@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.services;
 
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,8 +27,8 @@ public class ValidationService {
         if (filename.isBlank()) {
             throw new BusinessLogicException(messageKey);
         }
-        final var pattern = Pattern.compile("^[a-zA-Z0-9_-]{1,255}$", Pattern.CASE_INSENSITIVE);
-        final var matcher = pattern.matcher(filename);
+        final Pattern pattern = Pattern.compile("^[a-zA-Z0-9_-]{1,255}$", Pattern.CASE_INSENSITIVE);
+        final Matcher matcher = pattern.matcher(filename);
         if (!matcher.matches()) {
             throw new BusinessLogicException(messageKey);
         }

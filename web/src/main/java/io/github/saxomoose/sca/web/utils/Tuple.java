@@ -1,5 +1,7 @@
 package io.github.saxomoose.sca.web.utils;
 
+import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import io.github.saxomoose.sca.web.controllers.pki.DigestPayload;
 import io.github.saxomoose.sca.web.enums.Role;
@@ -17,6 +19,11 @@ public class Tuple<X, Y> {
     public static Tuple<Tenant, Role> of(Tenant tenant, Role role)
     {
         return new Tuple<Tenant, Role>(tenant, role);
+    }
+
+    public static Tuple<Tenant, List<GrantedAuthority>> of(Tenant tenant, List<GrantedAuthority> role)
+    {
+        return new Tuple<Tenant, List<GrantedAuthority>>(tenant, role);
     }
 
     public Tuple(X first, Y second)

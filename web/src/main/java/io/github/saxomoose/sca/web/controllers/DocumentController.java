@@ -3,11 +3,14 @@ package io.github.saxomoose.sca.web.controllers;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.ContentDisposition;
@@ -27,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.TenantService;
@@ -34,6 +38,7 @@ import io.github.saxomoose.sca.web.services.ValidationService;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 @Controller
 public class DocumentController {
@@ -62,7 +67,7 @@ public class DocumentController {
         @SortDefault(sort = "filename") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var documentPage = documentService.selectPage(pageable, tenantId);
+        final Page<Document> documentPage = documentService.selectPage(pageable, tenantId);
         if (documentPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
@@ -82,9 +87,9 @@ public class DocumentController {
         @RequestParam final Boolean download) throws Exception 
     {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
-        final var fileUUID = validationService.uuid(rawFileUUID);
+        final UUID fileUUID = validationService.uuid(rawFileUUID);
         // TODO validate tenantId (uuid)
-        final var filename = documentService.select(tenant.id(), fileUUID).filename();
+        final String filename = documentService.select(tenant.id(), fileUUID).filename();
         final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -114,14 +119,14 @@ public class DocumentController {
         final HttpServletRequest request,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        final var parts = request.getParts();
+        final Collection<Part> parts = request.getParts();
         if (parts.size() != 4) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         String rawFilename = null;
         Long clientSideFileSize = null;
         InputStream rawFileInputStream = null;
-        for (var part : parts) {
+        for (Part part : parts) {
             if (part.getName().equals("fileSize")) {
                 final var bytes = part.getInputStream().readAllBytes();
                 if (bytes.length == 0) {
@@ -145,7 +150,7 @@ public class DocumentController {
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        final var filename = validationService.documentArgs(rawFilename);
+        final String filename = validationService.documentArgs(rawFilename);
         documentService.create(tenant, filename, clientSideFileSize, rawFileInputStream);
         redirectAttributes.addFlashAttribute(
             "notifications",
@@ -163,7 +168,7 @@ public class DocumentController {
         final BusinessLogicException businessLogicException,
         final RedirectAttributes redirectAttributes) 
     {
-        final var path = URI.create(request.getHeader("referer")).getPath();
+        final String path = URI.create(request.getHeader("referer")).getPath();
         redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
             Notification.Type.ERROR,
             "notification.error.validation",
