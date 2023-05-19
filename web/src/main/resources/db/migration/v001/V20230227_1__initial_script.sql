@@ -1,17 +1,6 @@
-CREATE TABLE sca.tenant (
-    id bigserial PRIMARY KEY,
-    name character varying(255) NOT NULL UNIQUE,
-    bucket character varying(255) NOT NULL,
-    version bigint NOT NULL,
-    created_by bigint,
-    last_modified_by bigint,
-    created_date timestamp(6) NOT NULL,
-    last_modified_date timestamp(6) NOT NULL
-);
-
 CREATE TABLE sca.user (
     id bigserial PRIMARY KEY,
-    uuid uuid DEFAULT gen_random_uuid (),
+    uuid uuid DEFAULT gen_random_uuid () UNIQUE,
     enabled boolean DEFAULT false,
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
@@ -23,9 +12,21 @@ CREATE TABLE sca.user (
     last_modified_by bigint,
     created_date timestamp(6) NOT NULL,
     last_modified_date timestamp(6) NOT NULL,
-    CONSTRAINT unique_constraint_user_uuid UNIQUE (uuid),
     CONSTRAINT fk_xrm5kc7fcipmupq47qb7erbca FOREIGN KEY (created_by) REFERENCES sca.user(id),
     CONSTRAINT fk_fvofgwr9u29o5c9wm5t7rxmf3 FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
+);
+
+CREATE TABLE sca.tenant (
+    id bigserial PRIMARY KEY,
+    name character varying(255) NOT NULL UNIQUE,
+    bucket character varying(255) NOT NULL,
+    version bigint NOT NULL,
+    created_by bigint,
+    last_modified_by bigint,
+    created_date timestamp(6) NOT NULL,
+    last_modified_date timestamp(6) NOT NULL,
+    CONSTRAINT fk_r3nv54ng4jy2uaw7vh7a2vv45 FOREIGN KEY (created_by) REFERENCES sca.user(id),
+    CONSTRAINT fk_f5vjpc5aodwj2ahcf9zxhu4an FOREIGN KEY (last_modified_by) REFERENCES sca.user(id)
 );
 
 CREATE TABLE sca.legal_person (

@@ -36,6 +36,7 @@ public class SecurityConfiguration {
         final AccessDeniedHandler accessDeniedHandler,
         final AuthenticationManager authenticationManager,
         final HttpSecurity httpSecurity,
+        final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
         final ObjectMapper objectMapper,
         final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
         final PKIAuthenticationProvider pkiAuthenticationProvider,
@@ -54,7 +55,7 @@ public class SecurityConfiguration {
             .authenticationProvider(pkiAuthenticationProvider)
             .addFilterBefore(new PKIAuthenticationProcessingFilter(
                 authenticationManager,
-                new HttpSessionSecurityContextRepository(),
+                httpSessionSecurityContextRepository,
                 pkiAuthenticationFailureHandler,
                 pkiAuthenticationSuccessHandler,
                 objectMapper,

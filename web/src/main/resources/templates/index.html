@@ -13,13 +13,14 @@
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/scripts}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
+    <script data-th-src="@{/js/web-eid.min.js}"></script>
+    <script data-th-src="@{/js/web-eid-errors.js}"></script>
     <script data-th-inline="javascript">
         "use strict";
 
         webeiderrors.hideErrorMessage();
 
         const loginFormEl = document.getElementById("loginForm");
-
 
         loginFormEl.addEventListener("submit", async (event) => {
             event.preventDefault();
@@ -46,7 +47,7 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
                     },
-                    body: `{"auth-token": ${JSON.stringify(authToken)}, "username":  ${JSON.stringify(username)}}`
+                    body: `{"auth-token": ${JSON.stringify(authToken)}, "username": ${JSON.stringify(username)}}`
                 });
                 await webeiderrors.checkHttpError(authTokenResponse);
                 const { successURL } = await authTokenResponse.json();
@@ -60,7 +61,7 @@
                 throw error;
             }
             // finally {
-            //     loginForm.disabled = false;
+            // loginForm.disabled = false;
             // }
         });
     </script>

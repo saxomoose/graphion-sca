@@ -1,8 +1,6 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import org.springframework.data.annotation.CreatedBy;
@@ -12,10 +10,9 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.jdbc.core.RowMapper;
 
 @Table(schema = "sca")
-public class Tenant implements RowMapper<Tenant>, Serializable {
+public class Tenant implements Serializable {
     @Id
     private final Long id;
     // Enforces bucket naming rules.
@@ -39,14 +36,18 @@ public class Tenant implements RowMapper<Tenant>, Serializable {
 
     public static Tenant of(String name)
     {
-        return new Tenant(null, name, name);
+        return new Tenant(null, name, name, null, null, null, null);
     }
 
-    public Tenant(Long id, String name, String bucket)
+    public Tenant(Long id, String name, String bucket, Long createdBy, Long lastModifiedBy, LocalDateTime createdDate, LocalDateTime lastModifiedDate)
     {
         this.id = id;
         this.name = name;
         this.bucket = bucket;
+        this.createdBy = createdBy;
+        this.lastModifiedBy = lastModifiedBy;
+        this.createdDate = createdDate;
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public Long id()
@@ -79,14 +80,5 @@ public class Tenant implements RowMapper<Tenant>, Serializable {
     public int hashCode()
     {
         return Objects.hash(id);
-    }
-
-    @Override
-    public Tenant mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Tenant(
-            rs.getLong("id"),
-            rs.getString("name"),
-            rs.getString("bucket")
-        );
     }
 }

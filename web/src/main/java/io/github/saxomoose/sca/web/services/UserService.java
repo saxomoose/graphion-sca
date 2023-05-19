@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.models.User;
+import io.github.saxomoose.sca.web.models.UserRowMapper;
 import io.github.saxomoose.sca.web.services.repositories.UserRepository;
 
 @Service
@@ -55,7 +56,7 @@ public class UserService {
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final List<User> tenantUsers = namedParameterJdbcOperations.queryForList(sql, params, User.class);
+        final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, new UserRowMapper());
         return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> userRepository.countUsersByTenant(tenantId));
     }
 
