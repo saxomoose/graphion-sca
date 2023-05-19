@@ -6,7 +6,6 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.FlashMap;
-import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.support.SessionFlashMapManager;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.ServletException;
@@ -22,7 +21,7 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
         AuthenticationException authException) throws IOException, ServletException 
     {
         final var flashMap = new FlashMap();
-        final FlashMapManager flashMapManager = new SessionFlashMapManager();
+        final var flashMapManager = new SessionFlashMapManager();
         if (authException instanceof InsufficientAuthenticationException) {
             final var notifications = List.of(new Notification(
                 Notification.Type.ERROR,

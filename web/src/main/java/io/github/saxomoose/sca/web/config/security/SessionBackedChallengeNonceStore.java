@@ -32,8 +32,7 @@ public class SessionBackedChallengeNonceStore implements ChallengeNonceStore {
     @Override
     public ChallengeNonce getAndRemoveImpl() 
     {
-        final var challengeNonce = 
-            ((SerializableChallengeNonce) currentSession().getAttribute(CHALLENGE_NONCE_KEY)).getchallengeNonce();
+        final ChallengeNonce challengeNonce = ((SerializableChallengeNonce) currentSession().getAttribute(CHALLENGE_NONCE_KEY)).getchallengeNonce();
         currentSession().removeAttribute(CHALLENGE_NONCE_KEY);
         return challengeNonce;
     }

@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.config.security;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
@@ -52,14 +55,14 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication auth) throws AuthenticationException 
     {
         logger.info(String.format("authenticate(): %s", auth));
-        final var authentication = (PreAuthenticatedAuthenticationToken) auth;
-        final var authenticationPayload = ((AuthenticationPayload) authentication.getCredentials());
+        final PreAuthenticatedAuthenticationToken authentication = (PreAuthenticatedAuthenticationToken) auth;
+        final AuthenticationPayload authenticationPayload = ((AuthenticationPayload) authentication.getCredentials());
         try {
-            final var nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
-            final var userCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
-            final var user = userFromCertificate(authenticationPayload.username(), userCertificate);
-            final var defaultTenant = defaultTenant(user);
-            if(defaultTenant != null) {
+            final String nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
+            final X509Certificate userCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
+            final User user = userFromCertificate(authenticationPayload.username(), userCertificate);
+            final Tuple<Tenant, List<GrantedAuthority>> defaultTenant = defaultTenant(user);
+            if (defaultTenant != null) {
                 return PKIAuthentication.of(user, defaultTenant.first(), defaultTenant.second());
             } else {
                 return PKIAuthentication.of(user);
@@ -118,8 +121,15 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    private Tuple<Tenant, Role> defaultTenant(User user)
+    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(User user)
     {
-        return tenantService.defaultTenant(user.id());
+        final Tuple<Tenant, Role> defaultTenant = tenantService.defaultTenant(user.id());
+        if (defaultTenant != null) {
+            return Tuple.of(
+                defaultTenant.first(),
+                List.of(new SimpleGrantedAuthority(defaultTenant.second().toString())));
+        } else {
+            return null;
+        } 
     }
 }

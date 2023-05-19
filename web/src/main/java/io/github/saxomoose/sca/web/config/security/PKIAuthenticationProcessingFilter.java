@@ -53,7 +53,7 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
             logger.error("HTTP method not supported: %s", request.getMethod());
             throw new RuntimeException();
         }
-        final var contentType = request.getHeader("Content-Type");
+        final String contentType = request.getHeader("Content-Type");
         if (contentType == null || !contentType.startsWith("application/json")) {
             logger.error("Content type not supported: %s", contentType);
             throw new RuntimeException();

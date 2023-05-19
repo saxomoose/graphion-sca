@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatusCode;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.ClosingService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +34,7 @@ public class ClosingController {
         @SortDefault(sort = "name") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var closingPage = closingService.selectPage(pageable, tenantId);
+        final Page<Closing> closingPage = closingService.selectPage(pageable, tenantId);
         if (closingPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }

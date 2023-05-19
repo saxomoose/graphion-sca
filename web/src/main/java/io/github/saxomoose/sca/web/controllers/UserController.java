@@ -2,6 +2,7 @@ package io.github.saxomoose.sca.web.controllers;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatusCode;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.models.Tenant;
+import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.dtos.Signatory;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.UserService;
@@ -49,7 +51,7 @@ public class UserController {
         @SortDefault(sort = "lastName") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final var userPage = userService.usersByTenant(tenantId, pageable);
+        final Page<User> userPage = userService.usersByTenant(tenantId, pageable);
         if (userPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }

@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.controllers.pki;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.PKISignatureService;
 import io.github.saxomoose.sca.web.services.ValidationService;
+import io.github.saxomoose.sca.web.utils.Tuple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -46,8 +48,8 @@ public class SignatureController {
     ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
-        final var fileUUID = validationService.uuid(rawFileUUID);
-        final var tuple = signatureService.dataToSign(fileUUID, signatureCertificate);
+        final UUID fileUUID = validationService.uuid(rawFileUUID);
+        final Tuple<DigestPayload, PAdESSignatureParameters> tuple = signatureService.dataToSign(fileUUID, signatureCertificate);
         final var flashMapManager = new SessionFlashMapManager();
         final var flashMap = new FlashMap();
         flashMap.put("parameters", tuple.second());
@@ -62,7 +64,7 @@ public class SignatureController {
         @RequestBody final SignaturePayload signature
     ) throws CertificateException, IOException
     {
-        final var fileUUID = validationService.uuid(rawFileUUID);
+        final UUID fileUUID = validationService.uuid(rawFileUUID);
         
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final var parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");

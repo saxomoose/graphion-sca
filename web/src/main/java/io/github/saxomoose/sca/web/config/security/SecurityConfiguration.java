@@ -77,6 +77,5 @@ public class SecurityConfiguration {
                 // .anyRequest().hasRole("ADMIN"));
                 .anyRequest().permitAll());
         return httpSecurity.build();
-        //test
     }
 }
