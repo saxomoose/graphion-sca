@@ -24,6 +24,7 @@ pdfbox = { module = "org.apache.pdfbox:pdfbox", version = "latest.release" }
 webeid = { module = "org.webeid.security:authtoken-validation", version = "latest.release" }
 
 [plugins]
+graalvm = { id = "org.graalvm.buildtools.native", version = "latest.release" }
 flyway = { id = "org.flywaydb.flyway", version = "latest.release" }
 node = { id = "com.github.node-gradle.node", version = "latest.release" }
 springboot = { id = "org.springframework.boot", version = "latest.release" }
