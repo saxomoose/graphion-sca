@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="h-100" lang="en">
+
+<head data-th-replace="~{fragments/head :: frag(~{title = 'tenants'})}"></head>
+
+<body class="d-flex flex-column h-100">
+    <header data-th-replace="~{fragments/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+    <div class="flex-shrink-0">
+        <div class="container-fluid">
+            <div class="row mt-3">
+                <main class="col-md-6">
+                    <!-- Table -->
+                    <table class="table table-hover" id="tenantTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">Organisation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            <th-block data-th-each="tenant : ${tenantPage}">
+                                <tr class="clickableRow" data-th-id="${tenant.id()}" role="button">
+                                    <td data-th-text="${tenant.name()}"></td>
+                                </tr>
+                            </th-block>
+                        </tbody>
+                    </table>
+                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'tenants', page = ${tenantPage})}">
+                    </nav>
+                    <!-- Modal -->
+                    <div class="modal fade" data-th-each="tenant: ${tenantPage}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body d-flex align-items-center">
+                                    <form class="me-2"
+                                        data-th-action="@{/authorization/{tenantName}(tenantName = __${tenant.name()}__, defaultConnection = false)}"
+                                        method="post">
+                                        <input class="btn btn-primary" type="submit" value="View">
+                                    </form>
+                                    <form class="me-auto"
+                                        data-th-action="@{/authorization/{tenantName}(tenantName = __${tenant.name()}__, defaultConnection = true)}"
+                                        method="post">
+                                        <input class="btn btn-primary" type="submit" value="Select as default">
+                                    </form>
+                                    <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <footer data-th-replace="~{fragments/footer}"></footer>
+    <script data-th-replace="~{fragments/scripts}"></script>
+    <div data-th-replace="~{fragments/toast-script}"></div>
+    <div data-th-replace="~{fragments/modal-script}"></div>
+</body>
+
+</html>

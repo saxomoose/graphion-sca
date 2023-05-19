@@ -205,7 +205,7 @@ tasks.register<NpmTask>("npmRunBuildProd") {
 }
 
 tasks.processResources {
-    dependsOn(tasks.findByName("npmRunBuild"))
+//    dependsOn(tasks.findByName("npmRunBuild"))
 //    dependsOn(tasks.findByName("npmRunBuildProd"))
 }
 

@@ -24,7 +24,7 @@ public class RedisServiceTest {
     @BeforeAll
     public void setup() 
     {
-        httpSession.setAttribute("tenant", new Tenant(1L, null, null));
+        httpSession.setAttribute("tenant", new Tenant(1L, null, null, null, null, null, null));
     }
 
     // @Test

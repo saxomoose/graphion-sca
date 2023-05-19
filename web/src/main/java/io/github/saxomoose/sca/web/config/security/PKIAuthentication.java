@@ -18,19 +18,24 @@ public class PKIAuthentication extends PreAuthenticatedAuthenticationToken {
     {
         return new PKIAuthentication(user, null, null);
     }
-    
-    public static Authentication of(User user, Tenant defaultTenant, List<GrantedAuthority> role)
+
+    public static Authentication of(User user, List<GrantedAuthority> authorities)
     {
-        return new PKIAuthentication(user, defaultTenant, role);
+        return new PKIAuthentication(user, null, authorities);
+    }
+    
+    public static Authentication of(User user, Tenant defaultTenant, List<GrantedAuthority> authorities)
+    {
+        return new PKIAuthentication(user, defaultTenant, authorities);
     }
 
-    private PKIAuthentication(User principal, Tenant defaultTenant, List<GrantedAuthority> role) 
+    private PKIAuthentication(User principal, Tenant defaultTenant, List<GrantedAuthority> authorities) 
     {
         // TODO: user.authorities(). Refresh authorities later on.
         super(
             principal, 
             null, 
-            role);
+            authorities);
         // this.subjectIdCode = subjectIdCode;
         this.defaultTenant = defaultTenant;
     }

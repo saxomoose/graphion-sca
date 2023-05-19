@@ -164,15 +164,18 @@ public class DocumentController {
     // Exception handling
     @ExceptionHandler(value = {BusinessLogicException.class,})
     public RedirectView handle(
-        final HttpServletRequest request,
         final BusinessLogicException businessLogicException,
+        final HttpServletRequest request,
         final RedirectAttributes redirectAttributes) 
     {
         final String path = URI.create(request.getHeader("referer")).getPath();
-        redirectAttributes.addFlashAttribute("notifications", List.of(new Notification(
-            Notification.Type.ERROR,
-            "notification.error.validation",
-            businessLogicException.messageKey())));
+        redirectAttributes.addFlashAttribute(
+            "notifications", 
+            List.of(
+                new Notification(
+                Notification.Type.ERROR,
+                "notification.error.validation",
+                businessLogicException.messageKey())));
         return new RedirectView(path);
     }
 }

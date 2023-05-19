@@ -13,13 +13,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
-import io.github.saxomoose.sca.web.enums.Role;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
@@ -123,13 +121,6 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
 
     private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(User user)
     {
-        final Tuple<Tenant, Role> defaultTenant = tenantService.defaultTenant(user.id());
-        if (defaultTenant != null) {
-            return Tuple.of(
-                defaultTenant.first(),
-                List.of(new SimpleGrantedAuthority(defaultTenant.second().toString())));
-        } else {
-            return null;
-        } 
+        return tenantService.tenantWithUserAuthority(user.id(), Boolean.TRUE);
     }
 }

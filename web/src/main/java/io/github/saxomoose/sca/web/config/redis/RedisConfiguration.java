@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 @Configuration
 public class RedisConfiguration {
@@ -27,6 +28,12 @@ public class RedisConfiguration {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
+    }
+    
+    @Bean
+    public HttpSessionSecurityContextRepository httpSessionSecurityContextRepository()
+    {
+       return new HttpSessionSecurityContextRepository();
     }
 
     // @Bean

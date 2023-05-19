@@ -1,8 +1,6 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -12,15 +10,16 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.jdbc.core.RowMapper;
 
 @Table(schema = "sca")
-public class User implements RowMapper<User>, Serializable {
+public class User implements Serializable {
     @Id
     private final Long id;
-    private UUID uuid;
+    @ReadOnlyProperty
+    private final UUID uuid;
     private Boolean enabled;
     private String firstName;
     private String lastName;
@@ -50,7 +49,7 @@ public class User implements RowMapper<User>, Serializable {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
-        return new User(null, null, Boolean.FALSE, firstName, lastName, username, dateOfBirth, Boolean.FALSE);
+        return new User(null, null, Boolean.FALSE, firstName, lastName, username, dateOfBirth, Boolean.FALSE, null, null, null, null);
     }
 
     // remove public?
@@ -62,16 +61,25 @@ public class User implements RowMapper<User>, Serializable {
         String lastName,
         String username,
         LocalDate dateOfBirth,
-        Boolean electronicSignatureConsent
+        Boolean electronicSignatureConsent,
+        Long createdBy,
+        Long lastModifiedBy,
+        LocalDateTime createdDate,
+        LocalDateTime lastModifiedDate
     )
     {
         this.id = id;
+        this.uuid = uuid;
         this.enabled = enabled;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.dateOfBirth = dateOfBirth;
         this.electronicSignatureConsent = electronicSignatureConsent;
+        this.createdBy = createdBy;
+        this.lastModifiedBy = lastModifiedBy;
+        this.createdDate = createdDate;
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public Long id()
@@ -140,16 +148,5 @@ public class User implements RowMapper<User>, Serializable {
         return username();
     }
 
-    @Override
-    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new User(
-            rs.getLong("id"),
-            UUID.fromString(rs.getString("uuid")),
-            rs.getBoolean("enabled"),
-            rs.getString("first_name"),
-            rs.getString("last_name"),
-            rs.getString("username"),
-            rs.getDate("date_of_birth").toLocalDate(),
-            rs.getBoolean("electronic_signature_consent"));
-    }
+
 }

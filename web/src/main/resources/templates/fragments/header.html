@@ -1,10 +1,11 @@
-<header class="container-fluid bg-light border-bottom">
+<header class="container-fluid bg-light border-bottom" style="min-height: 50px;">
     <nav class="d-flex navbar navbar-expand-md align-items-center">
-        <a class="me-auto" data-sec-authorize="isAuthenticated()" data-th-href="@{/closings}">
+        <a class="me-auto" data-sec-authorize="hasRole('ROLE_ADMIN OR ROLE_USER OR ROLE_SIGNATORY')"
+            data-th-href="@{/closings}">
             <img data-th-src="@{/svg/house.svg}" alt="graphion-logo" width="32" height="32">
         </a>
         <button class="navbar-toggler" data-bs-target="#sidebar" data-bs-toggle="offcanvas"
-            data-sec-authorize="isAuthenticated()">
+            data-sec-authorize="hasRole('ROLE_ADMIN OR ROLE_USER OR ROLE_SIGNATORY')">
             <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32">
         </button>
         <ul class="nav ms-auto" data-sec-authorize="!isAuthenticated()">
