@@ -35,7 +35,7 @@ public class UserService {
 
     public User select(String username)
     {
-        return userRepository.findByUsername(username);
+        return userRepository.userByUsername(username);
     }
 
     public Page<User> usersByTenant(final Long tenantId, final Pageable pageable)

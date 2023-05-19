@@ -11,12 +11,13 @@ import org.springframework.data.repository.query.Param;
 import io.github.saxomoose.sca.web.models.Closing;
 
 public interface ClosingRepository extends CrudRepository<Closing, Long>, PagingAndSortingRepository<Closing, Long> {
-
+    // Read
     Page<Closing> findAllByTenant(Pageable pageable, Long tenantId);
 
     @Query("SELECT *  FROM sca.closing LIMIT 1")
-    Closing select();
+    Closing firstClosing();
 
+    // Update
     @Modifying
     @Query("""
             UPDATE sca.closing_signatory

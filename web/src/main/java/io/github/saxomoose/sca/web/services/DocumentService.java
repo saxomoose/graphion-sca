@@ -35,7 +35,7 @@ public class DocumentService {
 
     public Document select(final Long tenantId, final UUID fileUUID)
     {
-        return documentRepository.select(tenantId, fileUUID);
+        return documentRepository.documentByFileUUID(tenantId, fileUUID);
     }
 
     @Transactional
@@ -43,7 +43,7 @@ public class DocumentService {
     {
         final var documentToCreate = Document.of(tenant.id(), filename);
         final Long documentId = documentRepository.save(documentToCreate).id();
-        final UUID fileUUID = documentRepository.select(tenant.id(), documentId).fileUUID();
+        final UUID fileUUID = documentRepository.documentById(tenant.id(), documentId).fileUUID();
         final String filePath = filePath(Path.UPLOADS, fileUUID);
         minioService.configureBucket(tenant.bucket());
         minioService.storeObject(tenant.bucket(), filePath, inputStream);
