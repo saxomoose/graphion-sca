@@ -1,4 +1,3 @@
-import com.github.gradle.node.npm.task.NpmTask
 import org.flywaydb.gradle.task.FlywayCleanTask
 import org.flywaydb.gradle.task.FlywayMigrateTask
 
@@ -7,13 +6,9 @@ extra["graphion.db.test.url"] = providers.gradleProperty("graphion.db.test.url")
 
 plugins {
     id("java")
-    @Suppress("DSL_SCOPE_VIOLATION")
+    alias(libs.plugins.graalvm)
     alias(libs.plugins.flyway)
-    @Suppress("DSL_SCOPE_VIOLATION")
-    alias(libs.plugins.node)
-    @Suppress("DSL_SCOPE_VIOLATION")
     alias(libs.plugins.springboot)
-    @Suppress("DSL_SCOPE_VIOLATION")
     alias(libs.plugins.springdependencymanagement)
 
 }
@@ -163,49 +158,3 @@ tasks.register<Task>("flywayCleanMigrateTest") {
     dependsOn(tasks.findByName("flywayCleanTest"))
     dependsOn(tasks.findByName("flywayMigrateTest"))
 }
-
-// node
-node {
-    download.set(true)
-    version.set(providers.gradleProperty("node.version").get())
-    workDir.set(file("${project.rootDir}/.gradle/node"))
-    nodeProjectDir.set(file("${project.projectDir}"))
-}
-
-tasks.register<NpmTask>("setNPMRegistry") {
-    val args: ListProperty<String> = objects.listProperty(String::class.java)
-    args.addAll("config", "set", "registry", "https://gitlab.com/api/v4/packages/npm")
-    this.args.set(args)
-}
-
-tasks.npmInstall {
-    dependsOn(tasks.findByName("setNPMRegistry"))
-}
-
-tasks.register<NpmTask>("npmRunBuild") {
-    dependsOn(tasks.npmInstall)
-    npmCommand.set(listOf("run", "build"))
-    inputs.dir("node_modules")
-    inputs.dir("src/main/resources/static/js")
-    inputs.dir("src/main/resources/static/scss")
-    inputs.file("package.json")
-    inputs.file("webpack.config.js")
-    outputs.dir("$buildDir/resources/main/static")
-}
-
-tasks.register<NpmTask>("npmRunBuildProd") {
-    dependsOn(tasks.npmInstall)
-    npmCommand.set(listOf("run", "build-prod"))
-    inputs.dir("node_modules")
-    inputs.dir("src/main/resources/static/js")
-    inputs.dir("src/main/resources/static/scss")
-    inputs.file("package.json")
-    inputs.file("webpack.config.js")
-    outputs.dir("$buildDir/resources/main/static")
-}
-
-tasks.processResources {
-//    dependsOn(tasks.findByName("npmRunBuild"))
-//    dependsOn(tasks.findByName("npmRunBuildProd"))
-}
-
