@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import org.springframework.web.servlet.view.RedirectView;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
@@ -21,7 +22,11 @@ public class IndexController {
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
-        modelAndView.setViewName("index");
+        if (principal == null) {
+            modelAndView.setViewName("index");
+        } else {
+            modelAndView.setView(new RedirectView("closings"));
+        }
         return modelAndView;
     }
 
