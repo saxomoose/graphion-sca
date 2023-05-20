@@ -10,7 +10,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -18,7 +17,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public class User implements Serializable {
     @Id
     private final Long id;
-    @ReadOnlyProperty
+    // @ReadOnlyProperty
     private final UUID uuid;
     private Boolean enabled;
     private String firstName;
@@ -39,6 +38,12 @@ public class User implements Serializable {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
+
+    public static User of(Long id, String firstName, String lastName)
+    {
+        return new User(id, null, null, firstName, lastName, null, null, null);
+    }
+
     public static User of(
         String firstName,
         String lastName,
@@ -49,10 +54,9 @@ public class User implements Serializable {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
-        return new User(null, null, Boolean.FALSE, firstName, lastName, username, dateOfBirth, Boolean.FALSE, null, null, null, null);
+        return new User(null, null, Boolean.FALSE, firstName, lastName, username, dateOfBirth, Boolean.FALSE);
     }
 
-    // remove public?
     public User(
         Long id,
         UUID uuid,
@@ -61,11 +65,7 @@ public class User implements Serializable {
         String lastName,
         String username,
         LocalDate dateOfBirth,
-        Boolean electronicSignatureConsent,
-        Long createdBy,
-        Long lastModifiedBy,
-        LocalDateTime createdDate,
-        LocalDateTime lastModifiedDate
+        Boolean electronicSignatureConsent
     )
     {
         this.id = id;
@@ -76,10 +76,6 @@ public class User implements Serializable {
         this.username = username;
         this.dateOfBirth = dateOfBirth;
         this.electronicSignatureConsent = electronicSignatureConsent;
-        this.createdBy = createdBy;
-        this.lastModifiedBy = lastModifiedBy;
-        this.createdDate = createdDate;
-        this.lastModifiedDate = lastModifiedDate;
     }
 
     public Long id()

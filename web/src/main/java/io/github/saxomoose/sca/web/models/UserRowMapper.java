@@ -16,10 +16,6 @@ public class UserRowMapper implements RowMapper<User> {
             rs.getString("last_name"),
             rs.getString("username"),
             rs.getDate("date_of_birth").toLocalDate(),
-            rs.getBoolean("electronic_signature_consent"),
-            rs.getLong("created_by"),
-            rs.getLong("last_modified_by"),
-            rs.getTimestamp("created_date").toLocalDateTime(),
-            rs.getTimestamp("last_modified_date").toLocalDateTime());
+            rs.getBoolean("electronic_signature_consent"));
     }
 }

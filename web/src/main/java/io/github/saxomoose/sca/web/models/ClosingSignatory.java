@@ -1,22 +1,39 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.time.Instant;
-
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table(schema = "sca")
 public class ClosingSignatory {
-    protected Long signatory;
-    protected Long document;
-    private Instant signatureTimestamp;
+    private final Long closing;
+    private final Long signatory;
+    private Long document;
+    private Instant signatureTimestamp; 
 
-    public Instant signatureTimestamp()
+    public ClosingSignatory(Long closing, Long signatory, Long document, Instant signatoryTimestamp) 
     {
-        return signatureTimestamp;
+        this.closing = closing;
+        this.signatory = signatory;
+        this.document = document;
     }
 
-    public void setSignatureTimestamp(Instant timestamp)
+    public Long closing() 
     {
-        this.signatureTimestamp = timestamp;
+        return closing;
+    }
+
+    public Long signatory() 
+    {
+        return signatory;
+    }
+
+    public Long document() 
+    {
+        return document;
+    }
+
+    public Instant signatureTimestamp() 
+    {
+        return signatureTimestamp;
     }
 }

@@ -32,6 +32,12 @@ public class Document {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
+
+    public static Document overloadOf(Long id, String filename)
+    {
+        return new Document(null, id, filename, null);
+    }
+
     public static Document of(Long tenantId, String filename) {
         return new Document(tenantId, null, filename, null);
     }
