@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.controllers;
 
+import java.security.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -13,11 +14,8 @@ public class IndexController {
     private static final Logger logger = LoggerFactory.getLogger(IndexController.class);
 
     @GetMapping("/")
-    public ModelAndView index(final HttpServletRequest request)
+    public ModelAndView index(final Principal principal, final HttpServletRequest request)
     {
-        // Locale locale = LocaleContextHolder.getLocale();
-        // var test = session.getAttribute("session.current.locale");
-        // var test2 = session.getAttribute("session.current.timezone");
         final var modelAndView = new ModelAndView();
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {

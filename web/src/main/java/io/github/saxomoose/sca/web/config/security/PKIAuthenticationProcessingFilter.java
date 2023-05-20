@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.services.ValidationService;
@@ -28,7 +28,7 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
      */
     public PKIAuthenticationProcessingFilter(
         final AuthenticationManager authenticationManager,
-        final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
+        final SecurityContextRepository securityContextRepository,
         final PKIAuthenticationFailureHandler authenticationFailureHandler,
         final PKIAuthenticationSuccessHandler authenticationSuccessHandler, 
         final ObjectMapper objectMapper,
@@ -37,7 +37,7 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
     {
         super(defaultFilterProcessesUrl);
         this.setAuthenticationManager(authenticationManager);
-        this.setSecurityContextRepository(httpSessionSecurityContextRepository);
+        this.setSecurityContextRepository(securityContextRepository);
         this.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         this.setAuthenticationFailureHandler(authenticationFailureHandler);
         this.objectMapper = objectMapper;

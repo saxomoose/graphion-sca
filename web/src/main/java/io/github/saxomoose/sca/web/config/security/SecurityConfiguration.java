@@ -12,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.services.ValidationService;
@@ -32,11 +33,17 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public SecurityContextRepository securityContextRepository()
+    {
+       return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(
         final AccessDeniedHandler accessDeniedHandler,
         final AuthenticationManager authenticationManager,
         final HttpSecurity httpSecurity,
-        final HttpSessionSecurityContextRepository httpSessionSecurityContextRepository,
+        final SecurityContextRepository securityContextRepository,
         final ObjectMapper objectMapper,
         final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
         final PKIAuthenticationProvider pkiAuthenticationProvider,
@@ -45,36 +52,35 @@ public class SecurityConfiguration {
     {
         httpSecurity
             .requestCache((cache) -> cache.requestCache(new NullRequestCache()))
-            .exceptionHandling()
+            .exceptionHandling((exceptionHandling) -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
-           .and()
+            )
             .sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .sessionFixation().changeSessionId())
             .authenticationProvider(pkiAuthenticationProvider)
             .addFilterBefore(new PKIAuthenticationProcessingFilter(
                 authenticationManager,
-                httpSessionSecurityContextRepository,
+                securityContextRepository,
                 pkiAuthenticationFailureHandler,
                 pkiAuthenticationSuccessHandler,
                 objectMapper,
                 "/pki/login",
                 validationService
                 ), UsernamePasswordAuthenticationFilter.class)
-            .formLogin().disable()
-            .httpBasic().disable()
-            .logout()
+            .formLogin((formLogin) -> formLogin.disable())
+            .httpBasic((httpBasic) -> httpBasic.disable())
+            .logout((logout) -> logout
                 .logoutUrl("/logout")
                 .deleteCookies("SESSION")
-                .logoutSuccessUrl("/")
-                .and()
+                .logoutSuccessUrl("/"))
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers(
                     "/css/**", "/js/**", "/svg/**", "/svg-bootstrap/**",
                     "/", "/logout", "/ping",
                     "/pki/challenge").permitAll()
-                .requestMatchers("/documents").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') or hasRole('SIGNATORY')"))
+                .requestMatchers("/closings", "/documents").access(new WebExpressionAuthorizationManager("hasAnyRole('ADMIN', 'USER', 'SIGNATORY')"))
                 // .anyRequest().hasRole("ADMIN"));
                 .anyRequest().permitAll());
         return httpSecurity.build();

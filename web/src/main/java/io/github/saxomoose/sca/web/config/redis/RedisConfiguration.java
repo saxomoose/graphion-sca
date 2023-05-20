@@ -8,7 +8,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 @Configuration
 public class RedisConfiguration {
@@ -19,21 +18,17 @@ public class RedisConfiguration {
     // return new LettuceConnectionFactory();
     // }
     @Bean
-    public RedisConnection redisConnection(RedisConnectionFactory redisConnectionFactory) {
+    public RedisConnection redisConnection(RedisConnectionFactory redisConnectionFactory) 
+    {
         return redisConnectionFactory.getConnection();
     }
 
     @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) 
+    {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
-    }
-    
-    @Bean
-    public HttpSessionSecurityContextRepository httpSessionSecurityContextRepository()
-    {
-       return new HttpSessionSecurityContextRepository();
     }
 
     // @Bean
@@ -50,7 +45,8 @@ public class RedisConfiguration {
     // return statefulRedisConnection.sync();
     // }
     @Bean
-    public RedisScript<String> script() {
+    public RedisScript<String> script() 
+    {
         final var scriptSource = new ResourceScriptSource(
             new ClassPathResource("redis/job-id.lua")).getResource();
         return RedisScript.of(scriptSource, String.class);

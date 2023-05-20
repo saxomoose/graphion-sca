@@ -2,8 +2,6 @@ package io.github.saxomoose.sca.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
 import org.springframework.boot.autoconfigure.netty.NettyAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
@@ -15,8 +13,6 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication(
     exclude = { 
         NettyAutoConfiguration.class,
-        PersistenceExceptionTranslationAutoConfiguration.class,
-        PropertyPlaceholderAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
         SqlInitializationAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,

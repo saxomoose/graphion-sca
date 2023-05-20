@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.controllers;
 
+import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class ClosingController {
     // Read
     @GetMapping("/closings")
     public ModelAndView index(
+        final Principal principal,
         final HttpServletRequest request,
         @SortDefault(sort = "name") Pageable pageable) 
     {
