@@ -6,7 +6,6 @@ extra["graphion.db.test.url"] = providers.gradleProperty("graphion.db.test.url")
 
 plugins {
     id("java")
-    alias(libs.plugins.graalvm)
     alias(libs.plugins.flyway)
     alias(libs.plugins.springboot)
     alias(libs.plugins.springdependencymanagement)

@@ -9,12 +9,14 @@
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
+                <aside class="col-md-2"></aside>
                 <main class="col-md-6">
                     <!-- Table -->
-                    <table class="table table-hover" id="tenantTable">
+                    <table class="table table-hover caption-top" id="tenantTable">
+                        <caption>Organisations</caption>
                         <thead>
                             <tr>
-                                <th scope="col">Organisation</th>
+                                <th scope="col">Name</th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
@@ -33,12 +35,12 @@
                             <div class="modal-content">
                                 <div class="modal-body d-flex align-items-center">
                                     <form class="me-2"
-                                        data-th-action="@{/authorization/{tenantName}(tenantName = __${tenant.name()}__, defaultConnection = false)}"
+                                        data-th-action="@{/authorization/{tenantName}(tenantName = __${tenant.name()}__, setDefaultConnection = false)}"
                                         method="post">
                                         <input class="btn btn-primary" type="submit" value="View">
                                     </form>
                                     <form class="me-auto"
-                                        data-th-action="@{/authorization/{tenantName}(tenantName = __${tenant.name()}__, defaultConnection = true)}"
+                                        data-th-action="@{/authorization/{tenantName}(tenantName = __${tenant.name()}__, setDefaultConnection = true)}"
                                         method="post">
                                         <input class="btn btn-primary" type="submit" value="Select as default">
                                     </form>

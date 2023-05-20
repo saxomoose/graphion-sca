@@ -13,11 +13,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
+import io.github.saxomoose.sca.web.enums.Role;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
@@ -63,7 +65,7 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
             if (defaultTenant != null) {
                 return PKIAuthentication.of(user, defaultTenant.first(), defaultTenant.second());
             } else {
-                return PKIAuthentication.of(user);
+                return PKIAuthentication.of(user, List.of(new SimpleGrantedAuthority(Role.ROLE_NULL.toString())));
             }
         } catch (Exception exception) {
             logger.error(exception.getMessage());

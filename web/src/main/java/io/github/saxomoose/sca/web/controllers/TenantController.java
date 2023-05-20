@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,18 +27,23 @@ import io.github.saxomoose.sca.web.services.ValidationService;
 import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.utils.Tuple;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class TenantController {
 
+    private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+    private final SecurityContextRepository securityContextRepository;
     private final TenantService tenantService;
     private final ValidationService validationService;
 
     public TenantController(
+        SecurityContextRepository securityContextRepository,
         TenantService tenantService,
         ValidationService validationService)
     {
+        this.securityContextRepository = securityContextRepository;
         this.tenantService = tenantService;
         this.validationService = validationService;
     }
@@ -64,9 +71,11 @@ public class TenantController {
     @PostMapping("/authorization/{rawTenantName}")
     public RedirectView setAuthorization(
         @PathVariable final String rawTenantName,
-        @RequestParam final Boolean defaultConnection,
+        @RequestParam final Boolean setDefaultConnection,
         final RedirectAttributes redirectAttributes,
-        final HttpSession httpSession
+        final HttpSession httpSession,
+        final HttpServletRequest request,
+        final HttpServletResponse response
     )
     {
         // TODO: validate tenant name
@@ -74,18 +83,22 @@ public class TenantController {
         final Tuple<Tenant, List<GrantedAuthority>> tenantWithUserAuthority =
             tenantService.tenantWithUserAuthority(user.id(), Boolean.FALSE);
         Authentication authentication = null;
-        if (!defaultConnection) {
+        if (!setDefaultConnection) {
             authentication = PKIAuthentication.of(
                 user,
                 tenantWithUserAuthority.second());
-        } else if (defaultConnection) {
+        } else if (setDefaultConnection) {
             authentication = PKIAuthentication.of(
                 user,
                 tenantWithUserAuthority.first(),
                 tenantWithUserAuthority.second());
             tenantService.setDefaultTenant( tenantWithUserAuthority.first().id(), user.id());
         }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        final var securityContext = securityContextHolderStrategy.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        securityContextHolderStrategy.setContext(securityContext);
+        securityContextRepository.saveContext(securityContext, request, response);
+        
         httpSession.setAttribute("tenant", tenantWithUserAuthority.first());
         
         redirectAttributes.addFlashAttribute(
