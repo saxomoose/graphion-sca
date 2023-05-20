@@ -11,10 +11,12 @@ public class TenantUser {
     private Role role;
     private Boolean defaultConnection;
 
-    public TenantUser(Long tenant, Long user)
+    public TenantUser(Long tenant, Long user, Role role, Boolean defaultConnection)
     {
         this.tenant = tenant;
         this.user = user;
+        this.role = role;
+        this.defaultConnection = defaultConnection;
     }
 
     public Long tenant()
@@ -35,15 +37,5 @@ public class TenantUser {
     public Boolean defaultConnection()
     {
         return defaultConnection;
-    }
-
-    public void setRole(Role role) 
-    {
-        this.role = role;
-    }
-
-    public void setDefaultConnection(Boolean defaultConnection)
-    {
-        this.defaultConnection = defaultConnection;
     }
 }

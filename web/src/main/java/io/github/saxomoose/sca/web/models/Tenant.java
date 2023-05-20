@@ -36,18 +36,17 @@ public class Tenant implements Serializable {
 
     public static Tenant of(String name)
     {
-        return new Tenant(null, name, name, null, null, null, null);
+        return new Tenant(null, name, name);
     }
 
-    public Tenant(Long id, String name, String bucket, Long createdBy, Long lastModifiedBy, LocalDateTime createdDate, LocalDateTime lastModifiedDate)
+    public Tenant(
+        Long id, 
+        String name, 
+        String bucket)
     {
         this.id = id;
         this.name = name;
         this.bucket = bucket;
-        this.createdBy = createdBy;
-        this.lastModifiedBy = lastModifiedBy;
-        this.createdDate = createdDate;
-        this.lastModifiedDate = lastModifiedDate;
     }
 
     public Long id()
