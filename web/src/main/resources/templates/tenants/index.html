@@ -9,11 +9,10 @@
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
-                <aside class="col-md-2"></aside>
+                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = null)}"></aside>
                 <main class="col-md-6">
                     <!-- Table -->
                     <table class="table table-hover caption-top" id="tenantTable">
-                        <caption>Organisations</caption>
                         <thead>
                             <tr>
                                 <th scope="col">Name</th>

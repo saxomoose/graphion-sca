@@ -10,11 +10,7 @@ public class TenantRowMapper implements RowMapper<Tenant> {
         return new Tenant(
             rs.getLong("id"),
             rs.getString("name"),
-            rs.getString("bucket"),
-            rs.getLong("created_by"),
-            rs.getLong("last_modified_by"),
-            rs.getTimestamp("created_date").toLocalDateTime(),
-            rs.getTimestamp("last_modified_date").toLocalDateTime());
+            rs.getString("bucket"));
     }
     
 }

@@ -1,13 +1,5 @@
 <header class="container-fluid bg-light border-bottom" style="min-height: 50px;">
     <nav class="d-flex navbar navbar-expand-md align-items-center">
-        <th-block data-th-if="${#authorization.expression('hasAnyRole(''ADMIN'', ''USER'', ''SIGNATORY'')')}">
-            <a class="me-auto" data-th-href="@{/closings}">
-                <img data-th-src="@{/svg/house.svg}" alt="graphion-logo" width="32" height="32">
-            </a>
-            <button class="navbar-toggler" data-bs-target="#sidebar" data-bs-toggle="offcanvas">
-                <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32">
-            </button>
-        </th-block>
         <th-block data-th-if="${#authorization.expression('hasRole(''ANONYMOUS'')')}">
             <ul class="nav ms-auto">
                 <li class="nav-item me-2">
@@ -32,6 +24,16 @@
                     <a class="btn btn-primary" data-th-href="@{/tenants/create}">Create organisation</a>
                 </li>
             </ul>
+        </th-block>
+        <th-block data-th-if="${#authorization.expression('hasAnyRole(''ADMIN'', ''USER'', ''SIGNATORY'')')}">
+            <a class="ms-3" data-th-href="@{/closings}">
+                <img data-th-src="@{/svg/house.svg}" alt="graphion-logo" width="32" height="32">
+            </a>
+        </th-block>
+        <th-block data-th-if="${#authorization.expression('hasAnyRole(''ADMIN'', ''USER'', ''SIGNATORY'', ''NULL'')')}">
+            <button class="ms-auto navbar-toggler" data-bs-target="#sidebar" data-bs-toggle="offcanvas">
+                <img data-th-src="@{/svg/offcanvas-button.svg}" alt="offcanvas-button" width="32" height="32">
+            </button>
         </th-block>
     </nav>
 </header>

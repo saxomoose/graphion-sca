@@ -3,9 +3,7 @@ package io.github.saxomoose.sca.web.models;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -35,8 +33,10 @@ public class Closing {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
-    private Set<ClosingSignatory> naturalPersonSignatories = new HashSet<>();
-    private Set<ClosingLegalPerson> legalPersonSignatories = new HashSet<>();
+    public static Closing overloadOf(Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
+    {
+        return new Closing(null, id, name, timestamp, zoneId, location);
+    }
 
     public static Closing of(Long tenantId, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {
@@ -88,16 +88,6 @@ public class Closing {
         return location;
     }
 
-    public void setNaturalPersonSignatories(Set<ClosingSignatory> naturalPersonSignatories)
-    {
-        this.naturalPersonSignatories = naturalPersonSignatories;
-    }
-
-    public void setLegalPersonSignatories(Set<ClosingLegalPerson> legalPersonSignatories)
-    {
-        this.legalPersonSignatories = legalPersonSignatories;
-    }
-
     @Override
     public boolean equals(Object o)
     {
@@ -115,28 +105,5 @@ public class Closing {
         return Objects.hash(id);
     }
 
-    public void addNaturalPersonSignatory(Long signatory, Long document)
-    {
-        this.naturalPersonSignatories.add(naturalPersonSignatory(signatory, document));
-    }
 
-    private ClosingSignatory naturalPersonSignatory(Long signatory, Long document)
-    {
-        final var closingSignatory = new ClosingSignatory();
-        closingSignatory.signatory = signatory;
-        closingSignatory.document = document;
-        return closingSignatory;
-    }
-
-    public void addLegalPersonSignatory(Long legalPerson)
-    {
-        this.legalPersonSignatories.add(legalPersonSignatory(legalPerson));
-    }
-
-    private ClosingLegalPerson legalPersonSignatory(Long legalPerson)
-    {
-        final var closingLegalPerson = new ClosingLegalPerson();
-        closingLegalPerson.legalPerson = legalPerson;
-        return closingLegalPerson;
-    }
 }
