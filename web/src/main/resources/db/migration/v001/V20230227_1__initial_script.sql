@@ -101,9 +101,9 @@ CREATE TABLE sca.closing_legal_person (
 CREATE TABLE sca.officer (
     legal_person bigint NOT NULL,
     signatory bigint NOT NULL,
-    FUNCTION character varying(255) NOT NULL,
+    "function" character varying(255) NOT NULL,
     enterprise_number bigint,
-    CONSTRAINT pk_officer PRIMARY KEY (legal_person, signatory),
+    CONSTRAINT pk_officer PRIMARY KEY (legal_person, signatory, "function"),
     CONSTRAINT fk_7foy21sx48iatl2bfugmc9xn1 FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id),
     CONSTRAINT fk_bu5hcphxwyu0413ea7buxeope FOREIGN KEY (signatory) REFERENCES sca.user(id)
 );

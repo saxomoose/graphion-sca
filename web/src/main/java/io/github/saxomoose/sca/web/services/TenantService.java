@@ -32,9 +32,9 @@ public class TenantService {
     }
 
     // Read
-    public Tenant tenant(Long id) 
+    public Tenant tenant(Long tenantId) 
     {
-        return tenantRepository.tenantById(id);
+        return tenantRepository.tenantById(tenantId);
     }
 
     public Page<Tenant> tenantsByUser(UUID userUUID, Pageable pageable)
@@ -86,16 +86,17 @@ public class TenantService {
                 new Tenant(
                     rs.getLong("id"),
                     rs.getString("name"),
-                    rs.getString("bucket"),
-                    rs.getLong("created_by"),
-                    rs.getLong("last_modified_by"),
-                    rs.getTimestamp("created_date").toLocalDateTime(),
-                    rs.getTimestamp("last_modified_date").toLocalDateTime()),
+                    rs.getString("bucket")),
                 List.of(new SimpleGrantedAuthority(rs.getString("role"))));
             });
         } catch(EmptyResultDataAccessException exception) {
             return null;
         }
+    }
+
+    public void upsertTenantUser(Long tenantId, Long userId, Role role) 
+    {
+        upsertTenantUser(tenantId, userId, role, Boolean.FALSE);
     }
 
     // Create

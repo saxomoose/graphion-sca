@@ -29,9 +29,10 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User select(Long id)
+    // Read
+    public User select(Long userId)
     {
-        return userRepository.findById(id).orElseThrow();
+        return userRepository.findById(userId).orElseThrow();
     }
 
     public User select(String username)
@@ -59,6 +60,9 @@ public class UserService {
         final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, new UserRowMapper());
         return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> userRepository.countUsersByTenant(tenantId));
     }
+
+    // Create
+    // public void 
 
     //
     // public void create(io.github.saxomoose.sca.web.dtos.User userDTO) throws
