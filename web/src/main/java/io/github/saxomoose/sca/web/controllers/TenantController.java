@@ -48,14 +48,15 @@ public class TenantController {
         this.validationService = validationService;
     }
 
-    @GetMapping("/tenants/{rawUserUUID}")
+    @GetMapping("/tenants/{rawUserId}")
     public ModelAndView index(
-        @PathVariable final String rawUserUUID,
+        @PathVariable final String rawUserId,
         @SortDefault(sort = "name") Pageable pageable,
         final HttpServletRequest request) 
     {
-        final var userUUID = validationService.uuid(rawUserUUID);
-        final var tenantPage = tenantService.tenantsByUser(userUUID, pageable);
+        // TODO: validate id
+        final var userId = Long.parseLong(rawUserId);
+        final var tenantPage = tenantService.tenantsByUser(userId, pageable);
         if (tenantPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }

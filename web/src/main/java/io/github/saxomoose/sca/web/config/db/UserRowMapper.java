@@ -1,16 +1,15 @@
-package io.github.saxomoose.sca.web.models;
+package io.github.saxomoose.sca.web.config.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 import org.springframework.jdbc.core.RowMapper;
+import io.github.saxomoose.sca.web.models.User;
 
 public class UserRowMapper implements RowMapper<User> {
     @Override
     public User mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new User(
             rs.getLong("id"),
-            UUID.fromString(rs.getString("uuid")),
             rs.getBoolean("enabled"),
             rs.getString("first_name"),
             rs.getString("last_name"),

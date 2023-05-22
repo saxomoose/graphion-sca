@@ -7,17 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.config.security.AuthenticationPayload;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.services.repositories.DocumentRepository;
 
 @Service
 public class ValidationService {
 
-    private final DocumentRepository documentRepository;
+    private final DocumentService documentService;
 
     @Autowired
-    public ValidationService(DocumentRepository documentRepository)
+    public ValidationService(DocumentService documentService)
     {
-        this.documentRepository = documentRepository;
+        this.documentService = documentService;
     }
 
     public String documentArgs(final String filename)

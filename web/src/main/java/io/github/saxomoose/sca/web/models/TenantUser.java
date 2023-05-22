@@ -1,9 +1,7 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.relational.core.mapping.Table;
 import io.github.saxomoose.sca.web.enums.Role;
 
-@Table(schema = "sca")
 public class TenantUser {
     private final Long tenant;
     private final Long user;

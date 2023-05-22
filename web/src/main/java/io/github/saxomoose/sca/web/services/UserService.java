@@ -11,35 +11,39 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
+import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.models.UserRowMapper;
-import io.github.saxomoose.sca.web.services.repositories.UserRepository;
 
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final UserRepository userRepository;
+    private final RowMapperCollection rowMappers;
+
 
     @Autowired
-    public UserService(NamedParameterJdbcOperations namedParameterJdbcOperations, UserRepository userRepository)
+    public UserService(NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
     {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.userRepository = userRepository;
+        this.rowMappers = rowMappers;
+    }
+
+    // Aggregate
+    public Long countUsersByTenant(Long tenantId) {
+        final var sql = """
+        SELECT COUNT(*)
+        FROM sca.user
+        WHERE id IN (
+            SELECT "user"
+            FROM sca.tenant_user
+            WHERE tenant = :tenantId); 
+        """;
+        final var params = new MapSqlParameterSource().addValue("tenantId", tenantId);
+        return namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
     }
 
     // Read
-    public User select(Long userId)
-    {
-        return userRepository.findById(userId).orElseThrow();
-    }
-
-    public User select(String username)
-    {
-        return userRepository.userByUsername(username);
-    }
-
     public Page<User> usersByTenant(final Long tenantId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
@@ -57,34 +61,52 @@ public class UserService {
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, new UserRowMapper());
-        return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> userRepository.countUsersByTenant(tenantId));
+        final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, rowMappers.getRowMapper(User.class));
+        return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> countUsersByTenant(tenantId));
     }
 
-    // Create
-    // public void 
+    public User firstUser()
+    {
+        final var sql = """
+        SELECT * FROM sca.user LIMIT 1;    
+        """;
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(User.class));
+    }
 
-    //
-    // public void create(io.github.saxomoose.sca.web.dtos.User userDTO) throws
-    // DatabaseConstraintViolationException {
-    // final var password = passwordEncoder.encode(userDTO.password());
-    // var user = User.of(userDTO.username(), password);
-    // try {
-    // userRepository.save(user);
-    // } catch (DataIntegrityViolationException exception) {
-    // if
-    // (exception.getMostSpecificCause().getMessage().contains(DatabaseConstraint.unique_constraint_user.name().toLowerCase()))
-    // {
-    // logger.info(String.format("User not created. username %s already exists in
-    // sca.users.", user.getUsername()));
-    // throw new
-    // DatabaseConstraintViolationException(DatabaseConstraint.unique_constraint_user);
-    // }
-    // }
-    // }
-    //
-    // public void activate(User user) {
-    // user.setEnabled(Boolean.TRUE);
-    // userRepository.save(user);
-    // }
+    public User userById(Long userId)
+    {
+        final var sql = """
+        SELECT * FROM sca.user WHERE id = :userId;    
+        """;
+        final var params = new MapSqlParameterSource().addValue("userId", userId);
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(User.class));
+    }
+
+    public User userByUsername(String username)
+    {
+        final var sql = """
+        SELECT * FROM sca.user WHERE username = :username;    
+        """;
+        final var params = new MapSqlParameterSource().addValue("username", username);
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(User.class));
+    }
+
+    // Update
+    public User insert(User user, Long principalId)
+    {
+        final var sql = """
+        INSERT INTO sca.user
+        VALUES (DEFAULT, DEFAULT, :firstName, :lastName, :username, :dateOfBirth, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
+        RETURNING *;        
+        """;
+        final var params = new MapSqlParameterSource(
+            Map.of(
+                "firstName", user.firstName(),
+                "lastName", user.lastName(),
+                "username", user.username(),
+                "dateOfBirth", user.dateOfBirth(),
+                "createdBy", principalId,
+                "lastUpdatedBy", principalId));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(User.class));
+    }
 }

@@ -1,8 +1,5 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.relational.core.mapping.Table;
-
-@Table(schema = "sca")
 public class ClosingLegalPerson {
     protected Long legalPerson;
 

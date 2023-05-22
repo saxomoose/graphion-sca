@@ -1,9 +1,7 @@
 package io.github.saxomoose.sca.web.models;
 
-import org.springframework.data.relational.core.mapping.Table;
 import io.github.saxomoose.sca.web.enums.Function;
 
-@Table(schema = "sca")
 public class Officer {
     private final Long legalPerson;
     private final Long signatory;

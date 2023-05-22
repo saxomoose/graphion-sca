@@ -36,7 +36,7 @@ public class ClosingController {
         @SortDefault(sort = "name") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final Page<Closing> closingPage = closingService.closingPage(pageable, tenantId);
+        final Page<Closing> closingPage = closingService.closingsByTenant(tenantId, pageable);
         if (closingPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }

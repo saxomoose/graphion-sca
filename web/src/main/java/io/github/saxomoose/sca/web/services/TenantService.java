@@ -2,7 +2,6 @@ package io.github.saxomoose.sca.web.services;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -13,31 +12,49 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.enums.Role;
 import io.github.saxomoose.sca.web.models.Tenant;
-import io.github.saxomoose.sca.web.models.TenantRowMapper;
-import io.github.saxomoose.sca.web.services.repositories.TenantRepository;
 import io.github.saxomoose.sca.web.utils.Tuple;
 
 @Service
 public class TenantService {
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final TenantRepository tenantRepository;
+    private final RowMapperCollection rowMappers;
 
     @Autowired
-    public TenantService(NamedParameterJdbcOperations namedParameterJdbcOperations, TenantRepository tenantRepository) 
+    public TenantService(NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers) 
     {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.tenantRepository = tenantRepository;
+        this.rowMappers = rowMappers;
+
+    }
+
+    // Aggregate
+    public Long count() {
+        final var sql = """
+        SELECT COUNT(*)
+        FROM sca.tenant;
+        """;
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, Long.class);
+    }
+
+    public Long countTenantsByUser(Long userId) 
+    {
+        final var sql = """
+        SELECT COUNT(*)
+        FROM sca.tenant
+        WHERE id IN (
+            SELECT tenant
+            FROM sca.tenant_user
+            WHERE user = userId);    
+        """;
+        final var params = new MapSqlParameterSource().addValue("userId", userId);
+        return namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
     }
 
     // Read
-    public Tenant tenant(Long tenantId) 
-    {
-        return tenantRepository.tenantById(tenantId);
-    }
-
-    public Page<Tenant> tenantsByUser(UUID userUUID, Pageable pageable)
+    public Page<Tenant> tenantsByUser(Long userId, Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
         final var sql = """
@@ -46,23 +63,45 @@ public class TenantService {
             WHERE id IN (
                 SELECT tenant
                 FROM sca.tenant_user
-                WHERE "user" = (
-                    SELECT id
-                    FROM sca.user
-                    WHERE uuid = :userUUID ))
+                WHERE "user" = :userId)
             LIMIT 10 OFFSET 0;
         """;
         final var params = new MapSqlParameterSource(
             Map.of(
-                "userUUID", userUUID,
+                "userId", userId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
         final List<Tenant> userTenants = 
-            namedParameterJdbcOperations.query(sql, params, new TenantRowMapper());
+            namedParameterJdbcOperations.query(sql, params, rowMappers.getRowMapper(Tenant.class));
         return PageableExecutionUtils.getPage(
             userTenants,
             pageable,
-            () -> tenantRepository.countTenantsByUser(userUUID));
+            () -> countTenantsByUser(userId));
+    }
+
+    public Tenant firstTenant() {
+        final var sql = """
+            SELECT * FROM sca.tenant LIMIT 1;    
+            """;
+            return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Tenant.class));
+    }
+
+    public Tenant tenantById(Long tenantId)
+    {
+        final var sql = """
+        SELECT * FROM sca.tenant WHERE id = :tenantId;    
+        """;
+        final var params = new MapSqlParameterSource().addValue("tenantId", tenantId);
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
+    }
+
+    public Tenant tenantByName(String tenantName)
+    {
+        final var sql = """
+        SELECT * FROM sca.tenant WHERE name = :tenantName;    
+        """;
+        final var params = new MapSqlParameterSource().addValue("tenantName", tenantName);
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
     }
 
     public Tuple<Tenant, List<GrantedAuthority>> tenantWithUserAuthority(Long userId, Boolean defaultConnection)
@@ -94,12 +133,28 @@ public class TenantService {
         }
     }
 
+    // Update
+    public Tenant insert(Tenant tenant, Long principalId)
+    {
+        final var sql = """
+        INSERT INTO sca.tenant
+        VALUES (DEFAULT, :name, :bucket, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
+        RETURNING *;        
+        """;
+        final var params = new MapSqlParameterSource(
+            Map.of(
+                "name", tenant.name(),
+                "bucket", tenant.bucket(),
+                "createdBy", principalId,
+                "lastUpdatedBy", principalId));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
+    }
+
     public void upsertTenantUser(Long tenantId, Long userId, Role role) 
     {
         upsertTenantUser(tenantId, userId, role, Boolean.FALSE);
     }
 
-    // Create
     public void upsertTenantUser(Long tenantId, Long userId, Role role, Boolean defaultConnection) 
     {
         final var sql = """
@@ -137,4 +192,5 @@ public class TenantService {
 
         namedParameterJdbcOperations.update(sql, params);
     }
+
 }

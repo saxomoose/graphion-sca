@@ -3,17 +3,9 @@ package io.github.saxomoose.sca.web.models;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.relational.core.mapping.Table;
 
-@Table(schema = "sca")
 public class Tenant implements Serializable {
-    @Id
+    
     private final Long id;
     // Enforces bucket naming rules.
     // https://stackoverflow.com/questions/50480924/regex-for-s3-bucket-name
@@ -23,16 +15,11 @@ public class Tenant implements Serializable {
     private final String bucket;
     // OIDC parameters to connect to Tenant endpoint.
     
-    @Version
-    private Long version;
-    @CreatedBy
+    
     private Long createdBy;
-    @LastModifiedBy
-    private Long lastModifiedBy;
-    @CreatedDate
-    private LocalDateTime createdDate;
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
+    private Long lastUpdatedBy;
+    private LocalDateTime createdTimestamp;
+    private LocalDateTime lastUpdatedTimestamp;
 
     public static Tenant of(String name)
     {
