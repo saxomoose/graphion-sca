@@ -5,9 +5,6 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration;
-import org.springframework.data.jdbc.repository.config.EnableJdbcAuditing;
-import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -17,13 +14,15 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import io.github.saxomoose.sca.web.models.Closing;
+import io.github.saxomoose.sca.web.models.Document;
+import io.github.saxomoose.sca.web.models.LegalPerson;
+import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 
 @Configuration
-@EnableJdbcRepositories(basePackages = "io.github.saxomoose.sca.web.services.repositories")
-@EnableJdbcAuditing
 @EnableTransactionManagement
-public class PersistenceConfiguration extends AbstractJdbcConfiguration {
+public class PersistenceConfiguration {
     @Bean
     AuditorAware<Long> auditorProvider() {
         return new AuditorAware<Long>() {
@@ -56,4 +55,14 @@ public class PersistenceConfiguration extends AbstractJdbcConfiguration {
     TransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
+
+    @Bean
+    RowMapperCollection rowMappers() {
+        return new RowMapperCollection()
+            .registerRowMapper(User.class, new UserRowMapper())
+            .registerRowMapper(Tenant.class, new TenantRowMapper())
+            .registerRowMapper(LegalPerson.class, new LegalPersonRowMapper())
+            .registerRowMapper(Closing.class, new ClosingRowMapper())
+            .registerRowMapper(Document.class, new DocumentRowMapper());
+}
 }

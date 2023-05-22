@@ -2,31 +2,18 @@ package io.github.saxomoose.sca.web.models;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.relational.core.mapping.Table;
 
-@Table(schema = "sca")
 public class LegalPerson {
     private final Long tenant;
-    @Id
+    
     private final Long id;
     private final Long enterpriseNumber;
 
-    @Version
-    private Long version;
-    @CreatedBy
+    
     private Long createdBy;
-    @LastModifiedBy
-    private Long lastModifiedBy;
-    @CreatedDate
-    private LocalDateTime createdDate;
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
+    private Long lastUpdatedBy;
+    private LocalDateTime createdTimestamp;
+    private LocalDateTime lastUpdatedTimestamp;
 
     public static LegalPerson of(Long tenantId, Long enterpriseNumber) {
         return new LegalPerson(tenantId, null, enterpriseNumber);

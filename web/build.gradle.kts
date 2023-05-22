@@ -29,7 +29,7 @@ dependencies {
     compileOnly(libs.flywaycore)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -118,8 +118,6 @@ tasks.register<Exec>("redisFlushallTest") {
 tasks.register<Exec>("resetDefaultBucketTest") {
     commandLine("docker", "exec", "graphion-test-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion")
 }
-
-
 
 // flyway
 flyway {

@@ -1,9 +1,7 @@
 package io.github.saxomoose.sca.web.models;
 
 import java.time.Instant;
-import org.springframework.data.relational.core.mapping.Table;
 
-@Table(schema = "sca")
 public class ClosingSignatory {
     private final Long closing;
     private final Long signatory;

@@ -4,39 +4,20 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.relational.core.mapping.Table;
 
-@Table(schema = "sca")
 public class Closing {
     private final Long tenant;
-    @Id
+    
     private final Long id;
     private final String name;
     private final LocalDateTime timestamp;
     private final ZoneId zoneId;
     private final String location;
 
-    @Version
-    private Long version;
-    @CreatedBy
     private Long createdBy;
-    @LastModifiedBy
-    private Long lastModifiedBy;
-    @CreatedDate
-    private LocalDateTime createdDate;
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
-
-    public static Closing overloadOf(Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
-    {
-        return new Closing(null, id, name, timestamp, zoneId, location);
-    }
+    private Long lastUpdatedBy;
+    private LocalDateTime createdTimestamp;
+    private LocalDateTime lastUpdatedTimestamp;
 
     public static Closing of(Long tenantId, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {

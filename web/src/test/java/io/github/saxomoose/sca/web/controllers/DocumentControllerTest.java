@@ -23,23 +23,23 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.services.repositories.DocumentRepository;
-import io.github.saxomoose.sca.web.services.repositories.TenantRepository;
-import io.github.saxomoose.sca.web.services.repositories.UserRepository;
+import io.github.saxomoose.sca.web.services.DocumentService;
+import io.github.saxomoose.sca.web.services.TenantService;
+import io.github.saxomoose.sca.web.services.UserService;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 // @Tag("target")
 public class DocumentControllerTest {
     @Autowired
-    private DocumentRepository documentRepository;
+    private DocumentService documentService;
     private MockMvc mockMVC;
     private User user;
     @Autowired
-    private TenantRepository tenantRepository;
+    private TenantService tenantService;
     private Tenant tenant;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private WebApplicationContext context;
 
@@ -47,8 +47,8 @@ public class DocumentControllerTest {
     public void setUp() 
     {
         mockMVC = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-        tenant = tenantRepository.fistTenant();
-        user = userRepository.firstUser();
+        tenant = tenantService.firstTenant();
+        user = userService.firstUser();
     }
 
     @Test

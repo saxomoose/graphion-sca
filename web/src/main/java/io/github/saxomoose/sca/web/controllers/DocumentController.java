@@ -32,6 +32,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
+import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.ValidationService;
@@ -67,7 +68,7 @@ public class DocumentController {
         @SortDefault(sort = "filename") Pageable pageable) 
     {
         final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
-        final Page<Document> documentPage = documentService.selectPage(pageable, tenantId);
+        final Page<Document> documentPage = documentService.documentsByTenant(tenantId, pageable);
         if (documentPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
@@ -89,7 +90,7 @@ public class DocumentController {
         final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
         final UUID fileUUID = validationService.uuid(rawFileUUID);
         // TODO validate tenantId (uuid)
-        final String filename = documentService.select(tenant.id(), fileUUID).filename();
+        final String filename = documentService.documentByTenantAndFileUUID(tenant.id(), fileUUID).filename();
         final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -151,7 +152,7 @@ public class DocumentController {
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
         final String filename = validationService.documentArgs(rawFilename);
-        documentService.create(tenant, filename, clientSideFileSize, rawFileInputStream);
+        documentService.create(tenant, ((User) request.getUserPrincipal()).id(), filename, clientSideFileSize, rawFileInputStream);
         redirectAttributes.addFlashAttribute(
             "notifications",
             List.of(new Notification(

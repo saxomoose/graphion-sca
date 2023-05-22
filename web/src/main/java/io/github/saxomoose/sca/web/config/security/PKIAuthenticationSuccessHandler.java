@@ -42,7 +42,7 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
             httpSession.setAttribute("tenant", defaultTenant);
             successURL = CLOSINGS_URL;
         } else {
-            successURL = String.format("%s/%s", TENANTS_URL, ((User) authentication.getPrincipal()).uuid());
+            successURL = String.format("%s/%s", TENANTS_URL, ((User) authentication.getPrincipal()).id());
         }   
 
         response.setStatus(HttpServletResponse.SC_OK);

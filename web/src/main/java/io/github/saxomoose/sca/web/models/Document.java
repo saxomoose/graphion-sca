@@ -3,40 +3,18 @@ package io.github.saxomoose.sca.web.models;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.ReadOnlyProperty;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.relational.core.mapping.Table;
 
-@Table(schema = "sca")
 public class Document {
     private final Long tenant;
-    @Id
+    
     private final Long id;
     private final String filename;
-    @ReadOnlyProperty
     private final UUID fileUUID;
 
-    @Version
-    private Long version;
-    @CreatedBy
     private Long createdBy;
-    @LastModifiedBy
-    private Long lastModifiedBy;
-    @CreatedDate
-    private LocalDateTime createdDate;
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate;
-
-
-    public static Document overloadOf(Long id, String filename)
-    {
-        return new Document(null, id, filename, null);
-    }
+    private Long lastUpdatedBy;
+    private LocalDateTime createdTimestamp;
+    private LocalDateTime lastUpdatedTimestamp;
 
     public static Document of(Long tenantId, String filename) {
         return new Document(tenantId, null, filename, null);

@@ -85,7 +85,7 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
      */
     private User userFromCertificate(String username, X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
     {
-        final var user = userService.select(username);
+        final var user = userService.userByUsername(username);
         final var countryCode = Objects.requireNonNull(CertificateData.getSubjectCountryCode(userCertificate));
         final var rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
         final var firstName = rawFirstName.substring(0, rawFirstName.indexOf(" "));
