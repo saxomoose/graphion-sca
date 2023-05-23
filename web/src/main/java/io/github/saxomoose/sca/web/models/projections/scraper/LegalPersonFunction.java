@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.models.dtos.scraper;
+package io.github.saxomoose.sca.web.models.projections.scraper;
 
 public class LegalPersonFunction extends Function {
     private NaturalPersonOfficer permanentRepresentative;

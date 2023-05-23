@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.models;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class User implements Serializable {
@@ -21,6 +22,13 @@ public class User implements Serializable {
     private LocalDateTime createdTimestamp;
     private LocalDateTime lastUpdatedTimestamp;
 
+    private HashSet<Document> documents;
+
+    public static User withId(Long id, String firstName, String lastName, String username)
+    {
+        return new User(id, null, firstName, lastName, username, null, null);
+    }    
+    
     public static User of(
         String firstName,
         String lastName,
@@ -121,6 +129,19 @@ public class User implements Serializable {
     public String email()
     {
         return username();
+    }
+
+    public HashSet<Document> documents()
+    {
+        return documents;
+    }
+
+    public void addDocument (Document document)
+    {
+        if (documents == null) {
+            documents = new HashSet<Document>();
+        }
+        documents.add(document);
     }
 
 

@@ -86,7 +86,7 @@ CREATE TABLE sca.tenant_user (
 CREATE TABLE sca.closing_legal_person (
     closing bigint NOT NULL,
     legal_person integer NOT NULL,
-    STATUS boolean DEFAULT false,
+    status boolean DEFAULT false,
     CONSTRAINT pk_closing_legal_person PRIMARY KEY (closing, legal_person),
     CONSTRAINT fk_sbfjnolasb7ki47onw6hs1fl5 FOREIGN KEY (closing) REFERENCES sca.closing(id),
     CONSTRAINT fk_hfnec6hphjm63bifwwp4o9pks FOREIGN KEY (legal_person) REFERENCES sca.legal_person(id)
@@ -106,7 +106,7 @@ CREATE TABLE sca.closing_signatory (
     closing bigint NOT NULL,
     signatory bigint NOT NULL,
     document bigint NOT NULL,
-    signature_timestamp timestamp(6) WITH time zone,
+    signature_timestamp timestamp(6) WITH time zone DEFAULT NULL,
     CONSTRAINT pk_closing_signatory PRIMARY KEY (closing, signatory, document),
     CONSTRAINT fk_amkea6t1p36344x6jeb2652jf FOREIGN KEY (closing) REFERENCES sca.closing(id),
     CONSTRAINT fk_gv276xrnywepnpiw1h04johxf FOREIGN KEY (document) REFERENCES sca.document(id),

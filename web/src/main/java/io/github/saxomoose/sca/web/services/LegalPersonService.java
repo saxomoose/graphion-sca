@@ -44,17 +44,11 @@ public class LegalPersonService {
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(LegalPerson.class));
     }
 
-    public void upsertOfficer(Long legalPersonId, Long signatoryId, Function function) {
-        upsertOfficer(legalPersonId, signatoryId, function, null);
-    }
-
-    public void upsertOfficer(Long legalPersonId, Long signatoryId, Function function, Long enterpriseNumber) 
+    public void insertOfficer(Long legalPersonId, Long signatoryId, Function function, Long enterpriseNumber) 
     {
         final var sql = """
             INSERT INTO sca.officer (legal_person, signatory, "function", enterprise_number)
-            VALUES (:legalPersonId, :signatoryId, :function, :enterpriseNumber)
-            ON CONFLICT (legal_person, signatory, "function") DO UPDATE
-            SET "function" = :function, enterprise_number = :enterpriseNumber
+            VALUES (:legalPersonId, :signatoryId, :function, :enterpriseNumber);
         """;
         final var params = new MapSqlParameterSource().addValues(
             Map.of(

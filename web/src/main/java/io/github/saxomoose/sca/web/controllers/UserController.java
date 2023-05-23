@@ -16,7 +16,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.models.dtos.Signatory;
+import io.github.saxomoose.sca.web.models.projections.UserToCreate;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.UserService;
 import io.github.saxomoose.sca.web.services.ValidationService;
@@ -83,7 +83,7 @@ public class UserController {
     @PostMapping(value = "/users/{rawIdentificationMethod}", consumes = "application/x-www-form-urlencoded")
     public RedirectView store(
         final String rawIdentificationMethod,
-        final Signatory rawSignatory,
+        final UserToCreate rawSignatory,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
         final var tenant = (Tenant) httpSession.getAttribute("tenant");

@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.models.dtos.scraper;
+package io.github.saxomoose.sca.web.models.projections.scraper;
 
 import java.io.Serializable;
 import java.time.LocalDate;
