@@ -1,15 +1,15 @@
-package io.github.saxomoose.sca.web.models.dtos;
+package io.github.saxomoose.sca.web.models.projections;
 
 import java.time.LocalDate;
 
-public class Signatory {
+public class UserToCreate {
     private final String firstName;
     private final String lastName;
     private final LocalDate dateOfBirth;
     private final String email;
     private final String nationalRegistrationNumber;
 
-    public Signatory(
+    public UserToCreate(
         String firstName,
         String lastName,
         LocalDate dateOfBirth,

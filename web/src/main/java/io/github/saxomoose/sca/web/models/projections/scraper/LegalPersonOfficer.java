@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.models.dtos.scraper;
+package io.github.saxomoose.sca.web.models.projections.scraper;
 
 public class LegalPersonOfficer extends Officer {
     private Integer enterpriseNumber;

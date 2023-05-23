@@ -16,6 +16,13 @@ public class Document {
     private LocalDateTime createdTimestamp;
     private LocalDateTime lastUpdatedTimestamp;
 
+    private LocalDateTime signatureTimestamp;
+
+    public static Document withId(Long id, String filename)
+    {
+        return new Document(null, id, filename, null);
+    }
+
     public static Document of(Long tenantId, String filename) {
         return new Document(tenantId, null, filename, null);
     }
@@ -56,5 +63,15 @@ public class Document {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public LocalDateTime signatureTimestamp() 
+    {
+        return signatureTimestamp;
+    }
+
+    public void setSignatureTimestamp(LocalDateTime signatureTimestamp)
+    {
+        this.signatureTimestamp = signatureTimestamp;
     }
 }

@@ -150,31 +150,23 @@ public class TenantService {
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
     }
 
-    public void upsertTenantUser(Long tenantId, Long userId, Role role) 
-    {
-        upsertTenantUser(tenantId, userId, role, Boolean.FALSE);
-    }
-
-    public void upsertTenantUser(Long tenantId, Long userId, Role role, Boolean defaultConnection) 
+    public void insertRole(Long tenantId, Long userId, Role role) 
     {
         final var sql = """
-            INSERT INTO sca.tenant_user (tenant, "user", role, default_connection)
-            VALUES (:tenantId, :userId, :role, :defaultConnection)
-            ON CONFLICT (tenant, "user") DO UPDATE
-            SET role = :role, default_connection = :defaultConnection
+            INSERT INTO sca.tenant_user
+            VALUES (:tenantId, :userId, :role, DEFAULT);
         """;
         final var params = new MapSqlParameterSource().addValues(
             Map.of(
                 "tenantId", tenantId,
                 "userId", userId,
-                "role", role.toString(),
-                "defaultConnection", defaultConnection));
+                "role", role.toString()));
 
         namedParameterJdbcOperations.update(sql, params);
     }
 
     // Update
-    public void setDefaultTenant(Long tenantId, Long userId) 
+    public void setDefaultConnection(Long tenantId, Long userId) 
     {
         final var sql = """
             UPDATE sca.tenant_user

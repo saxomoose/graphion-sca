@@ -93,7 +93,7 @@ public class TenantController {
                 user,
                 tenantWithUserAuthority.first(),
                 tenantWithUserAuthority.second());
-            tenantService.setDefaultTenant( tenantWithUserAuthority.first().id(), user.id());
+            tenantService.setDefaultConnection( tenantWithUserAuthority.first().id(), user.id());
         }
         final var securityContext = securityContextHolderStrategy.createEmptyContext();
         securityContext.setAuthentication(authentication);
