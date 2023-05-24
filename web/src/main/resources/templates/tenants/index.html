@@ -14,12 +14,16 @@
                     <!-- Table -->
                     <table class="table table-hover caption-top" id="tenantTable">
                         <thead>
-                            <tr>
-                                <th scope="col">Name</th>
-                            </tr>
+                            <th scope="col" </th>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <th-block data-th-each="tenant : ${tenantPage}">
+                            <th-block data-th-each="tenant,tenantIterStat : ${tenantPage}">
+                                <th scope="row"
+                                    data-th-text="${tenantPage.getPageable().getPageNumber() * 10 + tenantIterStat.getIndex() + 1}">
+                                </th>
                                 <tr class="trigger-modal" data-th-id="${tenant.id()}" role="button">
                                     <td data-th-text="${tenant.name()}"></td>
                                 </tr>

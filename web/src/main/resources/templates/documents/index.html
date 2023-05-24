@@ -10,20 +10,26 @@
         <div class="container-fluid">
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=3)}"></aside>
-                <main class="col-md-6">
-                    <div>
-                        <a data-th-href="@{/documents/create}">Add document</a>
-                    </div>
+                <main class="col-md-9">
+
+                    <nav class="d-flex flex-row-reverse">
+                        <a data-th-href="@{/documents/create}"><img data-th-src="@{/svg/plus-circle.svg}" width="20"
+                                height="20"></a>
+                    </nav>
                     <!-- Table -->
                     <table class="table table-hover" id="documentTable">
                         <thead>
                             <tr>
+                                <th scope="col">#</th>
                                 <th scope="col">Filename</th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <th-block data-th-each="document : ${documentPage}">
+                            <th-block data-th-each="document,documentIterStat : ${documentPage}">
                                 <tr class="trigger-modal" data-th-id="${document.id()}" role="button">
+                                    <th scope="row"
+                                        data-th-text="${documentPage.getPageable().getPageNumber() * 10 + documentIterStat.getIndex() + 1}">
+                                    </th>
                                     <td data-th-text="${document.filename()}"></td>
                                 </tr>
                             </th-block>
