@@ -28,7 +28,9 @@
                         <tbody>
                             <th-block data-th-each="closing,closingIterStat : ${closingPage}">
                                 <tr class="trigger-modal table-secondary" data-th-id="${closing.id()}" role="button">
-                                    <th scope="row" data-th-text="${closingIterStat.getIndex() + 1}"></th>
+                                    <th scope="row"
+                                        data-th-text="${closingPage.getPageable().getPageNumber() * 10 + closingIterStat.getIndex() + 1}">
+                                    </th>
                                     <td data-th-text="${closing.name()}"></td>
                                     <td
                                         data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
@@ -37,8 +39,8 @@
                                 </tr>
                                 <th-block data-th-each="user,userIterStat : ${closing.users()}">
                                     <tr class="trigger-modal" role="button">
-                                        <td><img class="me-2" data-th-src="@{/svg/person-vcard.svg}" width="20"
-                                                height="20">
+                                        <td><img class="ms-2" data-th-src="@{/svg/person-vcard.svg}" width="20"
+                                                height="201">
                                         </td>
                                         <td data-th-text="${user.firstName()}"></td>
                                         <td data-th-text="${user.lastName()}"></td>
@@ -46,7 +48,7 @@
                                     </tr>
                                     <th-block data-th-each="document,documentIterStat : ${user.documents()}">
                                         <tr class="trigger-modal" role="button">
-                                            <td><img class="me-2" data-th-src="@{/svg/files.svg}" width="20"
+                                            <td><img class="ms-4" data-th-src="@{/svg/files.svg}" width="20"
                                                     height="20">
                                             </td>
                                             <td data-th-text="${document.filename()}">
