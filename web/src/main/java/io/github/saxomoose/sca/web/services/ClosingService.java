@@ -81,7 +81,10 @@ public class ClosingService {
                     rs.getTimestamp("timestamp").toLocalDateTime(),
                     ZoneId.of(rs.getString("zone_id")),
                     rs.getString("location"));
-                closingsMap.putIfAbsent(closing.id(), closing);
+                if (!closingsMap.containsKey(closing.id())) {
+                    usersMap.clear();
+                    closingsMap.put(closing.id(), closing);
+                }
                 final var user = User.withId(
                     rs.getLong("user_id"),
                     rs.getString("first_name"),

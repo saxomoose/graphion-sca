@@ -23,7 +23,7 @@
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="document : ${documentPage}">
-                                <tr class="clickableRow" data-th-id="${document.id()}" role="button">
+                                <tr class="trigger-modal" data-th-id="${document.id()}" role="button">
                                     <td data-th-text="${document.filename()}"></td>
                                 </tr>
                             </th-block>

@@ -12,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import io.github.saxomoose.sca.web.models.Closing;
-import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.services.ClosingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -35,7 +34,8 @@ public class ClosingController {
         final HttpServletRequest request,
         @SortDefault(sort = "name") Pageable pageable) 
     {
-        final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
+        // final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
+        final var tenantId = 1L;
         final Page<Closing> closingPage = closingService.closingsByTenant(tenantId, pageable);
         if (closingPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
