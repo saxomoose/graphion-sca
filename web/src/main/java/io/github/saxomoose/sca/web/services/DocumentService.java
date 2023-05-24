@@ -54,6 +54,7 @@ public class DocumentService {
             SELECT *
             FROM sca.document
             WHERE tenant = :tenantId
+            ORDER BY filename
             LIMIT :pageSize OFFSET :offset;
         """;
         final var params = new MapSqlParameterSource(

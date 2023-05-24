@@ -1,0 +1,51 @@
+<script>
+    const optionInputElList = document.querySelectorAll("input[name=\"option\"]");
+    const dobDivEl = document.getElementById("dobCollapsible");
+    const nrnDivEl = document.getElementById("nrnCollapsible");
+    optionInputElList.forEach(option => {
+        option.addEventListener("change", (event) => {
+            if (event.target.id === "dobOption") {
+                dobDivEl.classList.remove("d-none");
+                nrnDivEl.classList.add("d-none");
+                document.getElementById("dateOfBirth").required = true;
+                document.getElementById("nationalRegistrationNumber").required = false;
+                document.getElementById("uploadForm").setAttribute("action", "/users/dob");
+            } else if (event.target.id === "nrnOption") {
+                dobDivEl.classList.add("d-none");
+                nrnDivEl.classList.remove("d-none");
+                document.getElementById("dateOfBirth").required = false;
+                document.getElementById("nationalRegistrationNumber").required = true;
+                document.getElementById("uploadForm").setAttribute("action", "/users/nrn");
+            }
+        });
+    });
+</script>
+<script>
+    /*eslint-disable*/
+    const nrnInputEl = document.getElementById("nationalRegistrationNumber");
+    const pattern = nrnInputEl.getAttribute("placeholder"),
+        slots = new Set(nrnInputEl.dataset.slots || "_"),
+        prev = (j => Array.from(pattern, (c, i) => slots.has(c) ? j = i + 1 : j))(0),
+        first = [...pattern].findIndex(c => slots.has(c)),
+        accept = new RegExp(nrnInputEl.dataset.accept || "\\d", "g"),
+        clean = input => {
+            input = input.match(accept) || [];
+            return Array.from(pattern, c =>
+                input[0] === c || slots.has(c) ? input.shift() || c : c
+            );
+        },
+        format = () => {
+            const [i, j] = [nrnInputEl.selectionStart, nrnInputEl.selectionEnd].map(i => {
+                i = clean(nrnInputEl.value.slice(0, i)).findIndex(c => slots.has(c));
+                return i < 0 ? prev[prev.length - 1] : back ? prev[i - 1] || first : i;
+            });
+            nrnInputEl.value = clean(nrnInputEl.value).join``;
+            nrnInputEl.setSelectionRange(i, j);
+            back = false;
+        };
+    let back = false;
+    nrnInputEl.addEventListener("keydown", (e) => back = e.key === "Backspace");
+    nrnInputEl.addEventListener("input", format);
+    nrnInputEl.addEventListener("focus", format);
+    nrnInputEl.addEventListener("blur", () => nrnInputEl.value === pattern && (nrnInputEl.value = ""));
+</script>

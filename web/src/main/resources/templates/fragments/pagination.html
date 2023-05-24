@@ -1,4 +1,4 @@
-<nav class="d-flex flex-row-reverse" data-th-fragment="frag(route,page)">
+<nav class="d-flex flex-row-reverse" data-th-fragment="frag(route, page)">
     <ul class="pagination">
         <li class="page-item" data-th-classappend="${page.isFirst() ? 'disabled' : _}">
             <a class="page-link" data-th-href="@{/{route}(route = __${route}__, page = __${page.getNumber() - 1}__)}">

@@ -54,6 +54,7 @@ public class UserService {
                 SELECT "user"
                 FROM sca.tenant_user
                 WHERE tenant = :tenantId)
+            ORDER BY last_name
             LIMIT :pageSize OFFSET :offset;
         """;
         final var params = new MapSqlParameterSource(

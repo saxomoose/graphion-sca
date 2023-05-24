@@ -28,7 +28,7 @@
                             <th-block data-th-each="document,documentIterStat : ${documentPage}">
                                 <tr class="trigger-modal" data-th-id="${document.id()}" role="button">
                                     <th scope="row"
-                                        data-th-text="${documentPage.getPageable().getPageNumber() * 10 + documentIterStat.getIndex() + 1}">
+                                        data-th-text="${documentPage.getNumber() * 10 + documentIterStat.getIndex() + 1}">
                                     </th>
                                     <td data-th-text="${document.filename()}"></td>
                                 </tr>
