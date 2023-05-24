@@ -26,7 +26,7 @@
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="user : ${userPage}">
-                                <tr class="clickableRow" data-th-id="${user.id()}" role="button">
+                                <tr class="trigger-modal" data-th-id="${user.id()}" role="button">
                                     <td data-th-text="${user.lastName()}"></td>
                                     <td data-th-text="${user.firstName()}"></td>
                                     <td data-th-text="${user.email()}"></td>

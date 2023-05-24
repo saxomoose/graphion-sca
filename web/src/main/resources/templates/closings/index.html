@@ -10,71 +10,138 @@
         <div class="container-fluid">
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=1)}"></aside>
-                <main class="col-md-10">
-                    <div>
-                        <a data-th-href="@{/closings/create}">Add closing</a>
-                    </div>
+                <main class="col-md-9">
+                    <nav class="d-flex flex-row-reverse">
+                        <a data-th-href="@{/closings/create}"><img data-th-src="@{/svg/plus-circle.svg}" width="20"
+                                height="20"></a>
+                    </nav>
                     <!-- Table -->
-                    <div class="container-fluid" id="closingTable">
-                        <div class="row mt-2">
-                            <div class="col-1 fw-bold">#</div>
-                            <div class="col-4 fw-bold">Name</div>
-                            <div class="col-4 fw-bold">Time</div>
-                            <div class="col-3 fw-bold">Location</div>
-                        </div>
-                        <hr class="border border-dark mt-2 mb-0 opacity-50">
-                        <div class="mb-2">
+                    <table class="table table-hover" id="closingTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Closing timestamp</th>
+                                <th scope="col">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             <th-block data-th-each="closing,closingIterStat : ${closingPage}">
-                                <a class="row py-2 border-bottom anchor-hover text-decoration-none text-dark"
-                                    data-th-classappend="${closingIterStat.getIndex() == 0 ? 'firstItem' : _ }"
-                                    data-th-id="${closing.id()}" href="#">
-                                    <div class="col-1" data-th-text="${closingIterStat.getIndex() + 1}"></div>
-                                    <div class="col-4 " data-th-text="${closing.name()}"></div>
-                                    <div class="col-4 "
+                                <tr class="trigger-modal table-secondary" data-th-id="${closing.id()}" role="button">
+                                    <th scope="row" data-th-text="${closingIterStat.getIndex() + 1}"></th>
+                                    <td data-th-text="${closing.name()}"></td>
+                                    <td
                                         data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
-                                    </div>
-                                    <div class="col-3" data-th-text="${closing.location()}"></div>
-                                </a>
+                                    </td>
+                                    <td data-th-text="${closing.location()}"></td>
+                                </tr>
                                 <th-block data-th-each="user,userIterStat : ${closing.users()}">
-                                    <a class="row py-2 border-bottom anchor-hover text-decoration-none text-dark"
-                                        data-th-classappend="${userIterStat.getIndex() == 0 ? 'firstItem' : _ }"
-                                        data-th-id="${user.id()}" href="#">
-                                        <div class="col-1"
-                                            data-th-text="${#strings.concat(closingIterStat.getIndex() + 1, '.', userIterStat.getIndex() + 1)}">
-                                        </div>
-                                        <div class="col-4 " data-th-text="${user.firstName()}"></div>
-                                        <div class="col-4 " data-th-text="${user.lastName()}"></div>
-                                        <div class="col-3 " data-th-text="${user.username()}"></div>
-                                    </a>
+                                    <tr class="trigger-modal" role="button">
+                                        <td><img class="me-2" data-th-src="@{/svg/person-vcard.svg}" width="20"
+                                                height="20">
+                                        </td>
+                                        <td data-th-text="${user.firstName()}"></td>
+                                        <td data-th-text="${user.lastName()}"></td>
+                                        <td data-th-text="${user.username()}"></td>
+                                    </tr>
                                     <th-block data-th-each="document,documentIterStat : ${user.documents()}">
-                                        <a class="row py-2 border-bottom anchor-hover text-decoration-none text-dark"
-                                            data-th-classappend="${documentIterStat.getIndex() == 0 ? 'firstItem' : _ }"
-                                            data-th-id="${document.id()}" href="#">
-                                            <div class="col-1"
-                                                data-th-text="${#strings.concat(closingIterStat.getIndex() + 1, '.', userIterStat.getIndex() + 1, '.', documentIterStat.getIndex() + 1)}">
-                                            </div>
-                                            <div class="col-4 " data-th-text="${document.filename()}">
-                                            </div>
-                                            <div class="col-4 "
+                                        <tr class="trigger-modal" role="button">
+                                            <td><img class="me-2" data-th-src="@{/svg/files.svg}" width="20"
+                                                    height="20">
+                                            </td>
+                                            <td data-th-text="${document.filename()}">
+                                            </td>
+                                            <td colspan="2"
                                                 data-th-text="${#dates.format(document.signatureTimestamp(), 'yyyy-MM-dd HH:mm:ss')} ?: 'Not signed'">
-                                            </div>
-                                        </a>
+                                            </td>
+                                        </tr>
                                     </th-block>
                                 </th-block>
                             </th-block>
+                        </tbody>
+                    </table>
+                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'closings', page = ${closingPage})}">
+                    </nav>
+                    <!-- Modal -->
+                    <th-block data-th-each="closing,closingIterStat : ${closingPage}">
+                        <div class="modal fade" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body d-flex align-items-center">
+                                        <a class="btn btn-primary me-2">Send invites</a>
+                                        <a class="btn btn-primary me-2">Edit</a>
+                                        <a class="btn btn-danger me-2">Delete</a>
+                                        <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                            type="button"></button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <nav
-                            data-th-replace="~{fragments/pagination :: frag(route = 'closings', page = ${closingPage})}">
-                        </nav>
-                    </div>
+                        <th-block data-th-each="user,userIterStat : ${closing.users()}">
+                            <div class="modal fade" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body d-flex align-items-center">
+                                            <a class="btn btn-primary me-2">View</a>
+                                            <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                                type="button"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <th-block data-th-each="document,documentIterStat : ${user.documents()}">
+                                <div class="modal fade" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-body d-flex align-items-center">
+                                                <a class="btn btn-primary me-2" data-th-href="@{/documents}">View</a>
+                                                <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                                    type="button"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th-block>
+                        </th-block>
+                    </th-block>
                 </main>
             </div>
         </div>
+    </div>
     </div>
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/scripts}"></script>
     <div data-th-replace="~{fragments/toast-script}"></div>
     <div data-th-replace="~{fragments/modal-script}"></div>
+
+    <script type="text/javascript">
+        const closingHeader = document.getElementById("closingHeader");
+        const userHeader = document.getElementById("userHeader");
+        const documentHeader = document.getElementById("documentHeader");
+
+        const tableRowElList = document.querySelectorAll(".table-row");
+        if (tableRowElList !== 0) {
+            tableRowElList.forEach(
+                (tableRowEl, index) => tableRowEl.addEventListener(
+                    "click",
+                    () => {
+                        if (tableRowEl.classList.contains("closing-row")) {
+                            // Swap to closingHeader
+                            closingHeader.classList.remove("d-none");
+                            userHeader.classList.add("d-none");
+                            documentHeader.classList.add("d-none");
+                        } else if (tableRowEl.classList.contains("user-row")) {
+                            closingHeader.classList.add("d-none");
+                            userHeader.classList.remove("d-none");
+                            documentHeader.classList.add("d-none");
+                        } else if (tableRowEl.classList.contains("document-row")) {
+                            closingHeader.classList.add("d-none");
+                            userHeader.classList.add("d-none");
+                            documentHeader.classList.remove("d-none");
+                        }
+                    }));
+        }
+    </script>
 </body>
 
 </html>

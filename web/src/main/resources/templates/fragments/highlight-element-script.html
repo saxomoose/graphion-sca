@@ -1,0 +1,7 @@
+<script>
+    const targetRowId = document.location.hash.substring(1);
+    const activeTableRowEl = document.getElementById(targetRowId);
+    if (activeTableRowEl != null) {
+        activeTableRowEl.classList.add("table-active")
+    }
+</script>

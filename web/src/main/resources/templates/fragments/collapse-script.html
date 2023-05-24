@@ -1,0 +1,16 @@
+<script type="text/javascript">
+    const triggerCollapseElList = document.querySelectorAll(".trigger-collapse");
+    const collapseElList = document.querySelectorAll(".collapse");
+
+    if (triggerCollapseElList !== 0) {
+        const collapseList = [...collapseElList].map(
+            collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
+        console.log(collapseList);
+        triggerCollapseElList.forEach(
+            (triggerEl, index) => triggerEl.addEventListener(
+                "click",
+                () => {
+                    collapseList[index].toggle();
+                }));
+    }
+</script>
