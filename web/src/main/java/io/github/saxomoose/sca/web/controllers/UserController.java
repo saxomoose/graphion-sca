@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +47,7 @@ public class UserController {
     @GetMapping("/users")
     public ModelAndView index(
         final HttpServletRequest request,
-        @SortDefault(sort = "lastName") Pageable pageable) 
+        Pageable pageable) 
     {
         // final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var tenantId = 1L;
@@ -81,9 +80,8 @@ public class UserController {
     /**
      * TODO
      */
-    @PostMapping(value = "/users/{rawIdentificationMethod}", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(value = "/users", consumes = "application/x-www-form-urlencoded")
     public RedirectView store(
-        final String rawIdentificationMethod,
         final UserToCreate rawSignatory,
         final RedirectAttributes redirectAttributes) throws Exception 
     {

@@ -64,13 +64,15 @@ public class ClosingService {
             JOIN sca.user u ON cs.signatory = u.id
             JOIN sca.document d ON cs.document = d.id
             WHERE c.tenant = :tenantId
+            ORDER BY :sort_order
             LIMIT :pageSize OFFSET :offset;
         """;
         final var params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
-                "offset", offset));
+                "offset", offset,
+                "sort_order", pageable.getSort().stream().findFirst().get().getProperty()));
         final List<Closing> tenantClosings = namedParameterJdbcOperations.query(sql, params, (rs) -> {
             final var closingsMap = new LinkedHashMap<Long, Closing>();
             final var usersMap = new HashMap<Long, User>();

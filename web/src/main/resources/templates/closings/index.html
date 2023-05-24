@@ -28,8 +28,8 @@
                         <tbody>
                             <th-block data-th-each="closing,closingIterStat : ${closingPage}">
                                 <tr class="trigger-modal table-secondary" data-th-id="${closing.id()}" role="button">
-                                    <th scope="row"
-                                        data-th-text="${closingPage.getPageable().getPageNumber() * 10 + closingIterStat.getIndex() + 1}">
+                                    <th data-th-text="${closingPage.getNumber() * 10 + closingIterStat.getIndex() + 1}"
+                                        scope="row">
                                     </th>
                                     <td data-th-text="${closing.name()}"></td>
                                     <td
@@ -40,7 +40,7 @@
                                 <th-block data-th-each="user,userIterStat : ${closing.users()}">
                                     <tr class="trigger-modal" role="button">
                                         <td><img class="ms-2" data-th-src="@{/svg/person-vcard.svg}" width="20"
-                                                height="201">
+                                                height="20">
                                         </td>
                                         <td data-th-text="${user.firstName()}"></td>
                                         <td data-th-text="${user.lastName()}"></td>
@@ -53,8 +53,8 @@
                                             </td>
                                             <td data-th-text="${document.filename()}">
                                             </td>
-                                            <td colspan="2"
-                                                data-th-text="${#dates.format(document.signatureTimestamp(), 'yyyy-MM-dd HH:mm:ss')} ?: 'Not signed'">
+                                            <td data-th-text="${#dates.format(document.signatureTimestamp(), 'yyyy-MM-dd HH:mm:ss')} ?: 'Not signed'"
+                                                colspan="2">
                                             </td>
                                         </tr>
                                     </th-block>
@@ -64,7 +64,7 @@
                     </table>
                     <nav data-th-replace="~{fragments/pagination :: frag(route = 'closings', page = ${closingPage})}">
                     </nav>
-                    <!-- Modal -->
+                    <!-- Modals -->
                     <th-block data-th-each="closing,closingIterStat : ${closingPage}">
                         <div class="modal fade" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
@@ -84,7 +84,7 @@
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-body d-flex align-items-center">
-                                            <a class="btn btn-primary me-2">View</a>
+                                            <a class="btn btn-primary" data-th-href="@{/users}">View</a>
                                             <button class="ms-auto btn-close" data-bs-dismiss="modal"
                                                 type="button"></button>
                                         </div>
@@ -96,7 +96,7 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-body d-flex align-items-center">
-                                                <a class="btn btn-primary me-2" data-th-href="@{/documents}">View</a>
+                                                <a class="btn btn-primary" data-th-href="@{/documents}">View</a>
                                                 <button class="ms-auto btn-close" data-bs-dismiss="modal"
                                                     type="button"></button>
                                             </div>
@@ -110,7 +110,7 @@
             </div>
         </div>
     </div>
-    </div>
+
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/scripts}"></script>
     <div data-th-replace="~{fragments/toast-script}"></div>

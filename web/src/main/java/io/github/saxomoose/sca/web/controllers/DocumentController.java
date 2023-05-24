@@ -12,7 +12,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -65,7 +64,7 @@ public class DocumentController {
     @GetMapping("/documents")
     public ModelAndView index(
         final HttpServletRequest request,
-        @SortDefault(sort = "filename") Pageable pageable) 
+        Pageable pageable) 
     {
         // final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var tenantId = 1L;
