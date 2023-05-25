@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class User implements Serializable {
     
@@ -22,7 +23,7 @@ public class User implements Serializable {
     private LocalDateTime createdTimestamp;
     private LocalDateTime lastUpdatedTimestamp;
 
-    private HashSet<Document> documents;
+    private Set<Document> documents;
 
     public static User withId(Long id, String firstName, String lastName, String username)
     {
@@ -131,7 +132,7 @@ public class User implements Serializable {
         return username();
     }
 
-    public HashSet<Document> documents()
+    public Set<Document> documents()
     {
         return documents;
     }

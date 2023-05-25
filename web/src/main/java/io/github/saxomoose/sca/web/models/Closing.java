@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Closing {
     private final Long tenant;
@@ -20,7 +21,7 @@ public class Closing {
     private LocalDateTime createdTimestamp;
     private LocalDateTime lastUpdatedTimestamp;
 
-    private HashSet<User> users;
+    private Set<User> users;
 
     public static Closing withId(Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {
@@ -94,7 +95,7 @@ public class Closing {
         return Objects.hash(id);
     }
 
-    public HashSet<User> users()
+    public Set<User> users()
     {
         return users;
     }
@@ -107,4 +108,9 @@ public class Closing {
         users.add(user);
         return this;
     }
+
+
+
+    
+
 }

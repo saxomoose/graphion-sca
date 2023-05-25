@@ -11,7 +11,7 @@
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = 1)}"></aside>
                 <main class="col-md-9">
-                    <form id="uploadForm" data-th-action="@{/closings}" method="post">
+                    <form id="upload-form" data-th-action="@{/closings}" method="post">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="mb-3">
@@ -31,8 +31,8 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label class="form-label" for="userSelect">Users</label>
-                                    <select class="form-select mb-1" id="userSelect" name="users" multiple size="10"
+                                    <label class="form-label" for="user-select">Users</label>
+                                    <select class="form-select mb-1" id="user-select" name="users" multiple size="10"
                                         required>
                                         <th-block data-th-each="user,userIterStat : ${userPage}">
                                             <option
@@ -63,8 +63,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label" for="documentSelect">Documents</label>
-                                    <select class="form-select mb-1" id="documentSelect" name="documents" multiple
+                                    <label class="form-label" for="document-select">Documents</label>
+                                    <select class="form-select mb-1" id="document-select" name="documents" multiple
                                         size="10" required>
                                         <th-block data-th-each="document,documentIterStat : ${documentPage}">
                                             <option data-th-text="${document.filename()}"
