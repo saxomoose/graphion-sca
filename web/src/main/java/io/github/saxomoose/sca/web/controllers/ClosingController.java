@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.controllers;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
@@ -17,9 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.projections.ClosingToCreate;
+import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
 import io.github.saxomoose.sca.web.services.ClosingService;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.UserService;
@@ -51,12 +50,12 @@ public class ClosingController {
     {
         // final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
         final var tenantId = 1L;
-        final Page<Closing> closingPage = closingService.closingsByTenant(tenantId, pageable);
-        if (closingPage.isEmpty()) {
+        final ClosingToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
+        if (closingToIndex.closingPage().isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
         final var modelAndView = new ModelAndView("closings/index");
-        modelAndView.addObject("closingPage", closingPage);
+        modelAndView.addObject("closingToIndex", closingToIndex);
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));

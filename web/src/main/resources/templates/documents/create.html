@@ -13,9 +13,9 @@
                 <main class="col-md-10">
                     <div class="row">
                         <div class="col-md-4">
-                            <form id="uploadForm" data-th-action="@{/documents}" enctype="multipart/form-data"
+                            <form id="upload-form" data-th-action="@{/documents}" enctype="multipart/form-data"
                                 method="post">
-                                <input id="fileSize" name="fileSize" type="hidden">
+                                <input id="file-size" name="fileSize" type="hidden">
                                 <div class="mb-3">
                                     <label class="form-label" for="filename">Filename</label>
                                     <input class="form-control" id="filename" name="filename" type="text">
@@ -38,7 +38,7 @@
     <script data-th-inline="javascript">
         "use strict";
         const fileEl = document.getElementById("file");
-        const fileSizeEl = document.getElementById("fileSize");
+        const fileSizeEl = document.getElementById("file-size");
         fileEl.addEventListener("change", () => {
             const size = fileEl.files[0].size;
             console.log(size);

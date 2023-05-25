@@ -3,9 +3,10 @@ package io.github.saxomoose.sca.web.services;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
+import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
 
 @Service
 public class ClosingService {
@@ -51,7 +53,7 @@ public class ClosingService {
         return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Closing.class));
     }
 
-    public Page<Closing> closingsByTenant(final Long tenantId, final Pageable pageable)
+    public ClosingToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
         final var sql = """
@@ -74,7 +76,7 @@ public class ClosingService {
                 "offset", offset,
                 "sort_order", pageable.getSort().stream().findFirst().get().getProperty()));
         final List<Closing> tenantClosings = namedParameterJdbcOperations.query(sql, params, (rs) -> {
-            final var closingsMap = new LinkedHashMap<Long, Closing>();
+            final var closingsMap = new HashMap<Long, Closing>();
             final var usersMap = new HashMap<Long, User>();
             while (rs.next()) {
                 final var closing = Closing.withId(
@@ -108,7 +110,16 @@ public class ClosingService {
             
             return new ArrayList<Closing>(closingsMap.values());
         });
-        return PageableExecutionUtils.getPage(tenantClosings, pageable, () -> countClosingsByTenant(tenantId));
+        
+        final Page<Closing> closingPage = PageableExecutionUtils.getPage(tenantClosings, pageable, () -> countClosingsByTenant(tenantId));
+        final Map<Long, Set<User>> closingUsers = tenantClosings.stream()
+            .collect(Collectors.toMap(Closing::id, Closing::users));
+        final Map<Long, Map<Long, Set<Document>>> userDocuments = tenantClosings.stream()
+            .collect(Collectors.toMap(Closing::id, tenantClosing -> tenantClosing.users().stream()
+                .collect(Collectors.toMap(User::id, closingUser -> closingUser.documents()))));
+
+        return new ClosingToIndex(closingPage, closingUsers, userDocuments);
+
     }
     
     // Update
