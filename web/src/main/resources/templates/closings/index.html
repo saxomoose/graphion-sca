@@ -38,7 +38,7 @@
                                             data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
                                         </td>
                                         <td data-th-text="${closing.location()}"></td>
-                                        <td>
+                                        <td class="text-end">
                                             <input class="trigger-collapse-radio form-check-input me-2"
                                                 name="closingRadio"
                                                 data-th-id="${#strings.concat('trigger-collapse-closing-', closing.id())}"
@@ -47,6 +47,19 @@
                                                 role="button" width="20" height="20">
                                         </td>
                                     </tr>
+                                    <div class="modal fade" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-body d-flex align-items-center">
+                                                    <a class="btn btn-primary me-2">Send invites</a>
+                                                    <a class="btn btn-primary me-2">Edit</a>
+                                                    <a class="btn btn-danger me-2">Delete</a>
+                                                    <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                                        type="button"></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </th-block>
                             </tbody>
                         </table>
@@ -63,8 +76,8 @@
                                         <th scope="col">Last name</th>
                                         <th scope="col">First name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col"><input class="form-check-input me-2" type="checkbox"
-                                                id="trigger-collapse-user-all">
+                                        <th scope="col"><!-- <input class="trigger-collapse-user-all form-check-input me-2"
+                                                type="checkbox"> -->
                                         </th>
                                     </thead>
                                     <tbody>
@@ -81,6 +94,17 @@
                                                         role="button" width="20" height="20">
                                                 </td>
                                             </tr>
+                                            <div class="modal fade" tabindex="-1">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body d-flex align-items-center">
+                                                            <a class="btn btn-primary" data-th-href="@{/users}">View</a>
+                                                            <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                                                type="button"></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </th-block>
                                     </tbody>
                                 </table>
@@ -90,7 +114,7 @@
                             <th-block data-th-each="userDocumentsOuter : ${closingToIndex.userDocuments()}">
                                 <th-block data-th-each=" userDocumentsInner : ${userDocumentsOuter.getValue()}">
                                     <table class="table table-hover collapse"
-                                        data-th-id="${#strings.concat('document-table-', userDocumentsInner.getKey())}">
+                                        data-th-id="${#strings.concat('document-table-', userDocumentsOuter.getKey(), '-',  userDocumentsInner.getKey())}">
                                         <thead>
                                             <th scope="col">Filename</th>
                                             <th scope="col">Signature timestamp</th>
@@ -103,10 +127,22 @@
                                                     <td
                                                         data-th-text="${document.signatureTimestamp() != null ?  document.signatureTimestamp() : 'Not signed'}">
                                                     </td>
-                                                    <td style="all: none;"><img data-th-src="@{/svg/three-dots.svg}"
-                                                            width="20" height="20">
+                                                    <td><img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
+                                                            role="button" width="20" height="20">
                                                     </td>
                                                 </tr>
+                                                <div class="modal fade" tabindex="-1">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-body d-flex align-items-center">
+                                                                <a class="btn btn-primary"
+                                                                    data-th-href="@{/documents}">View</a>
+                                                                <button class="ms-auto btn-close"
+                                                                    data-bs-dismiss="modal" type="button"></button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </th-block>
                                         </tbody>
                                     </table>
@@ -114,48 +150,6 @@
                             </th-block>
                         </div>
                     </div>
-                    <!-- Modals -->
-                    <!-- <th-block data-th-each="closing,closingIterStat : ${closingPage}">
-                        <div class="modal fade" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-body d-flex align-items-center">
-                                        <a class="btn btn-primary me-2">Send invites</a>
-                                        <a class="btn btn-primary me-2">Edit</a>
-                                        <a class="btn btn-danger me-2">Delete</a>
-                                        <button class="ms-auto btn-close" data-bs-dismiss="modal"
-                                            type="button"></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <th-block data-th-each="user,userIterStat : ${closing.users()}">
-                            <div class="modal fade" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-body d-flex align-items-center">
-                                            <a class="btn btn-primary" data-th-href="@{/users}">View</a>
-                                            <button class="ms-auto btn-close" data-bs-dismiss="modal"
-                                                type="button"></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <th-block data-th-each="document,documentIterStat : ${user.documents()}">
-                                <div class="modal fade" tabindex="-1">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-body d-flex align-items-center">
-                                                <a class="btn btn-primary" data-th-href="@{/documents}">View</a>
-                                                <button class="ms-auto btn-close" data-bs-dismiss="modal"
-                                                    type="button"></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </th-block>
-                        </th-block>
-                    </th-block> -->
                 </main>
             </div>
         </div>
@@ -199,7 +193,7 @@
         const collapsibleElList = document.querySelectorAll(".collapsible");
         const triggerCheckboxElList = document.querySelectorAll(".trigger-collapse-checkbox");
         const collapseElList = document.querySelectorAll(".collapse");
-        const triggerCheckboxAll = document.getElementById("trigger-collapse-user-all");
+        const triggerCheckboxAllElList = document.querySelectorAll(".trigger-collapse-user-all");
 
         const collapseList = [...collapseElList].map(
             collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
@@ -224,21 +218,22 @@
                 });
         });
 
-        triggerCheckboxAll.addEventListener(
-            "change",
-            (event) => {
-                if (triggerCheckboxAll.checked) {
-                    triggerCheckboxElList.forEach((triggerCheckboxEl) => {
-                        triggerCheckboxEl.checked = true;
-                        triggerCheckboxEl.dispatchEvent(new Event("change"));
-                    });
-                } else {
-                    triggerCheckboxElList.forEach((triggerCheckboxEl) => {
-                        triggerCheckboxEl.checked = false;
-                        triggerCheckboxEl.dispatchEvent(new Event("change"));
-                    });
-                }
-            });
+        triggerCheckboxAllElList.forEach(
+            (triggerEl, index) => triggerEl.addEventListener(
+                "change",
+                (event) => {
+                    if (event.target.checked) {
+                        triggerCheckboxElList.forEach((triggerCheckboxEl) => {
+                            triggerCheckboxEl.checked = true;
+                            triggerCheckboxEl.dispatchEvent(new Event("change"));
+                        });
+                    } else {
+                        triggerCheckboxElList.forEach((triggerCheckboxEl) => {
+                            triggerCheckboxEl.checked = false;
+                            triggerCheckboxEl.dispatchEvent(new Event("change"));
+                        });
+                    }
+                }));
 
         triggerCheckboxElList.forEach(
             (triggerEl, index) => triggerEl.addEventListener(
