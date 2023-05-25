@@ -39,11 +39,12 @@
                                         </td>
                                         <td data-th-text="${closing.location()}"></td>
                                         <td>
-                                            <input class="trigger-collapse-radio form-check-input me-2" type="radio"
+                                            <input class="trigger-collapse-radio form-check-input me-2"
                                                 name="closingRadio"
-                                                data-th-id="${#strings.concat('trigger-collapse-closing-', closing.id())}">
-                                            <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}" width="20"
-                                                height="20" role="button">
+                                                data-th-id="${#strings.concat('trigger-collapse-closing-', closing.id())}"
+                                                type="radio">
+                                            <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
+                                                role="button" width="20" height="20">
                                         </td>
                                     </tr>
                                 </th-block>
@@ -62,7 +63,8 @@
                                         <th scope="col">Last name</th>
                                         <th scope="col">First name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col"><input class="form-check-input me-2" type="checkbox">
+                                        <th scope="col"><input class="form-check-input me-2" type="checkbox"
+                                                id="trigger-collapse-user-all">
                                         </th>
                                     </thead>
                                     <tbody>
@@ -73,10 +75,10 @@
                                                 <td data-th-text="${user.username()}"></td>
                                                 <td>
                                                     <input class="trigger-collapse-checkbox form-check-input me-2"
-                                                        type="checkbox"
-                                                        data-th-id="${#strings.concat('trigger-collapse-user-', user.id())}">
+                                                        data-th-id="${#strings.concat('trigger-collapse-user-', user.id())}"
+                                                        type="checkbox">
                                                     <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
-                                                        width="20" height="20" role="button">
+                                                        role="button" width="20" height="20">
                                                 </td>
                                             </tr>
                                         </th-block>
@@ -197,6 +199,7 @@
         const collapsibleElList = document.querySelectorAll(".collapsible");
         const triggerCheckboxElList = document.querySelectorAll(".trigger-collapse-checkbox");
         const collapseElList = document.querySelectorAll(".collapse");
+        const triggerCheckboxAll = document.getElementById("trigger-collapse-user-all");
 
         const collapseList = [...collapseElList].map(
             collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
@@ -220,6 +223,22 @@
                     }
                 });
         });
+
+        triggerCheckboxAll.addEventListener(
+            "change",
+            (event) => {
+                if (triggerCheckboxAll.checked) {
+                    triggerCheckboxElList.forEach((triggerCheckboxEl) => {
+                        triggerCheckboxEl.checked = true;
+                        triggerCheckboxEl.dispatchEvent(new Event("change"));
+                    });
+                } else {
+                    triggerCheckboxElList.forEach((triggerCheckboxEl) => {
+                        triggerCheckboxEl.checked = false;
+                        triggerCheckboxEl.dispatchEvent(new Event("change"));
+                    });
+                }
+            });
 
         triggerCheckboxElList.forEach(
             (triggerEl, index) => triggerEl.addEventListener(
