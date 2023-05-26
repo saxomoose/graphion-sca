@@ -24,11 +24,12 @@
                                 <th scope="col">First name</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Electronic signature consent</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="user,userIterStat : ${userPage}">
-                                <tr class="trigger-modal" data-th-id="${user.id()}" role="button">
+                                <tr data-th-id="${user.id()}">
                                     <th scope="row"
                                         data-th-text="${userPage.getNumber() * 10 + userIterStat.getIndex() + 1}">
                                     </th>
@@ -37,6 +38,8 @@
                                     <td data-th-text="${user.firstName()}"></td>
                                     <td data-th-text="${user.email()}"></td>
                                     <td data-th-text="${user.electronicSignatureConsent()}"></td>
+                                    <td class="text-end"><img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
+                                            role="button" width="20" height="20"></td>
                                 </tr>
                             </th-block>
                         </tbody>
