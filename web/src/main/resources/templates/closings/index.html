@@ -72,7 +72,7 @@
                                 <table class="table table-user table-hover collapse"
                                     data-th-id="${#strings.concat('user-table-', closing.getKey().id())}">
                                     <caption class="text-muted"
-                                        data-th-text="${#strings.concat(closing.getKey().name(), ' signatories')}">
+                                        data-th-text="${#strings.concat(closing.getKey().name(), ' - signatories')}">
                                     </caption>
                                     <thead>
                                         <th scope="col">Last name</th>
@@ -119,7 +119,7 @@
                                     <table class="table table-hover collapse"
                                         data-th-id="${#strings.concat('document-table-', closing.getKey(), '-',  user.getKey().id())}">
                                         <caption class="text-muted"
-                                            data-th-text="${#strings.concat(user.getKey().username(), ' documents')}">
+                                            data-th-text="${#strings.concat(user.getKey().username(), ' - documents')}">
                                         </caption>
                                         <thead>
                                             <th scope="col">Filename</th>
@@ -182,7 +182,7 @@
             (triggerEl, index) => triggerEl.addEventListener(
                 "change",
                 (event) => {
-                    if (event.target.checked == true) {
+                    if (event.target.checked) {
                         if (event.target.classList.contains("trigger-root")) {
                             triggerCollapseElList.forEach(triggerCollapseEl => {
                                 if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
@@ -194,7 +194,7 @@
                             activeRowElArray.push(activableRowList[index]);
                             activeRowElArray.forEach(activeRowEl => activeRowEl.classList.add("table-active"));
                         });
-                    } else if (event.target.checked == false) {
+                    } else if (!event.target.checked) {
                         if (event.target.classList.contains("trigger-root")) {
                             triggerCollapseAllElList.forEach(triggerCollapseAllEl => triggerCollapseAllEl.checked = false);
                             triggerCollapseElList.forEach(triggerCollapseEl => triggerCollapseEl.checked = false);
@@ -211,7 +211,7 @@
                         } else if (event.target.classList.contains("trigger-collapse-user")) {
                             const table = event.target.closest("table");
                             const triggerCollapseAllEl = table.querySelectorAll('.trigger-collapse-all')[0];
-                            if (triggerCollapseAllEl.checked == true) {
+                            if (triggerCollapseAllEl.checked) {
                                 triggerCollapseAllEl.indeterminate = true;
                             }
                         }
@@ -225,15 +225,17 @@
                 }));
 
         triggerCollapseAllElList.forEach(
-            (triggerEl, index) => triggerEl.addEventListener(
+            (triggerEl, i) => triggerEl.addEventListener(
                 "change",
                 (event) => {
                     const table = event.target.closest('table');
                     const targetTriggerCollapseElList = table.querySelectorAll('.trigger-collapse');
                     if (event.target.checked) {
                         targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
-                            targetTriggerCollapseEl.checked = true;
-                            targetTriggerCollapseEl.dispatchEvent(new Event("change"));
+                            if (!targetTriggerCollapseEl.checked) {
+                                targetTriggerCollapseEl.checked = true;
+                                targetTriggerCollapseEl.dispatchEvent(new Event("change"));
+                            }
                         });
                     } else {
                         targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
