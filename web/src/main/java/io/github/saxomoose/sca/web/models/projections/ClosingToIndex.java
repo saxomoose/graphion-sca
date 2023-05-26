@@ -9,17 +9,17 @@ import io.github.saxomoose.sca.web.models.User;
 
 public class ClosingToIndex {
     private final Page<Closing> closingPage;
-    private final Map<Long, Set<User>> closingUsers;
-    private final Map<Long, Map<Long, Set<Document>>> userDocuments;
+    private final Map<Closing, Set<User>> users;
+    private final Map<Long, Map<User, Set<Document>>> documents;
 
     public ClosingToIndex(
         Page<Closing> closingPage,
-        Map<Long, Set<User>> closingUsers,
-        Map<Long, Map<Long, Set<Document>>> userDocuments)
+        Map<Closing, Set<User>> users,
+        Map<Long, Map<User, Set<Document>>> documents)
     {
         this.closingPage = closingPage;
-        this.closingUsers = closingUsers;
-        this.userDocuments = userDocuments;
+        this.users = users;
+        this.documents = documents;
     }
 
     public Page<Closing> closingPage() 
@@ -27,14 +27,14 @@ public class ClosingToIndex {
         return closingPage;
     }
 
-    public Map<Long, Set<User>> closingUsers() 
+    public Map<Closing, Set<User>> users() 
     {
-        return closingUsers;
+        return users;
     }
 
-    public Map<Long, Map<Long, Set<Document>>> userDocuments() 
+    public Map<Long, Map<User, Set<Document>>> documents() 
     {
-        return userDocuments;
+        return documents;
     }
 
     

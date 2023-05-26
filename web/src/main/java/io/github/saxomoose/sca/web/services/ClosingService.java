@@ -112,13 +112,13 @@ public class ClosingService {
         });
         
         final Page<Closing> closingPage = PageableExecutionUtils.getPage(tenantClosings, pageable, () -> countClosingsByTenant(tenantId));
-        final Map<Long, Set<User>> closingUsers = tenantClosings.stream()
-            .collect(Collectors.toMap(Closing::id, Closing::users));
-        final Map<Long, Map<Long, Set<Document>>> userDocuments = tenantClosings.stream()
-            .collect(Collectors.toMap(Closing::id, tenantClosing -> tenantClosing.users().stream()
-                .collect(Collectors.toMap(User::id, closingUser -> closingUser.documents()))));
+        final Map<Closing, Set<User>> users = tenantClosings.stream()
+            .collect(Collectors.toMap(closing -> closing, Closing::users));
+        final Map<Long, Map<User, Set<Document>>> documents = tenantClosings.stream()
+            .collect(Collectors.toMap(Closing::id, closing -> closing.users().stream()
+                .collect(Collectors.toMap(user -> user, user -> user.documents()))));
 
-        return new ClosingToIndex(closingPage, closingUsers, userDocuments);
+        return new ClosingToIndex(closingPage, users, documents);
 
     }
     

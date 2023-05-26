@@ -29,7 +29,7 @@
                             </thead>
                             <tbody>
                                 <th-block data-th-each="closing,closingIterStat : ${closingToIndex.closingPage()}">
-                                    <tr data-th-id="${closing.id()}">
+                                    <tr class="activable-row" data-th-id="${closing.id()}">
                                         <th data-th-text="${closingToIndex.closingPage().getNumber() * 10 + closingIterStat.getIndex() + 1}"
                                             scope="row">
                                         </th>
@@ -38,11 +38,9 @@
                                             data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
                                         </td>
                                         <td data-th-text="${closing.location()}"></td>
-                                        <td class="text-end">
-                                            <input class="trigger-collapse-radio form-check-input me-2"
-                                                name="closingRadio"
+                                        <td><input class="trigger-collapse trigger-root form-check-input me-2"
                                                 data-th-id="${#strings.concat('trigger-collapse-closing-', closing.id())}"
-                                                type="radio">
+                                                type="checkbox"></input>
                                             <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
                                                 role="button" width="20" height="20">
                                         </td>
@@ -69,25 +67,28 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <th-block data-th-each="closingUsers : ${closingToIndex.closingUsers()}">
-                                <table class="table table-hover collapsible d-none"
-                                    data-th-id="${#strings.concat('user-table-', closingUsers.getKey())}">
+                            <th-block data-th-each="closing : ${closingToIndex.users()}">
+                                <table class="table table-hover collapse"
+                                    data-th-id="${#strings.concat('user-table-', closing.getKey().id())}">
+                                    <caption class="text-muted"
+                                        data-th-text="${#strings.concat(closing.getKey().name(), ' signatories')}">
+                                    </caption>
                                     <thead>
                                         <th scope="col">Last name</th>
                                         <th scope="col">First name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col"><!-- <input class="trigger-collapse-user-all form-check-input me-2"
-                                                type="checkbox"> -->
+                                        <th scope="col"><input class="trigger-collapse-all form-check-input"
+                                                type="checkbox">
                                         </th>
                                     </thead>
                                     <tbody>
-                                        <th-block data-th-each="user,userIterStat : ${closingUsers.getValue()}">
-                                            <tr>
+                                        <th-block data-th-each="user,userIterStat : ${closing.getValue()}">
+                                            <tr class="activable-row">
                                                 <td data-th-text="${user.lastName()}"></td>
                                                 <td data-th-text="${user.firstName()}"></td>
                                                 <td data-th-text="${user.username()}"></td>
                                                 <td>
-                                                    <input class="trigger-collapse-checkbox form-check-input me-2"
+                                                    <input class="trigger-collapse form-check-input me-2"
                                                         data-th-id="${#strings.concat('trigger-collapse-user-', user.id())}"
                                                         type="checkbox">
                                                     <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
@@ -111,17 +112,20 @@
                             </th-block>
                         </div>
                         <div class="col-md-6">
-                            <th-block data-th-each="userDocumentsOuter : ${closingToIndex.userDocuments()}">
-                                <th-block data-th-each=" userDocumentsInner : ${userDocumentsOuter.getValue()}">
+                            <th-block data-th-each="closing : ${closingToIndex.documents()}">
+                                <th-block data-th-each="user : ${closing.getValue()}">
                                     <table class="table table-hover collapse"
-                                        data-th-id="${#strings.concat('document-table-', userDocumentsOuter.getKey(), '-',  userDocumentsInner.getKey())}">
+                                        data-th-id="${#strings.concat('document-table-', closing.getKey(), '-',  user.getKey().id())}">
+                                        <caption class="text-muted"
+                                            data-th-text="${#strings.concat(user.getKey().username(), ' documents')}">
+                                        </caption>
                                         <thead>
                                             <th scope="col">Filename</th>
                                             <th scope="col">Signature timestamp</th>
                                             <th scope="col"></th>
                                         </thead>
                                         <tbody>
-                                            <th-block data-th-each="document : ${userDocumentsInner.getValue()}">
+                                            <th-block data-th-each="document : ${user.getValue()}">
                                                 <tr>
                                                     <td data-th-text="${document.filename()}"></td>
                                                     <td
@@ -161,86 +165,80 @@
     <div data-th-replace="~{fragments/modal-script}"></div>
 
     <script type="text/javascript">
-        const closingHeader = document.getElementById("closingHeader");
-        const userHeader = document.getElementById("userHeader");
-        const documentHeader = document.getElementById("documentHeader");
-
-        const tableRowElList = document.querySelectorAll(".table-row");
-        if (tableRowElList !== 0) {
-            tableRowElList.forEach(
-                (tableRowEl, index) => tableRowEl.addEventListener(
-                    "click",
-                    () => {
-                        if (tableRowEl.classList.contains("closing-row")) {
-                            // Swap to closingHeader
-                            closingHeader.classList.remove("d-none");
-                            userHeader.classList.add("d-none");
-                            documentHeader.classList.add("d-none");
-                        } else if (tableRowEl.classList.contains("user-row")) {
-                            closingHeader.classList.add("d-none");
-                            userHeader.classList.remove("d-none");
-                            documentHeader.classList.add("d-none");
-                        } else if (tableRowEl.classList.contains("document-row")) {
-                            closingHeader.classList.add("d-none");
-                            userHeader.classList.add("d-none");
-                            documentHeader.classList.remove("d-none");
-                        }
-                    }));
-        }
-    </script>
-    <script type="text/javascript">
-        const triggerRadioElList = document.querySelectorAll(".trigger-collapse-radio");
-        const collapsibleElList = document.querySelectorAll(".collapsible");
-        const triggerCheckboxElList = document.querySelectorAll(".trigger-collapse-checkbox");
+        const triggerCollapseElList = document.querySelectorAll(".trigger-collapse");
+        const activableRowList = document.querySelectorAll(".activable-row");
+        const activeRowElArray = new Array();
+        const userRowElList = document.querySelectorAll(".user-row");
         const collapseElList = document.querySelectorAll(".collapse");
-        const triggerCheckboxAllElList = document.querySelectorAll(".trigger-collapse-user-all");
+        const triggerCollapseAllElList = document.querySelectorAll(".trigger-collapse-all");
 
         const collapseList = [...collapseElList].map(
             collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
         console.log(collapseList);
 
-        triggerRadioElList.forEach((triggerRadioEl) => {
-            triggerRadioEl.addEventListener(
-                "change",
-                (event) => {
-                    // Check if the current radio input is checked
-                    if (event.target.checked) {
-                        // Retrieve the value of the checked radio input
-                        const targetIndex = event.target.id.slice(-1);
-                        const targetEl = document.getElementById("user-table-".concat(targetIndex));
-                        collapsibleElList.forEach(collapsibleEl => collapsibleEl.classList.add("d-none"));
-                        collapseList.forEach(collapse => collapse.hide());
-                        triggerCheckboxElList.forEach((triggerCheckboxEl) => {
-                            triggerCheckboxEl.checked = false;
-                        });
-                        targetEl.classList.remove("d-none");
-                    }
-                });
-        });
-
-        triggerCheckboxAllElList.forEach(
+        triggerCollapseElList.forEach(
             (triggerEl, index) => triggerEl.addEventListener(
                 "change",
                 (event) => {
-                    if (event.target.checked) {
-                        triggerCheckboxElList.forEach((triggerCheckboxEl) => {
-                            triggerCheckboxEl.checked = true;
-                            triggerCheckboxEl.dispatchEvent(new Event("change"));
+                    if (event.target.checked == true) {
+                        if (event.target.classList.contains("trigger-root")) {
+                            triggerCollapseElList.forEach(triggerCollapseEl => {
+                                if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
+                                    triggerCollapseEl.setAttribute("disabled", "");
+                                }
+                            });
+                        }
+                        activableRowList.forEach(activableRowEl => {
+                            activeRowElArray.push(activableRowList[index]);
+                            activeRowElArray.forEach(activeRowEl => activeRowEl.classList.add("table-active"));
                         });
-                    } else {
-                        triggerCheckboxElList.forEach((triggerCheckboxEl) => {
-                            triggerCheckboxEl.checked = false;
-                            triggerCheckboxEl.dispatchEvent(new Event("change"));
+                    } else if (event.target.checked == false) {
+                        if (event.target.classList.contains("trigger-root")) {
+                            triggerCollapseAllElList.forEach(triggerCollapseAllEl => triggerCollapseAllEl.checked = false);
+                            triggerCollapseElList.forEach(triggerCollapseEl => triggerCollapseEl.checked = false);
+                            collapseList.forEach(collapse => collapse.hide());
+                            triggerCollapseElList.forEach(triggerCollapseEl => {
+                                if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
+                                    triggerCollapseEl.removeAttribute("disabled", "");
+                                }
+                            });
+                            activeRowElArray.forEach(activeRowEl => {
+                                activeRowEl.classList.remove("table-active");
+                            });
+                            activeRowElArray.length = 0;
+                        }
+                        activableRowList.forEach(closingRowEl => {
+                            const targetIndex = activeRowElArray.findIndex(activeRowEl => activeRowEl === activableRowList[index]);
+                            activeRowElArray[targetIndex].classList.remove("table-active");
+                            delete activeRowElArray[targetIndex];
                         });
                     }
-                }));
 
-        triggerCheckboxElList.forEach(
-            (triggerEl, index) => triggerEl.addEventListener(
-                "change",
-                (event) => {
                     collapseList[index].toggle();
                 }));
+
+        triggerCollapseAllElList.forEach(
+            (triggerEl, index) => triggerEl.addEventListener(
+                "change",
+                (event) => {
+                    const table = event.target.closest('table');
+                    const targetTriggerCollapseElList = table.querySelectorAll('.trigger-collapse');
+                    if (event.target.checked) {
+                        targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
+                            targetTriggerCollapseEl.checked = true;
+                            targetTriggerCollapseEl.setAttribute("disabled", "");
+                            targetTriggerCollapseEl.dispatchEvent(new Event("change"));
+                        });
+                    } else {
+                        targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
+                            targetTriggerCollapseEl.checked = false;
+                            targetTriggerCollapseEl.removeAttribute("disabled", "");
+                            targetTriggerCollapseEl.dispatchEvent(new Event("change"));
+                        });
+                    }
+                }));
+
+
     </script>
 </body>
 
