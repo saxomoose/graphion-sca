@@ -38,9 +38,10 @@
                                             data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
                                         </td>
                                         <td data-th-text="${closing.location()}"></td>
-                                        <td><input class="trigger-collapse trigger-root form-check-input me-2"
+                                        <td class="text-end"><input
+                                                class="trigger-collapse trigger-root form-check-input me-2"
                                                 data-th-id="${#strings.concat('trigger-collapse-closing-', closing.id())}"
-                                                type="checkbox"></input>
+                                                type="checkbox">
                                             <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
                                                 role="button" width="20" height="20">
                                         </td>
@@ -68,7 +69,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <th-block data-th-each="closing : ${closingToIndex.users()}">
-                                <table class="table table-hover collapse"
+                                <table class="table table-user table-hover collapse"
                                     data-th-id="${#strings.concat('user-table-', closing.getKey().id())}">
                                     <caption class="text-muted"
                                         data-th-text="${#strings.concat(closing.getKey().name(), ' signatories')}">
@@ -88,7 +89,8 @@
                                                 <td data-th-text="${user.firstName()}"></td>
                                                 <td data-th-text="${user.username()}"></td>
                                                 <td>
-                                                    <input class="trigger-collapse form-check-input me-2"
+                                                    <input
+                                                        class="trigger-collapse trigger-collapse-user form-check-input me-2"
                                                         data-th-id="${#strings.concat('trigger-collapse-user-', user.id())}"
                                                         type="checkbox">
                                                     <img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
@@ -206,6 +208,12 @@
                                 activeRowEl.classList.remove("table-active");
                             });
                             activeRowElArray.length = 0;
+                        } else if (event.target.classList.contains("trigger-collapse-user")) {
+                            const table = event.target.closest("table");
+                            const triggerCollapseAllEl = table.querySelectorAll('.trigger-collapse-all')[0];
+                            if (triggerCollapseAllEl.checked == true) {
+                                triggerCollapseAllEl.indeterminate = true;
+                            }
                         }
                         activableRowList.forEach(closingRowEl => {
                             const targetIndex = activeRowElArray.findIndex(activeRowEl => activeRowEl === activableRowList[index]);
@@ -213,7 +221,6 @@
                             delete activeRowElArray[targetIndex];
                         });
                     }
-
                     collapseList[index].toggle();
                 }));
 
@@ -226,19 +233,15 @@
                     if (event.target.checked) {
                         targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
                             targetTriggerCollapseEl.checked = true;
-                            targetTriggerCollapseEl.setAttribute("disabled", "");
                             targetTriggerCollapseEl.dispatchEvent(new Event("change"));
                         });
                     } else {
                         targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
                             targetTriggerCollapseEl.checked = false;
-                            targetTriggerCollapseEl.removeAttribute("disabled", "");
                             targetTriggerCollapseEl.dispatchEvent(new Event("change"));
                         });
                     }
                 }));
-
-
     </script>
 </body>
 
