@@ -17,16 +17,18 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="tenant,tenantIterStat : ${tenantPage}">
-                                <tr class="trigger-modal" data-th-id="${tenant.id()}" role="button">
+                                <tr data-th-id="${tenant.id()}">
                                     <th data-th-text="${tenantPage.getNumber() * 10 + tenantIterStat.getIndex() + 1}"
                                         scope="row">
                                     </th>
-                                    <td class="trigger-modal" data-th-id="${tenant.id()}"
-                                        data-th-text="${tenant.name()}" role="button"></td>
+                                    <td data-th-id="${tenant.id()}" data-th-text="${tenant.name()}" role="button"></td>
+                                    <td class="text-end"><img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
+                                            role="button" width="20" height="20"></td>
                                 </tr>
                             </th-block>
                         </tbody>

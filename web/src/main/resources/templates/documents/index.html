@@ -22,15 +22,18 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Filename</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="document,documentIterStat : ${documentPage}">
-                                <tr class="trigger-modal" data-th-id="${document.id()}" role="button">
+                                <tr data-th-id="${document.id()}">
                                     <th scope="row"
                                         data-th-text="${documentPage.getNumber() * 10 + documentIterStat.getIndex() + 1}">
                                     </th>
                                     <td data-th-text="${document.filename()}"></td>
+                                    <td class="text-end"><img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
+                                            role="button" width="20" height="20"></td>
                                 </tr>
                             </th-block>
                         </tbody>
