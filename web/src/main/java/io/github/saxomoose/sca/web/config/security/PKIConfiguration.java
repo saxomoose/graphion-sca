@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.config.security;
 
 import java.net.URI;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -11,27 +12,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import eu.webeid.security.challenge.ChallengeNonceGenerator;
 import eu.webeid.security.challenge.ChallengeNonceGeneratorBuilder;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
 import eu.webeid.security.validator.AuthTokenValidatorBuilder;
+import io.github.saxomoose.sca.web.services.MinIOService;
+import io.minio.Result;
+import io.minio.messages.Item;
 
 @Configuration
 public class PKIConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(PKIConfiguration.class);
 
     private static final long CHALLENGE_NONCE_TTL_MINUTES = 5;
-    private static final String CERTS_RESOURCE_PATH = "classpath*:certs/";
-    private static final String CERTS_GLOB_PATTERN = "/*.crt";
-    private static final String TRUSTED_CERTIFICATES_JKS = "trusted_certificates.jks";
+    private static final String CERTS_BUCKET = "graphion";
+    private static final String CERTS_PATH = "certs";
 
     private final Environment environment;
+    private final MinIOService minioService;
 
-    public PKIConfiguration(Environment environment) {
+    public PKIConfiguration(Environment environment, MinIOService minioService) {
         this.environment = environment;
+        this.minioService = minioService;
     }
 
     /**
@@ -56,15 +59,19 @@ public class PKIConfiguration {
         List<X509Certificate> caCertificates = new ArrayList<>();
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            final var resolver = new PathMatchingResourcePatternResolver();
-            final Resource[] resources = resolver.getResources(
-                String.format(
-                    "%s%s%s", 
-                    CERTS_RESOURCE_PATH, environment.getProperty("spring.profiles.active"), CERTS_GLOB_PATTERN));
-            for (Resource resource : resources) {
+            final Iterable<Result<Item>> certListing = minioService.listObjects(CERTS_BUCKET, CERTS_PATH);
+            for (Result<Item> result : certListing) {
                 X509Certificate caCertificate = 
-                    (X509Certificate) certFactory.generateCertificate(resource.getInputStream());
-                caCertificates.add(caCertificate);
+                    (X509Certificate) certFactory.generateCertificate(
+                        minioService.objectAsStream(
+                            CERTS_BUCKET, 
+                            result.get().objectName()));
+                try {
+                    caCertificate.checkValidity();
+                    caCertificates.add(caCertificate);
+                } catch (CertificateException exception) {
+                    logger.error(exception.getMessage());
+                }
             }
         } catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -72,33 +79,6 @@ public class PKIConfiguration {
         }
         return caCertificates.toArray(new X509Certificate[0]);
     }
-
-    // @Bean
-    // public X509Certificate[] loadTrustedCACertificatesFromTrustStore() {
-    // List<X509Certificate> caCertificates = new ArrayList<>();
-    // try (InputStream is = ValidationConfiguration.class.getResourceAsStream(
-    // CERTS_RESOURCE_PATH + activeProfile + "/" + TRUSTED_CERTIFICATES_JKS)) {
-    // if (is == null) {
-    // logger.info("Truststore file {} not found for {} profile", TRUSTED_CERTIFICATES_JKS,
-    // activeProfile);
-    // return new X509Certificate[0];
-    // }
-    // KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-    // keystore.load(is, yamlConfig().getTrustStorePassword().toCharArray());
-    // Enumeration<String> aliases = keystore.aliases();
-    // while (aliases.hasMoreElements()) {
-    // String alias = aliases.nextElement();
-    // X509Certificate certificate = (X509Certificate) keystore.getCertificate(alias);
-    // caCertificates.add(certificate);
-    // }
-    // } catch (IOException | CertificateException | KeyStoreException
-    // | NoSuchAlgorithmException e) {
-    // throw new RuntimeException(
-    // "Error initializing trusted CA certificates from trust store.", e);
-    // }
-
-    // return caCertificates.toArray(new X509Certificate[0]);
-    // }
 
     /**
      * Authentication token validator.
@@ -109,14 +89,9 @@ public class PKIConfiguration {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
                 .withSiteOrigin(URI.create(environment.getProperty("web-eid-auth-token.validation.local-origin")))
-                .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles())
-                // TODO: Investigate OCSP.
-                .withoutUserCertificateRevocationCheckWithOcsp();
-                // .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromTrustStore());
+                .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles());
             if (environment.getProperty("spring.profiles.active").equals("dev")) {
-                // TODO: Enable support for ESTEID 2015 test certificates in development profile.
-                // validatorBuilder = validatorBuilder
-                // .withNonceDisabledOcspUrls(URI.create("http://aia.demo.sk.ee/esteid2015"));
+                validatorBuilder = validatorBuilder.withoutUserCertificateRevocationCheckWithOcsp();
             }
             return validatorBuilder.build();
         } catch (Exception exception) {

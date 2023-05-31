@@ -1,0 +1,48 @@
+<script data-th-inline="javascript" type="text/javascript">
+    "use strict";
+
+    const lang = new URLSearchParams(window.location.search).get("lang") || "en";
+
+    const signatureButtonElList = document.querySelectorAll(".signature-button");
+    signatureButtonElList.forEach((signatureButtonEl) => {
+        const fileUUID = signatureButtonEl.id;
+
+        signatureButtonEl.addEventListener("click", async () => {
+            webeiderrors.hideErrorMessage();
+            signatureButtonEl.disabled = true;
+
+            try {
+                const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
+                const prepareSigningResponse = await fetch(`/pki/sign/dtbsr/${fileUUID}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
+                    },
+                    body: JSON.stringify({ certificate, supportedSignatureAlgorithms }),
+                });
+                await webeiderrors.checkHttpError(prepareSigningResponse);
+                const { hash, hashFunction } = await prepareSigningResponse.json();
+
+                const { signature, signatureAlgorithm } = await webeid.sign(certificate, hash, hashFunction, { lang });
+
+                const finalizeSigningResponse = await fetch(`/pki/sign/apply/${fileUUID}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
+                    },
+                    body: JSON.stringify({ signature, signatureAlgorithm }),
+                });
+                await webeiderrors.checkHttpError(finalizeSigningResponse);
+                window.location.href = "/closings";
+            } catch (error) {
+                webeiderrors.showErrorMessage(error);
+                throw error;
+            } finally {
+                signButton.disabled = false;
+            }
+        });
+    });
+
+</script>

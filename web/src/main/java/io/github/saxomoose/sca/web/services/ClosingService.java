@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,7 +61,7 @@ public class ClosingService {
             SELECT
                 c.id AS closing_id, c.name AS closing_name, c.timestamp, c.zone_id, c.location, 
                 u.id AS user_id, u.first_name, u.last_name, u.username,
-                d.id AS document_id, d.filename, cs.signature_timestamp 
+                d.id AS document_id, d.filename, d.file_uuid, cs.signature_timestamp 
             FROM sca.closing c
             JOIN sca.closing_signatory cs ON c.id = cs.closing
             JOIN sca.user u ON cs.signatory = u.id
@@ -97,7 +98,8 @@ public class ClosingService {
                 usersMap.putIfAbsent(user.id(), user);
                 final var document = Document.withId(
                     rs.getLong("document_id"),
-                    rs.getString("filename"));
+                    rs.getString("filename"),
+                    UUID.fromString(rs.getString("file_uuid")));
                 final var signatureTimestamp = rs.getTimestamp("signature_timestamp");
                 if (signatureTimestamp != null) {
                     document.setSignatureTimestamp(signatureTimestamp.toLocalDateTime());

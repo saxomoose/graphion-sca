@@ -104,7 +104,7 @@ tasks.register<Exec>("redisFlushall") {
 }
 
 tasks.register<Exec>("resetDefaultBucket") {
-    commandLine("docker", "exec", "graphion-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion")
+    commandLine("docker", "exec", "graphion-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion/uploads")
 }
 
 tasks.register<Exec>("resetDatabaseTest") {
