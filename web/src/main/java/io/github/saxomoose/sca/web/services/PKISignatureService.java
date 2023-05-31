@@ -43,15 +43,22 @@ public class PKISignatureService {
     }
 
     public Tuple<io.github.saxomoose.sca.web.controllers.pki.DigestPayload, PAdESSignatureParameters> dataToSign(
+        final String bucket,
         final UUID fileUUID,
         final SignatureCertificatePayload signatureCertificate) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException 
     {
-        redisService.lockFile(fileUUID);
+        // redisService.lockFile(fileUUID);
         final var inputStream = minioService.objectAsStream(
-            "graphion", 
-            String.format("%s%s", Path.UPLOADS, fileUUID));
-        final var path = String.format("%s%s%s", System.getProperty("user.dir"), Path.WORKBENCH, fileUUID);
+            bucket, 
+            String.format("/%s/%s", Path.FILES, fileUUID));
+        final var path = String.format(
+            "%s/%s/%s/%s",
+            System.getProperty("user.dir"), 
+            Path.WORKBENCH,
+            bucket, 
+            fileUUID);
         final var file = new File(path);
+        file.getParentFile().mkdirs();
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         final var x509Certificate = signatureCertificate.toX509Certificate();
@@ -59,7 +66,7 @@ public class PKISignatureService {
         final var parameters = new PAdESSignatureParameters();
         // Double reserved space for signature. https://ec.europa.eu/digital-building-blocks/tracker/browse/DSS-3030
         // parameters.setContentSize(9472 * 2);
-        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
+        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         final var certificateToken = new CertificateToken(x509Certificate);
         parameters.setSigningCertificate(certificateToken);
@@ -79,10 +86,18 @@ public class PKISignatureService {
     }
 
     public void applySignature(
+        final String bucket,
         final UUID fileUUID, 
-        final PAdESSignatureParameters parameters, final SignaturePayload signature) throws CertificateException, IOException
+        final PAdESSignatureParameters parameters,
+        final SignaturePayload signature) throws CertificateException, IOException
     {   
-        final var path = String.format("%s%s%s%s", "file:", System.getProperty("user.dir"), Path.WORKBENCH, fileUUID);
+        final var path = String.format(
+            "%s:%s/%s/%s/%s",
+            "file",
+            System.getProperty("user.dir"),
+            Path.WORKBENCH,
+            bucket,
+            fileUUID);
         final var file = resourceLoader.getResource(path).getFile();
 
         final var toSignDocument = new FileDocument(file);
@@ -90,8 +105,8 @@ public class PKISignatureService {
         final var signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
         final var signedDocument = padesService.signDocument(toSignDocument, parameters, signatureValue);
         minioService.storeObject(
-            "graphion", 
-            String.format("%s%s", Path.SIGNED, fileUUID),
+            bucket, 
+            String.format("/%s/%s", Path.SIGNED, fileUUID),
             signedDocument.openStream());
         file.delete();
         redisService.unlockFile(fileUUID);
