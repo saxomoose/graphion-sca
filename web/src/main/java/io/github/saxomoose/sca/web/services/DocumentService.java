@@ -98,12 +98,12 @@ public class DocumentService {
 
     public InputStream fileAsStream(String bucket, UUID fileUUID)
     {
-        return minioService.objectAsStream(bucket, filePath(Path.UPLOADS, fileUUID));
+        return minioService.objectAsStream(bucket, filePath(Path.FILES, fileUUID));
     }
 
     private String filePath(Path path, final UUID fileUUID)
     {
-        return String.format("%s%s", path, fileUUID);
+        return String.format("/%s/%s", path, fileUUID);
     }
 
     // Update
@@ -112,7 +112,7 @@ public class DocumentService {
     {
         final var documentToCreate = Document.of(tenant.id(), filename);
         final UUID fileUUID = insert(documentToCreate, principalId).fileUUID();
-        final String filePath = filePath(Path.UPLOADS, fileUUID);
+        final String filePath = filePath(Path.FILES, fileUUID);
         minioService.configureBucket(tenant.bucket());
         minioService.storeObject(tenant.bucket(), filePath, inputStream);
         if (minioService.statObject(tenant.bucket(), filePath).size() != clientSideFileSize) {

@@ -17,6 +17,7 @@ import eu.webeid.security.challenge.ChallengeNonceGeneratorBuilder;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
 import eu.webeid.security.validator.AuthTokenValidatorBuilder;
+import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.services.MinIOService;
 import io.minio.Result;
 import io.minio.messages.Item;
@@ -24,10 +25,6 @@ import io.minio.messages.Item;
 @Configuration
 public class PKIConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(PKIConfiguration.class);
-
-    private static final long CHALLENGE_NONCE_TTL_MINUTES = 5;
-    private static final String CERTS_BUCKET = "graphion";
-    private static final String CERTS_PATH = "certs";
 
     private final Environment environment;
     private final MinIOService minioService;
@@ -44,7 +41,7 @@ public class PKIConfiguration {
     public ChallengeNonceGenerator generator(final ChallengeNonceStore challengeNonceStore) 
     {
         return new ChallengeNonceGeneratorBuilder()
-                .withNonceTtl(Duration.ofMinutes(CHALLENGE_NONCE_TTL_MINUTES))
+                .withNonceTtl(Duration.ofMinutes(5))
                 .withChallengeNonceStore(challengeNonceStore).build();
     }
 
@@ -54,17 +51,19 @@ public class PKIConfiguration {
      * authentication and OCSP responder certificates.
      */
     @Bean
-    public X509Certificate[] loadTrustedCACertificatesFromCerFiles() 
+    public X509Certificate[] trustedCACertificates() 
     {
         List<X509Certificate> caCertificates = new ArrayList<>();
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            final Iterable<Result<Item>> certListing = minioService.listObjects(CERTS_BUCKET, CERTS_PATH);
+            final Iterable<Result<Item>> certListing = minioService.listObjects(
+                environment.getProperty("objectstorage.default-bucket"),
+                Path.CERTS.toString());
             for (Result<Item> result : certListing) {
                 X509Certificate caCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         minioService.objectAsStream(
-                            CERTS_BUCKET, 
+                            environment.getProperty("objectstorage.default-bucket"), 
                             result.get().objectName()));
                 try {
                     caCertificate.checkValidity();
@@ -89,7 +88,7 @@ public class PKIConfiguration {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
                 .withSiteOrigin(URI.create(environment.getProperty("web-eid-auth-token.validation.local-origin")))
-                .withTrustedCertificateAuthorities(loadTrustedCACertificatesFromCerFiles());
+                .withTrustedCertificateAuthorities(trustedCACertificates());
             if (environment.getProperty("spring.profiles.active").equals("dev")) {
                 validatorBuilder = validatorBuilder.withoutUserCertificateRevocationCheckWithOcsp();
             }

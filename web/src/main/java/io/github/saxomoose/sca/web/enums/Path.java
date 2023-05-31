@@ -1,9 +1,10 @@
 package io.github.saxomoose.sca.web.enums;
 
 public enum Path {
-    SIGNED("/signed/"),
-    UPLOADS("/uploads/"),
-    WORKBENCH("/workbench/");
+    CERTS("certs"),
+    FILES("files"),
+    SIGNED("signed"),
+    WORKBENCH("workbench");
 
     private final String key;
 

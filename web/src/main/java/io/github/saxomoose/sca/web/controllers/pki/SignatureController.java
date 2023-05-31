@@ -38,7 +38,6 @@ public class SignatureController {
         this.validationService = validationService;
     }
 
-
     @PostMapping(value = "/pki/sign/dtbsr/{rawFileUUID}", produces = "application/json")
     public ResponseEntity<DigestPayload> dataToSign(
         HttpServletRequest request,
@@ -47,9 +46,9 @@ public class SignatureController {
         @RequestBody final SignatureCertificatePayload signatureCertificate
     ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
-        final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
+        final var bucket = ((Tenant) httpSession.getAttribute("tenant")).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
-        final Tuple<DigestPayload, PAdESSignatureParameters> tuple = signatureService.dataToSign(fileUUID, signatureCertificate);
+        final Tuple<DigestPayload, PAdESSignatureParameters> tuple = signatureService.dataToSign(bucket, fileUUID, signatureCertificate);
         final var flashMapManager = new SessionFlashMapManager();
         final var flashMap = new FlashMap();
         flashMap.put("parameters", tuple.second());
@@ -64,11 +63,11 @@ public class SignatureController {
         @RequestBody final SignaturePayload signature
     ) throws CertificateException, IOException
     {
+        final var bucket = ((Tenant) httpSession.getAttribute("tenant")).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
-        
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final var parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");
-        signatureService.applySignature(fileUUID, parameters, signature);
+        signatureService.applySignature(bucket, fileUUID, parameters, signature);
         return ResponseEntity.noContent().build();
     }
 }
