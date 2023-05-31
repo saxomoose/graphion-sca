@@ -7,12 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
+import io.minio.ListObjectsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
+import io.minio.Result;
 import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
+import io.minio.messages.Item;
 
 // Singleton by default.
 @Service
@@ -62,6 +65,11 @@ public class MinIOService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
+    }
+
+    public Iterable<Result<Item>> listObjects(final String bucket, final String path)
+    {
+        return minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).prefix(path).recursive(true).build());
     }
 
     public byte[] objectAsBytes(final String bucket, final String path) {

@@ -18,9 +18,9 @@ public class Document {
 
     private LocalDateTime signatureTimestamp;
 
-    public static Document withId(Long id, String filename)
+    public static Document withId(Long id, String filename, UUID fileUUID)
     {
-        return new Document(null, id, filename, null);
+        return new Document(null, id, filename, fileUUID);
     }
 
     public static Document of(Long tenantId, String filename) {
