@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.services;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -11,16 +12,20 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.Digest;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.Path;
@@ -29,13 +34,20 @@ import io.github.saxomoose.sca.web.utils.Tuple;
 
 @Service
 public class PKISignatureService {
+    private final AIASource aiaSource;
     private final MinIOService minioService;
     private final PAdESService padesService;
     private final RedisService redisService;
     private final ResourceLoader resourceLoader;
 
     @Autowired
-    public PKISignatureService(MinIOService minioService, PAdESService padesService, RedisService redisService, ResourceLoader resourceLoader) {
+    public PKISignatureService(
+        AIASource aiaSource,
+        MinIOService minioService, 
+        PAdESService padesService, 
+        RedisService redisService, 
+        ResourceLoader resourceLoader) {
+        this.aiaSource = aiaSource;
         this.minioService = minioService;
         this.padesService = padesService;
         this.redisService = redisService;
@@ -60,24 +72,24 @@ public class PKISignatureService {
         final var file = new File(path);
         file.getParentFile().mkdirs();
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
         final var x509Certificate = signatureCertificate.toX509Certificate();
+        final var certificateToken = new CertificateToken(x509Certificate);
+        final var redo = aiaSource.getCertificatesByAIA(certificateToken);
+        final var test = x509Certificate.getIssuerX500Principal();
         // final var digestAlgorithm = signatureCertificate.supportedAlgorithmNames().contains("SHA-384") ? DigestAlgorithm.SHA384 : DigestAlgorithm.SHA256;
         final var parameters = new PAdESSignatureParameters();
         // Double reserved space for signature. https://ec.europa.eu/digital-building-blocks/tracker/browse/DSS-3030
         // parameters.setContentSize(9472 * 2);
         parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
-        parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
-        final var certificateToken = new CertificateToken(x509Certificate);
         parameters.setSigningCertificate(certificateToken);
-        // parameters.setCertificateChain(null);
-
+                
+        parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         final var toSignDocument = new FileDocument(file);
-        final var toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
+        final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
         final var digest = new Digest(
             DigestAlgorithm.SHA256, 
             DSSUtils.digest(DigestAlgorithm.SHA256, toBeSigned.getBytes()));
-        final var base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
+        final String base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
         return Tuple.of(
             new io.github.saxomoose.sca.web.controllers.pki.DigestPayload(
                 base64Digest, 
@@ -85,7 +97,7 @@ public class PKISignatureService {
             parameters);
     }
 
-    public void applySignature(
+    public DSSDocument applySignature(
         final String bucket,
         final UUID fileUUID, 
         final PAdESSignatureParameters parameters,
@@ -99,16 +111,23 @@ public class PKISignatureService {
             bucket,
             fileUUID);
         final var file = resourceLoader.getResource(path).getFile();
-
         final var toSignDocument = new FileDocument(file);
-        final var signatureBytes = Base64.getDecoder().decode(signature.base64Signature());
+        final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
+        final byte[] signatureBytes = Base64.getDecoder().decode(signature.base64Signature());
         final var signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
-        final var signedDocument = padesService.signDocument(toSignDocument, parameters, signatureValue);
+        Assert.isTrue(padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate()), "The signature value is invalid.");
+        final DSSDocument signedDocument = padesService.signDocument(toSignDocument, parameters, signatureValue);
         minioService.storeObject(
             bucket, 
             String.format("/%s/%s", Path.SIGNED, fileUUID),
             signedDocument.openStream());
         file.delete();
-        redisService.unlockFile(fileUUID);
+        final var parentPath = Paths.get(file.getAbsolutePath()).getParent();
+        if (!Files.list(parentPath).findFirst().isPresent()) {
+            Files.delete(parentPath);
+        }
+
+        //redisService.unlockFile(fileUUID);
+        return signedDocument;
     }
 }

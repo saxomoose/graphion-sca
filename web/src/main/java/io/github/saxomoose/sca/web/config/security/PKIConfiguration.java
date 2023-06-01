@@ -50,7 +50,6 @@ public class PKIConfiguration {
      * Specify which **intermediate** certificate authorities (CAs) are trusted to issue the eID
      * authentication and OCSP responder certificates.
      */
-    @Bean
     public X509Certificate[] trustedCACertificates() 
     {
         List<X509Certificate> caCertificates = new ArrayList<>();
