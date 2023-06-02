@@ -25,5 +25,7 @@ public class PKIValidationService {
         documentValidator.setValidationLevel(ValidationLevel.ARCHIVAL_DATA);
         final Reports reports = documentValidator.validateDocument();
         final var simpleReport = reports.getSimpleReport();
+        final var indication = simpleReport.getIndication(simpleReport.getFirstSignatureId());
+        System.out.println(simpleReport);
     }
 }

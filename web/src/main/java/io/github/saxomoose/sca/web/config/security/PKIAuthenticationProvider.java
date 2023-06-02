@@ -82,13 +82,16 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
     /**
      * This method uses case-sensitive string comparison.
      * Only the first first name is used for comparison.
+     * TODO: only accept Belgian id cards
      */
-    private User userFromCertificate(String username, X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
+    private User userFromCertificate(
+        String username, 
+        X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
     {
         final var user = userService.userByUsername(username);
-        final var countryCode = Objects.requireNonNull(CertificateData.getSubjectCountryCode(userCertificate));
+        final var issuerCountryCode = issuerCountryCode(userCertificate);
         final var rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
-        final var firstName = rawFirstName.substring(0, rawFirstName.indexOf(" "));
+        final var firstName = rawFirstName.contains(" ") ? rawFirstName.substring(0, rawFirstName.indexOf(" ")) : rawFirstName;
         final var lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
         final var nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
         final var rawBirthYear = Integer.parseInt(nrn.substring(0, 2));
@@ -109,8 +112,7 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
                 birthMonth,
                 birthDay);
         }
-        if (
-            countryCode.equals("BE") 
+        if (issuerCountryCode.equals("BE")
             && firstName.equals(user.firstName())
             && lastName.equals(user.lastName())
             && dateOfBirth.isEqual(user.dateOfBirth())
@@ -121,8 +123,22 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(User user)
+    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(final User user)
     {
         return tenantService.tenantWithUserAuthority(user.id(), Boolean.TRUE);
+    }
+
+    private String issuerCountryCode(final X509Certificate userCertificate)
+    {
+        final String issuerName = userCertificate.getIssuerX500Principal().getName();
+        String countryCode = null;
+        String[] parts = issuerName.split(",");
+        for (String part : parts) {
+            if (part.trim().startsWith("C=")) {
+                countryCode = part.trim().substring(2);
+                break;
+            }
+        }
+        return countryCode;
     }
 }
