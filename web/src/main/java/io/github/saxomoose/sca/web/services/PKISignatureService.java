@@ -70,7 +70,7 @@ public class PKISignatureService {
         final var path = String.format(
             "%s/%s/%s/%s",
             System.getProperty("user.dir"), 
-            Path.WORKBENCH,
+            Path.DSS_WORKBENCH,
             bucket, 
             fileUUID);
         final var file = new File(path);
@@ -113,7 +113,7 @@ public class PKISignatureService {
             "%s:%s/%s/%s/%s",
             "file",
             System.getProperty("user.dir"),
-            Path.WORKBENCH,
+            Path.DSS_WORKBENCH,
             bucket,
             fileUUID);
         final var file = resourceLoader.getResource(path).getFile();
