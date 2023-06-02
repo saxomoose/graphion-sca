@@ -50,14 +50,14 @@ public class PKIConfiguration {
      * Specify which **intermediate** certificate authorities (CAs) are trusted to issue the eID
      * authentication and OCSP responder certificates.
      */
-    public X509Certificate[] trustedCACertificates() 
+    public X509Certificate[] belgianCACertificates() 
     {
         List<X509Certificate> caCertificates = new ArrayList<>();
+        final Iterable<Result<Item>> certListing = minioService.listObjects(
+                environment.getProperty("objectstorage.default-bucket"),
+                Path.BELGIUM_CERTS.toString());
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            final Iterable<Result<Item>> certListing = minioService.listObjects(
-                environment.getProperty("objectstorage.default-bucket"),
-                Path.CERTS.toString());
             for (Result<Item> result : certListing) {
                 X509Certificate caCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
@@ -71,11 +71,11 @@ public class PKIConfiguration {
                     logger.error(exception.getMessage());
                 }
             }
+            return caCertificates.toArray(new X509Certificate[0]);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        return caCertificates.toArray(new X509Certificate[0]);
     }
 
     /**
@@ -87,7 +87,7 @@ public class PKIConfiguration {
         try {
             AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
                 .withSiteOrigin(URI.create(environment.getProperty("web-eid-auth-token.validation.local-origin")))
-                .withTrustedCertificateAuthorities(trustedCACertificates());
+                .withTrustedCertificateAuthorities(belgianCACertificates());
             if (environment.getProperty("spring.profiles.active").equals("dev")) {
                 validatorBuilder = validatorBuilder.withoutUserCertificateRevocationCheckWithOcsp();
             }

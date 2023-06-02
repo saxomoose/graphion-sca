@@ -25,6 +25,7 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.spi.DSSUtils;
+import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource;
 import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
@@ -35,6 +36,7 @@ import io.github.saxomoose.sca.web.utils.Tuple;
 @Service
 public class PKISignatureService {
     private final AIASource aiaSource;
+    private final CommonTrustedCertificateSource trustedCertificateSource;
     private final MinIOService minioService;
     private final PAdESService padesService;
     private final RedisService redisService;
@@ -43,11 +45,13 @@ public class PKISignatureService {
     @Autowired
     public PKISignatureService(
         AIASource aiaSource,
+        CommonTrustedCertificateSource trustedCertificateSource,
         MinIOService minioService, 
         PAdESService padesService, 
         RedisService redisService, 
         ResourceLoader resourceLoader) {
         this.aiaSource = aiaSource;
+        this.trustedCertificateSource = trustedCertificateSource;
         this.minioService = minioService;
         this.padesService = padesService;
         this.redisService = redisService;
@@ -74,15 +78,17 @@ public class PKISignatureService {
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         final var x509Certificate = signatureCertificate.toX509Certificate();
         final var certificateToken = new CertificateToken(x509Certificate);
-        final var redo = aiaSource.getCertificatesByAIA(certificateToken);
-        final var test = x509Certificate.getIssuerX500Principal();
+        // final CertificateToken rootCACertificate = aiaSource.getCertificatesByAIA(certificateToken).stream().findFirst().get();
+        // final CertificateToken intermediateCACertificate = 
+        //     trustedCertificateSource.getBySubject(
+        //         new X500PrincipalHelper(x509Certificate.getIssuerX500Principal())).stream().findFirst().get();;
         // final var digestAlgorithm = signatureCertificate.supportedAlgorithmNames().contains("SHA-384") ? DigestAlgorithm.SHA384 : DigestAlgorithm.SHA256;
         final var parameters = new PAdESSignatureParameters();
         // Double reserved space for signature. https://ec.europa.eu/digital-building-blocks/tracker/browse/DSS-3030
         // parameters.setContentSize(9472 * 2);
         parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
         parameters.setSigningCertificate(certificateToken);
-                
+        // parameters.setCertificateChain(List.of(rootCACertificate, intermediateCACertificate));
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         final var toSignDocument = new FileDocument(file);
         final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);

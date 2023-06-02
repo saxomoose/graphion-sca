@@ -1,8 +1,9 @@
 package io.github.saxomoose.sca.web.enums;
 
 public enum Path {
-    CERTS("certs"),
+    BELGIUM_CERTS("certs/belgium"),
     FILES("files"),
+    OJ_CERTS("certs/oj"),
     SIGNED("signed"),
     WORKBENCH("workbench");
 
