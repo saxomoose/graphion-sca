@@ -4,7 +4,6 @@ import java.io.File;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,18 +68,17 @@ public class DSSConfiguration {
 
     @Bean
 	public CertificateVerifier certificateVerifier() {
-        final TLValidationJob job = job();
-        final var ojCertificateSource = new TrustedListsCertificateSource();
-        job.setTrustedListCertificateSource(ojCertificateSource);
-        job.onlineRefresh();
+        final TLValidationJob job = lotlJob();
+        final var ojCertificates = new TrustedListsCertificateSource();
+        job.setTrustedListCertificateSource(ojCertificates);
+        job.offlineRefresh();
 		final var certificateVerifier = new CommonCertificateVerifier();
-		certificateVerifier.setTrustedCertSources(ojCertificateSource, belgianCACertificates());
+		certificateVerifier.setTrustedCertSources(ojCertificates, belgianCACertificates());
         certificateVerifier.setAIASource(aiaSource());
         certificateVerifier.setCrlSource(crlSource());
         certificateVerifier.setOcspSource(oscpSource());
         certificateVerifier.setDefaultDigestAlgorithm(DigestAlgorithm.SHA256);
         certificateVerifier.setRevocationDataLoadingStrategyFactory(new OCSPFirstRevocationDataLoadingStrategyFactory());
-
 		// Default configs
 		certificateVerifier.setAlertOnMissingRevocationData(new ExceptionOnStatusAlert());
 		certificateVerifier.setCheckRevocationForUntrustedChains(false);
@@ -123,7 +121,7 @@ public class DSSConfiguration {
         return tspSource;
     }
 
-	public TLValidationJob job() {
+	public TLValidationJob lotlJob() {
 		TLValidationJob job = new TLValidationJob();
 		job.setTrustedListCertificateSource(trustedListSource());
 		job.setListOfTrustedListSources(listOfTrustedListSources());
@@ -137,16 +135,15 @@ public class DSSConfiguration {
 	}
 
     public LOTLSource[] listOfTrustedListSources() {
-		List<LOTLSource> lotlSourceList = new ArrayList<>();
+		final var lotlSourceList = new ArrayList<LOTLSource>();
 		lotlSourceList.add(europeanLOTL());
 		return lotlSourceList.toArray(new LOTLSource[0]);
 	}
 
     public LOTLSource europeanLOTL() {
-		LOTLSource lotlSource = new LOTLSource();
+		final var lotlSource = new LOTLSource();
 		lotlSource.setUrl(environment.getProperty("dss.lotl.url"));
 		lotlSource.setCertificateSource(ojCertificates());
-		lotlSource.setPivotSupport(false);
 		return lotlSource;
 	}
 
@@ -190,11 +187,14 @@ public class DSSConfiguration {
 	}
 
 	public File tlCacheDirectory() {
-		File rootFolder = new File(System.getProperty("java.io.tmpdir"));
-		File tslCache = new File(rootFolder, "dss-tsl-loader");
-		if (tslCache.mkdirs()) {
-			logger.info("TL Cache folder : {}", tslCache.getAbsolutePath());
-		}
+        final var path = String.format(
+            "%s/%s",
+            System.getProperty("user.dir"),
+            Path.DSS_TLCACHE);
+		final var tslCache = new File(path);
+        tslCache.mkdirs();
 		return tslCache;
 	}
+
+    
 }
