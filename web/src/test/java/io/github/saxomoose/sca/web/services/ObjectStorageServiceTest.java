@@ -24,7 +24,7 @@ public class ObjectStorageServiceTest {
 
     @BeforeAll
     public void setup() {
-        bucket = "graphion";
+        bucket = "graphion-test";
     }
 
     @AfterAll

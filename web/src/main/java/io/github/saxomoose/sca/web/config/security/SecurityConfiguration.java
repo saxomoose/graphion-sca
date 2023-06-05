@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +15,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.saxomoose.sca.web.config.security.authorization.PKISignatureAuthorizationManager;
 import io.github.saxomoose.sca.web.services.ValidationService;
 
 @Configuration 
@@ -47,6 +49,7 @@ public class SecurityConfiguration {
         final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
         final PKIAuthenticationProvider pkiAuthenticationProvider,
         final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler,
+        final PKISignatureAuthorizationManager pkiSignatureAuthorizationManager,
         final ValidationService validationService) throws Exception
     {
         httpSecurity
@@ -81,6 +84,7 @@ public class SecurityConfiguration {
                     "/pki/challenge").permitAll()
                 // .requestMatchers("/closings", "/documents").access(new WebExpressionAuthorizationManager("hasAnyRole('ADMIN', 'USER', 'SIGNATORY')"))
                 // .anyRequest().hasRole("ADMIN"));
+                .requestMatchers(HttpMethod.POST, "/pki/sign/dtbsr/{rawClosingId}/{rawFileUUID}").access(pkiSignatureAuthorizationManager)
                 .anyRequest().permitAll());
         return httpSecurity.build();
     }

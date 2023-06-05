@@ -15,6 +15,8 @@ public class Closing {
     private final LocalDateTime timestamp;
     private final ZoneId zoneId;
     private final String location;
+    private final Boolean invitesSent;
+    private final LocalDateTime expirationTimestamp;
 
     private Long createdBy;
     private Long lastUpdatedBy;
@@ -25,15 +27,23 @@ public class Closing {
 
     public static Closing withId(Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {
-        return new Closing(null, id, name, timestamp, zoneId, location);
+        return new Closing(null, id, name, timestamp, zoneId, location, null, null);
     }
     
     public static Closing of(Long tenantId, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
     {
-        return new Closing(tenantId, null, name, timestamp, zoneId, location);
+        return new Closing(tenantId, null, name, timestamp, zoneId, location, null, null);
     }
 
-    public Closing(Long tenant, Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
+    public Closing(
+        Long tenant, 
+        Long id, 
+        String name, 
+        LocalDateTime timestamp, 
+        ZoneId zoneId, 
+        String location, 
+        Boolean invitesSent,
+        LocalDateTime expirationTimestamp)
     {
         this.tenant = tenant;
         this.id = id;
@@ -41,6 +51,8 @@ public class Closing {
         this.zoneId = zoneId;
         this.timestamp = timestamp;
         this.location = location;
+        this.invitesSent = invitesSent;
+        this.expirationTimestamp = expirationTimestamp;
     }
 
     public Long tenantId()
@@ -78,6 +90,16 @@ public class Closing {
         return location;
     }
 
+    public Boolean invitesSent()
+    {
+        return invitesSent;
+    }
+
+    public LocalDateTime expirationTimestamp()
+    {
+        return expirationTimestamp;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -108,9 +130,4 @@ public class Closing {
         users.add(user);
         return this;
     }
-
-
-
-    
-
 }

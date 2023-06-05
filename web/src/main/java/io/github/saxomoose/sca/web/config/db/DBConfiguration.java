@@ -22,7 +22,7 @@ import io.github.saxomoose.sca.web.models.User;
 
 @Configuration
 @EnableTransactionManagement
-public class PersistenceConfiguration {
+public class DBConfiguration {
     @Bean
     AuditorAware<Long> auditorProvider() {
         return new AuditorAware<Long>() {
@@ -64,5 +64,5 @@ public class PersistenceConfiguration {
             .registerRowMapper(LegalPerson.class, new LegalPersonRowMapper())
             .registerRowMapper(Closing.class, new ClosingRowMapper())
             .registerRowMapper(Document.class, new DocumentRowMapper());
-}
+    }
 }

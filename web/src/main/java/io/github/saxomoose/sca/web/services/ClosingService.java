@@ -1,5 +1,6 @@
 package io.github.saxomoose.sca.web.services;
 
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,14 @@ public class ClosingService {
     }
 
     // Aggregate
+    public Long count() {
+        final var sql = """
+        SELECT COUNT(*)
+        FROM sca.closing;
+        """;
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, Long.class);
+    }
+
     public Long countClosingsByTenant(Long tenantId) {
         final var sql = """
         SELECT COUNT(*)
@@ -100,7 +109,7 @@ public class ClosingService {
                     rs.getLong("document_id"),
                     rs.getString("filename"),
                     UUID.fromString(rs.getString("file_uuid")));
-                final var signatureTimestamp = rs.getTimestamp("signature_timestamp");
+                final Timestamp signatureTimestamp = rs.getTimestamp("signature_timestamp");
                 if (signatureTimestamp != null) {
                     document.setSignatureTimestamp(signatureTimestamp.toLocalDateTime());
                 } else {
@@ -123,13 +132,31 @@ public class ClosingService {
         return new ClosingToIndex(closingPage, users, documents);
 
     }
+
+    public Boolean userIsSignatory(Long closingId, Long userId, UUID fileUUID)
+    {
+        final var sql = """
+            SELECT COUNT(*) AS match_count
+            FROM sca.closing_signatory AS cs
+            JOIN sca.document AS d ON d.id = cs.document
+            WHERE cs.closing = :closingId AND cs.signatory = :userId AND d.file_uuid = :fileUUID;        
+        """;
+        final var params = new MapSqlParameterSource(
+            Map.of(
+                "closingId", closingId,
+                "userId", userId,
+                "fileUUID", fileUUID
+            ));
+        final var count = namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
+        return count == 0L ? Boolean.FALSE : Boolean.TRUE;
+    }
     
     // Update
     public Closing insert(Closing closing, Long principalId)
     {
         final var sql = """
         INSERT INTO sca.closing
-        VALUES (:tenantId, DEFAULT, :name, :timestamp, :zoneId, :location, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
+        VALUES (:tenantId, DEFAULT, :name, :timestamp, :zoneId, :location, DEFAULT, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
         final var params = new MapSqlParameterSource(

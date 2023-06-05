@@ -5,10 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.ListObjectsArgs;
-import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
@@ -28,33 +26,6 @@ public class MinIOService {
     public MinIOService(MinioClient minioClient)
     {
         this.minioClient = minioClient;
-    }
-
-    // private byte[] getFileAsBytes(String bucket, String name) {
-    // byte[] outBytes = null;
-    // InputStream inputStream = null;
-    // try {
-    // final var statObjectResponse = statObject(name);
-    // final var size = statObjectResponse.size();
-    // inputStream = getFileAsStream()
-    // }
-    // }
-
-    /**
-     * Should only create 1 bucket per tenant.
-     * TODO: bucket should be configured on tenant creation.
-     */
-    public void configureBucket(String bucket)
-    {
-        try {
-            final Boolean bucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
-            if (!bucketExists) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
-            }
-        } catch (Exception exception) {
-            logger.error(exception.getMessage());
-            throw new RuntimeException(exception);
-        }
     }
 
     public StatObjectResponse statObject(final String bucket, final String path)

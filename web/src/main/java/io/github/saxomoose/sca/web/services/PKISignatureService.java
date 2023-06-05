@@ -25,8 +25,6 @@ import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.spi.DSSUtils;
-import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource;
-import eu.europa.esig.dss.spi.x509.aia.AIASource;
 import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.Path;
@@ -35,8 +33,6 @@ import io.github.saxomoose.sca.web.utils.Tuple;
 
 @Service
 public class PKISignatureService {
-    private final AIASource aiaSource;
-    private final CommonTrustedCertificateSource trustedCertificateSource;
     private final MinIOService minioService;
     private final PAdESService padesService;
     private final RedisService redisService;
@@ -44,14 +40,10 @@ public class PKISignatureService {
 
     @Autowired
     public PKISignatureService(
-        AIASource aiaSource,
-        CommonTrustedCertificateSource trustedCertificateSource,
         MinIOService minioService, 
         PAdESService padesService, 
         RedisService redisService, 
         ResourceLoader resourceLoader) {
-        this.aiaSource = aiaSource;
-        this.trustedCertificateSource = trustedCertificateSource;
         this.minioService = minioService;
         this.padesService = padesService;
         this.redisService = redisService;
@@ -66,7 +58,7 @@ public class PKISignatureService {
         // redisService.lockFile(fileUUID);
         final var inputStream = minioService.objectAsStream(
             bucket, 
-            String.format("/%s/%s", Path.FILES, fileUUID));
+            String.format("/%s/%s", Path.CLOSING_DOCUMENTS, fileUUID));
         final var path = String.format(
             "%s/%s/%s/%s",
             System.getProperty("user.dir"), 
@@ -78,17 +70,9 @@ public class PKISignatureService {
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         final var x509Certificate = signatureCertificate.toX509Certificate();
         final var certificateToken = new CertificateToken(x509Certificate);
-        // final CertificateToken rootCACertificate = aiaSource.getCertificatesByAIA(certificateToken).stream().findFirst().get();
-        // final CertificateToken intermediateCACertificate = 
-        //     trustedCertificateSource.getBySubject(
-        //         new X500PrincipalHelper(x509Certificate.getIssuerX500Principal())).stream().findFirst().get();;
-        // final var digestAlgorithm = signatureCertificate.supportedAlgorithmNames().contains("SHA-384") ? DigestAlgorithm.SHA384 : DigestAlgorithm.SHA256;
         final var parameters = new PAdESSignatureParameters();
-        // Double reserved space for signature. https://ec.europa.eu/digital-building-blocks/tracker/browse/DSS-3030
-        // parameters.setContentSize(9472 * 2);
-        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
+        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
         parameters.setSigningCertificate(certificateToken);
-        // parameters.setCertificateChain(List.of(rootCACertificate, intermediateCACertificate));
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         final var toSignDocument = new FileDocument(file);
         final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
@@ -109,6 +93,7 @@ public class PKISignatureService {
         final PAdESSignatureParameters parameters,
         final SignaturePayload signature) throws CertificateException, IOException
     {   
+        
         final var path = String.format(
             "%s:%s/%s/%s/%s",
             "file",
@@ -123,16 +108,21 @@ public class PKISignatureService {
         final var signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
         Assert.isTrue(padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate()), "The signature value is invalid.");
         final DSSDocument signedDocument = padesService.signDocument(toSignDocument, parameters, signatureValue);
+        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LT);
+        final var extendedDocument = padesService.extendDocument(signedDocument, parameters);
         minioService.storeObject(
             bucket, 
             String.format("/%s/%s", Path.SIGNED, fileUUID),
             signedDocument.openStream());
+        minioService.storeObject(
+                bucket, 
+                String.format("/%s/%s-%s", Path.SIGNED, fileUUID, "extended-lt"),
+                extendedDocument.openStream());
         file.delete();
         final var parentPath = Paths.get(file.getAbsolutePath()).getParent();
         if (!Files.list(parentPath).findFirst().isPresent()) {
             Files.delete(parentPath);
         }
-
         //redisService.unlockFile(fileUUID);
         return signedDocument;
     }

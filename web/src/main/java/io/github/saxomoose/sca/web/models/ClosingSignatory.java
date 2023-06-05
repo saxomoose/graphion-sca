@@ -1,14 +1,14 @@
 package io.github.saxomoose.sca.web.models;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class ClosingSignatory {
     private final Long closing;
     private final Long signatory;
     private Long document;
-    private Instant signatureTimestamp; 
+    private LocalDateTime signatureTimestamp; 
 
-    public ClosingSignatory(Long closing, Long signatory, Long document, Instant signatoryTimestamp) 
+    public ClosingSignatory(Long closing, Long signatory, Long document, LocalDateTime signatoryTimestamp) 
     {
         this.closing = closing;
         this.signatory = signatory;
@@ -30,7 +30,7 @@ public class ClosingSignatory {
         return document;
     }
 
-    public Instant signatureTimestamp() 
+    public LocalDateTime signatureTimestamp() 
     {
         return signatureTimestamp;
     }

@@ -6,6 +6,7 @@
     const signatureButtonElList = document.querySelectorAll(".signature-button");
     signatureButtonElList.forEach((signatureButtonEl) => {
         const fileUUID = signatureButtonEl.id;
+        const closingId = signatureButtonEl.closest(".modal").classList.item(2).split("-")[2];
 
         signatureButtonEl.addEventListener("click", async () => {
             webeiderrors.hideErrorMessage();
@@ -13,7 +14,7 @@
 
             try {
                 const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
-                const prepareSigningResponse = await fetch(`/pki/sign/dtbsr/${fileUUID}`, {
+                const prepareSigningResponse = await fetch(`/pki/sign/dtbsr/${closingId}/${fileUUID}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -26,7 +27,7 @@
 
                 const { signature, signatureAlgorithm } = await webeid.sign(certificate, hash, hashFunction, { lang });
 
-                const finalizeSigningResponse = await fetch(`/pki/sign/apply/${fileUUID}`, {
+                const finalizeSigningResponse = await fetch(`/pki/sign/apply/${closingId}/${fileUUID}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -40,7 +41,7 @@
                 webeiderrors.showErrorMessage(error);
                 throw error;
             } finally {
-                signButton.disabled = false;
+                signatureButtonEl.disabled = false;
             }
         });
     });
