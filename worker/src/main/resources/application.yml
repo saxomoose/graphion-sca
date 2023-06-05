@@ -27,7 +27,7 @@ objectstorage:
   endpoint: "http://127.0.0.1:9000"
   accesskey: "nynxi0nT2EwTu67v"
   secretkey: "R77wIak5Ay183kbvbwTpwVj7mmSUIYrQ"
-  default-bucket: "sca"
+  admin-bucket: "sca"
 
 ---
 spring:
@@ -48,7 +48,7 @@ objectstorage:
   endpoint: "http://127.0.0.1:9010"
   accesskey: "nynxi0nT2EwTu67v"
   secretkey: "R77wIak5Ay183kbvbwTpwVj7mmSUIYrQ"
-  default-bucket: "sca"
+  admin-bucket: "sca"
 ---
 spring:
   config:

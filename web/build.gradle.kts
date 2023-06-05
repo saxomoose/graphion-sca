@@ -59,9 +59,9 @@ dependencies {
 // jvm
 tasks.bootRun {
     dependsOn(
-            tasks.findByName("resetDatabase"),
+            // tasks.findByName("resetDatabase"),
             tasks.findByName("redisFlushall"),
-            tasks.findByName("resetDefaultBucket")
+            // tasks.findByName("resetDefaultBucket")
     )
     jvmArgs (
             "-Dspring.output.ansi.enabled=ALWAYS"
@@ -104,7 +104,7 @@ tasks.register<Exec>("redisFlushall") {
 }
 
 tasks.register<Exec>("resetDefaultBucket") {
-    commandLine("docker", "exec", "graphion-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion/files")
+    commandLine("docker", "exec", "graphion-minio-client-1", "mc", "rm", "--recursive", "--force", "minio-server/graphion-test/closing-documents")
 }
 
 tasks.register<Exec>("resetDatabaseTest") {

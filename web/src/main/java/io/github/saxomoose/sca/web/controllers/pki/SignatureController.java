@@ -43,7 +43,7 @@ public class SignatureController {
         this.validationService = validationService;
     }
 
-    @PostMapping(value = "/pki/sign/dtbsr/{rawFileUUID}", produces = "application/json")
+    @PostMapping(value = "/pki/sign/dtbsr/{rawClosingId}/{rawFileUUID}", produces = "application/json")
     public ResponseEntity<DigestPayload> dataToSign(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -61,7 +61,7 @@ public class SignatureController {
         return ResponseEntity.ok().body(tuple.first());
     }
 
-    @PostMapping(value = "/pki/sign/apply/{rawFileUUID}", produces = "application/json")
+    @PostMapping(value = "/pki/sign/apply/{rawClosingId}/{rawFileUUID}", produces = "application/json")
     public ResponseEntity sign(
         HttpServletRequest request,
         @PathVariable final String rawFileUUID,
@@ -73,7 +73,7 @@ public class SignatureController {
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final var parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");
         final DSSDocument signedDocument = pkiSignatureService.applySignature(bucket, fileUUID, parameters, signature);
-        pkiValidationService.validateSignature(signedDocument);
+        // pkiValidationService.validateSignature(signedDocument);
         return ResponseEntity.noContent().build();
     }
 }

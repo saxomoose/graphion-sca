@@ -16,7 +16,9 @@ public class ClosingRowMapper implements RowMapper<Closing> {
             rs.getString("name"),
             rs.getTimestamp("timestamp").toLocalDateTime(),
             ZoneId.of(rs.getString("zone_id")),
-            rs.getString("location"));
+            rs.getString("location"),
+            rs.getBoolean("invites_sent"),
+            rs.getTimestamp("expiration_timestamp").toLocalDateTime());
     }
     
 }

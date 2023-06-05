@@ -47,6 +47,8 @@ CREATE TABLE sca.closing (
     timestamp timestamp(6) NOT NULL,
     zone_id character varying(255) NOT NULL,
     location character varying(255) NOT NULL,
+    invites_sent boolean DEFAULT false,
+    expiration_timestamp timestamp(6) NOT NULL,
     created_by bigint NOT NULL,
     last_updated_by bigint NOT NULL,
     created_timestamp timestamp(6) NOT NULL,
@@ -106,7 +108,7 @@ CREATE TABLE sca.closing_signatory (
     closing bigint NOT NULL,
     signatory bigint NOT NULL,
     document bigint NOT NULL,
-    signature_timestamp timestamp(6) WITH time zone DEFAULT NULL,
+    signature_timestamp timestamp(6) DEFAULT NULL,
     CONSTRAINT pk_closing_signatory PRIMARY KEY (closing, signatory, document),
     CONSTRAINT fk_amkea6t1p36344x6jeb2652jf FOREIGN KEY (closing) REFERENCES sca.closing(id),
     CONSTRAINT fk_gv276xrnywepnpiw1h04johxf FOREIGN KEY (document) REFERENCES sca.document(id),
@@ -137,5 +139,31 @@ CREATE TRIGGER insert_update_timestamp
 BEFORE INSERT OR UPDATE ON sca.document
 FOR EACH ROW
 EXECUTE FUNCTION public.update_timestamps();
+
+CREATE OR REPLACE FUNCTION sca.set_default_expiration_timestamp() 
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.expiration_timestamp := NEW.timestamp + INTERVAL '30 days';
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_default_expiration_timestamp_trigger
+BEFORE INSERT OR UPDATE ON sca.closing
+FOR EACH ROW
+EXECUTE FUNCTION sca.set_default_expiration_timestamp();
+
+INSERT INTO sca.user
+    VALUES (1, true, 'Mathieu', 'Tulpinck', 'admin@graphion.eu', '1990-11-08', true, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+SELECT setval('sca.user_id_seq', 1);
+
+INSERT INTO sca.tenant
+    VALUES (1, 'graphion-test', 'graphion-test', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+SELECT setval('sca.tenant_id_seq', 1);
+
+INSERT INTO sca.tenant_user
+    VALUES (1, 1, 'ROLE_ADMIN', false);
 
 

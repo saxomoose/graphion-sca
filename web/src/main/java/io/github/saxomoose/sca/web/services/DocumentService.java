@@ -98,7 +98,7 @@ public class DocumentService {
 
     public InputStream fileAsStream(String bucket, UUID fileUUID)
     {
-        return minioService.objectAsStream(bucket, filePath(Path.FILES, fileUUID));
+        return minioService.objectAsStream(bucket, filePath(Path.CLOSING_DOCUMENTS, fileUUID));
     }
 
     private String filePath(Path path, final UUID fileUUID)
@@ -112,8 +112,7 @@ public class DocumentService {
     {
         final var documentToCreate = Document.of(tenant.id(), filename);
         final UUID fileUUID = insert(documentToCreate, principalId).fileUUID();
-        final String filePath = filePath(Path.FILES, fileUUID);
-        minioService.configureBucket(tenant.bucket());
+        final String filePath = filePath(Path.CLOSING_DOCUMENTS, fileUUID);
         minioService.storeObject(tenant.bucket(), filePath, inputStream);
         if (minioService.statObject(tenant.bucket(), filePath).size() != clientSideFileSize) {
             logger.error("The file size stored in the bucket does not match the client-side file size.");

@@ -34,6 +34,7 @@ import eu.europa.esig.dss.tsl.source.LOTLSource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.validation.OCSPFirstRevocationDataLoadingStrategyFactory;
+import eu.europa.esig.dss.validation.RevocationDataVerifier;
 import io.github.saxomoose.sca.web.config.security.PKIConfiguration;
 import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.services.MinIOService;
@@ -78,15 +79,16 @@ public class DSSConfiguration {
         certificateVerifier.setCrlSource(crlSource());
         certificateVerifier.setOcspSource(oscpSource());
         certificateVerifier.setDefaultDigestAlgorithm(DigestAlgorithm.SHA256);
+        final var revocationDataVerifier = RevocationDataVerifier.createDefaultRevocationDataVerifier();
+        certificateVerifier.setRevocationDataVerifier(revocationDataVerifier);
         certificateVerifier.setRevocationDataLoadingStrategyFactory(new OCSPFirstRevocationDataLoadingStrategyFactory());
 		// Default configs
 		certificateVerifier.setAlertOnMissingRevocationData(new ExceptionOnStatusAlert());
-		certificateVerifier.setCheckRevocationForUntrustedChains(false);
+		certificateVerifier.setCheckRevocationForUntrustedChains(true);
 
 		return certificateVerifier;
 	}
 
-    @Bean
 	public CommonTrustedCertificateSource belgianCACertificates() {
 		final var certificateSource = new CommonTrustedCertificateSource();
         for (X509Certificate caCertificate : pkiConfiguration.belgianCACertificates()) {
@@ -96,7 +98,6 @@ public class DSSConfiguration {
 		return certificateSource;
 	}
 
-    @Bean
     public AIASource aiaSource()
     {
         return new DefaultAIASource();
@@ -151,15 +152,15 @@ public class DSSConfiguration {
     {
         final var certificateSource = new CommonTrustedCertificateSource();
         final Iterable<Result<Item>> certListing = minioService.listObjects(
-                environment.getProperty("objectstorage.default-bucket"),
-                Path.OJ_CERTS.toString());
+                environment.getProperty("objectstorage.admin-bucket"),
+                Path.CERTS_OJ.toString());
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             for (Result<Item> result : certListing) {
                 X509Certificate ojCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         minioService.objectAsStream(
-                            environment.getProperty("objectstorage.default-bucket"), 
+                            environment.getProperty("objectstorage.admin-bucket"), 
                             result.get().objectName()));
                     certificateSource.addCertificate(new CertificateToken(ojCertificate));
             }
@@ -190,7 +191,7 @@ public class DSSConfiguration {
         final var path = String.format(
             "%s/%s",
             System.getProperty("user.dir"),
-            Path.DSS_TLCACHE);
+            Path.DSS_TRUST_LISTS);
 		final var tslCache = new File(path);
         tslCache.mkdirs();
 		return tslCache;

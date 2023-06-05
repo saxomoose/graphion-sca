@@ -46,7 +46,7 @@
                                                             data-th-text="${closingSignatory.document.friendlyFilename}">
                                                         </td>
                                                         <td
-                                                            data-th-text="${#dates.format(closingSignatory.signatureTimestamp, 'yyyy-MM-dd HH:mm:ss')} ?: 'Not signed'">
+                                                            data-th-text="${#dates.format(closingSignatory.signatureTimestamp(), 'yyyy-MM-dd HH:mm:ss')} ?: 'Not signed'">
                                                         </td>
                                                     </tr>
                                                 </data-th-block>

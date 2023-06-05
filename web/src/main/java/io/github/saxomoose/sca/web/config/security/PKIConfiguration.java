@@ -54,15 +54,15 @@ public class PKIConfiguration {
     {
         List<X509Certificate> caCertificates = new ArrayList<>();
         final Iterable<Result<Item>> certListing = minioService.listObjects(
-                environment.getProperty("objectstorage.default-bucket"),
-                Path.BELGIUM_CERTS.toString());
+                environment.getProperty("objectstorage.admin-bucket"),
+                Path.CERTS_BELGIUM.toString());
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             for (Result<Item> result : certListing) {
                 X509Certificate caCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         minioService.objectAsStream(
-                            environment.getProperty("objectstorage.default-bucket"), 
+                            environment.getProperty("objectstorage.admin-bucket"), 
                             result.get().objectName()));
                 try {
                     caCertificate.checkValidity();
