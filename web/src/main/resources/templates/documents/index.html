@@ -10,7 +10,7 @@
         <div class="container-fluid">
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=3)}"></aside>
-                <main class="col-md-9">
+                <main class="col-md-10">
 
                     <nav class="d-flex flex-row-reverse">
                         <a data-th-href="@{/documents/create}"><img data-th-src="@{/svg/plus-circle.svg}" width="20"
@@ -62,8 +62,9 @@
     </div>
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
-    <div data-th-replace="~{fragments/toast-script}"></div>
-    <div data-th-replace="~{fragments/modal-script}"></div>
+    <script data-th-replace="~{fragments/modal-script}"></script>
+    <script data-th-replace="~{fragments/toast-script}"></script>
+    <script data-th-replace="~{fragments/tooltip-script}"></script>
 </body>
 
 </html>

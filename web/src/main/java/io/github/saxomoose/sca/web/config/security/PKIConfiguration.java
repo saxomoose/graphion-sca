@@ -29,7 +29,8 @@ public class PKIConfiguration {
     private final Environment environment;
     private final MinIOService minioService;
 
-    public PKIConfiguration(Environment environment, MinIOService minioService) {
+    public PKIConfiguration(Environment environment, MinIOService minioService) 
+    {
         this.environment = environment;
         this.minioService = minioService;
     }
@@ -46,7 +47,6 @@ public class PKIConfiguration {
     }
 
     /**
-     * TODO: evaluate whether loading should be refactored in configuration service.
      * Specify which **intermediate** certificate authorities (CAs) are trusted to issue the eID
      * authentication and OCSP responder certificates.
      */

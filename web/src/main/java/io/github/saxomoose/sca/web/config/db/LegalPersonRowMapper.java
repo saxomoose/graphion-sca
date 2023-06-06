@@ -8,7 +8,8 @@ import io.github.saxomoose.sca.web.models.LegalPerson;
 public class LegalPersonRowMapper implements RowMapper<LegalPerson> {
 
     @Override
-    public LegalPerson mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public LegalPerson mapRow(ResultSet rs, int rowNum) throws SQLException 
+    {
         return new LegalPerson(
             rs.getLong("tenant"),
             rs.getLong("id"),

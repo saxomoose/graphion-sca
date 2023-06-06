@@ -21,7 +21,8 @@ public class PKISignatureAuthorizationManager implements AuthorizationManager<Re
     }
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) 
+    {
         final var userId = ((User) authentication.get().getPrincipal()).id();
         final var rawClosingId = Long.parseLong(context.getVariables().get("rawClosingId"));
         final var rawFileUUID = UUID.fromString(context.getVariables().get("rawFileUUID"));

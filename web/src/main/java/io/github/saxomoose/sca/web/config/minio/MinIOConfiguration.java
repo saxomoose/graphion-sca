@@ -8,7 +8,8 @@ import io.minio.MinioClient;
 @Configuration
 public class MinIOConfiguration {
     @Bean
-    public MinioClient minioClient(final Environment environment) {
+    public MinioClient minioClient(final Environment environment) 
+    {
         return new MinioClient.Builder()
             .credentials(environment.getProperty("objectstorage.accesskey"),
             environment.getProperty("objectstorage.secretkey"))

@@ -7,7 +7,8 @@ import io.github.saxomoose.sca.web.models.User;
 
 public class UserRowMapper implements RowMapper<User> {
     @Override
-    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public User mapRow(ResultSet rs, int rowNum) throws SQLException 
+    {
         return new User(
             rs.getLong("id"),
             rs.getBoolean("enabled"),

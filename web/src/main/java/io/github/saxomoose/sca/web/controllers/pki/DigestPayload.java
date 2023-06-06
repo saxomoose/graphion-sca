@@ -8,7 +8,8 @@ public class DigestPayload {
 
     public DigestPayload() { }
     
-    public DigestPayload(String base64Digest, String digestAlgorithm) {
+    public DigestPayload(String base64Digest, String digestAlgorithm) 
+    {
         this.base64Digest = base64Digest;
         this.digestAlgorithm = digestAlgorithm;
     }

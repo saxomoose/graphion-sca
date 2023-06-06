@@ -57,7 +57,8 @@ public class DBConfiguration {
     }
 
     @Bean
-    RowMapperCollection rowMappers() {
+    RowMapperCollection rowMappers() 
+    {
         return new RowMapperCollection()
             .registerRowMapper(User.class, new UserRowMapper())
             .registerRowMapper(Tenant.class, new TenantRowMapper())

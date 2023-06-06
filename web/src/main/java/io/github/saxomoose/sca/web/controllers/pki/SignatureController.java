@@ -73,7 +73,7 @@ public class SignatureController {
         final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final var parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");
         final DSSDocument signedDocument = pkiSignatureService.applySignature(bucket, fileUUID, parameters, signature);
-        // pkiValidationService.validateSignature(signedDocument);
+        pkiValidationService.validateSignature(signedDocument);
         return ResponseEntity.noContent().build();
     }
 }

@@ -6,7 +6,8 @@ public class AuthenticationSuccessPayload {
     @JsonProperty("successURL")
     private final String successURL;
 
-    public AuthenticationSuccessPayload(String successURL) {
+    public AuthenticationSuccessPayload(String successURL) 
+    {
         this.successURL = successURL;
     }
 }

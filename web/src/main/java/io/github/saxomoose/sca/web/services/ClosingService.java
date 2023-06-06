@@ -148,7 +148,7 @@ public class ClosingService {
                 "fileUUID", fileUUID
             ));
         final var count = namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
-        return count == 0L ? Boolean.FALSE : Boolean.TRUE;
+        return count == 1L ? Boolean.TRUE : Boolean.FALSE;
     }
     
     // Update

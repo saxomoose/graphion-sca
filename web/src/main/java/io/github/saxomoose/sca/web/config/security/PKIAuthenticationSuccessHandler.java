@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import jakarta.servlet.ServletException;
@@ -17,8 +18,6 @@ import jakarta.servlet.http.HttpSession;
 @Component
 public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private static final Logger logger = LoggerFactory.getLogger(PKIAuthenticationSuccessHandler.class);
-    private static final String CLOSINGS_URL  = "/closings";
-    private static final String TENANTS_URL = "/tenants";
 
     private final HttpSession httpSession;
     private final ObjectMapper objectMapper;
@@ -40,9 +39,12 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         String successURL;
         if(defaultTenant != null) {
             httpSession.setAttribute("tenant", defaultTenant);
-            successURL = CLOSINGS_URL;
+            successURL = String.format("/%s", Path.CLOSINGS);
         } else {
-            successURL = String.format("%s/%s", TENANTS_URL, ((User) authentication.getPrincipal()).id());
+            successURL = String.format(
+                "/%s/%s", 
+                Path.TENANTS, 
+                ((User) authentication.getPrincipal()).id());
         }   
 
         response.setStatus(HttpServletResponse.SC_OK);

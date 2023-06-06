@@ -16,8 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JDBCAuthenticationFailureHandler
         implements org.springframework.security.web.authentication.AuthenticationFailureHandler {
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException exception) throws IOException, ServletException
+    public void onAuthenticationFailure(
+        HttpServletRequest request, 
+        HttpServletResponse response,
+        AuthenticationException exception) throws IOException, ServletException
     {
         final var flashMap = new FlashMap();
         final var flashMapManager = new SessionFlashMapManager();

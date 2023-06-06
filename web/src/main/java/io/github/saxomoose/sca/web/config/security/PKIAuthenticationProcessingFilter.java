@@ -69,24 +69,4 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
         }
         return getAuthenticationManager().authenticate(token);
     }
-
-    // TODO: override successfulAuthentication
-
-    // @Override
-    // public void successfulAuthentication(
-    // HttpServletRequest request,
-    // HttpServletResponse response,
-    // FilterChain chain,
-    // Authentication authResult) throws IOException, ServletException
-    // {
-    // final var context = super.securityContextHolderStrategy.createEmptyContext();
-    // context.setAuthentication(authResult);
-    // this.securityContextHolderStrategy.setContext(context);
-    // this.securityContextRepository.saveContext(context, request, response);
-    // if (this.logger.isDebugEnabled()) {
-    // this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
-    // }
-    // this.successHandler.onAuthenticationSuccess(request, response, authResult);
-    // }
-
 }

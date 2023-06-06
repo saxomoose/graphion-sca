@@ -91,7 +91,8 @@ public class DocumentController {
         final UUID fileUUID = validationService.uuid(rawFileUUID);
         // TODO validate tenantId (uuid)
         final String filename = documentService.documentByTenantAndFileUUID(tenant.id(), fileUUID).filename();
-        final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
+        final Resource inputStreamResource = 
+            new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
@@ -129,20 +130,14 @@ public class DocumentController {
         InputStream rawFileInputStream = null;
         for (Part part : parts) {
             if (part.getName().equals("fileSize")) {
-                final var bytes = part.getInputStream().readAllBytes();
-                if (bytes.length == 0) {
-                    throw new BusinessLogicException("document.file.empty");
-                }
+                final byte[] bytes = part.getInputStream().readAllBytes();
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
             } else if (part.getName().equals("filename")) {
                 rawFilename =
                         new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             } else if (part.getName().equals("file")) {
-                if (!part.getContentType().equals(MediaType.APPLICATION_PDF.toString())) {
-                    throw new BusinessLogicException("document.file.unsupported_file_format");
-                } else if (part.getSize() != clientSideFileSize) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                }
+                validationService.documentFileFormat(part.getContentType());
+                validationService.documentFileSize(part.getSize(), clientSideFileSize);
                 rawFileInputStream = part.getInputStream();
             }
         }
@@ -151,14 +146,14 @@ public class DocumentController {
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
         final var tenant = (Tenant) httpSession.getAttribute("tenant");
-        final String filename = validationService.documentArgs(rawFilename);
+        final String filename = validationService.documentFilename(rawFilename);
         documentService.create(tenant, ((User) request.getUserPrincipal()).id(), filename, clientSideFileSize, rawFileInputStream);
         redirectAttributes.addFlashAttribute(
             "notifications",
             List.of(new Notification(
                 Notification.Type.SUCCESS, 
-                "notification.success",
-                "documents.create.success")));
+                "document.create",
+                "document.create")));
         return new RedirectView("/documents");
     }
 
@@ -172,11 +167,10 @@ public class DocumentController {
         final String path = URI.create(request.getHeader("referer")).getPath();
         redirectAttributes.addFlashAttribute(
             "notifications", 
-            List.of(
-                new Notification(
-                Notification.Type.ERROR,
-                "notification.error.validation",
-                businessLogicException.messageKey())));
+            List.of(new Notification(
+                    businessLogicException.notification().type(),
+                    businessLogicException.notification().header(),
+                    businessLogicException.notification().body())));
         return new RedirectView(path);
     }
 }

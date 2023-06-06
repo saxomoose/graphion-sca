@@ -1,13 +1,16 @@
 package io.github.saxomoose.sca.web.exceptions;
 
-public class BusinessLogicException extends Exception {
-    private final String messageKey;
+import io.github.saxomoose.sca.web.utils.Notification;
 
-    public BusinessLogicException(String messageKey) {
-        this.messageKey = messageKey;
+public class BusinessLogicException extends Exception {
+    private final Notification notification;
+
+    public BusinessLogicException(Notification notification)
+    {
+        this.notification = notification;
     }
 
-    public String messageKey() {
-        return this.messageKey;
+    public Notification notification() {
+        return notification;
     }
 }

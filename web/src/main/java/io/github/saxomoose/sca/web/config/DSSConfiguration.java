@@ -29,13 +29,13 @@ import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource;
 import eu.europa.esig.dss.spi.x509.revocation.crl.CRLSource;
 import eu.europa.esig.dss.spi.x509.revocation.ocsp.OCSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
+import eu.europa.esig.dss.tsl.function.TLPredicateFactory;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
 import eu.europa.esig.dss.tsl.source.LOTLSource;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.validation.OCSPFirstRevocationDataLoadingStrategyFactory;
 import eu.europa.esig.dss.validation.RevocationDataVerifier;
-import io.github.saxomoose.sca.web.config.security.PKIConfiguration;
 import io.github.saxomoose.sca.web.enums.Path;
 import io.github.saxomoose.sca.web.services.MinIOService;
 import io.minio.Result;
@@ -46,35 +46,32 @@ public class DSSConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(DSSConfiguration.class);
 
     private final Environment environment;
+    private final File tlCacheDirectory;
     private final MinIOService minioService;
-    private final PKIConfiguration pkiConfiguration;
 
     @Autowired
     public DSSConfiguration(
         Environment environment, 
-        MinIOService minioService, 
-        PKIConfiguration pkiConfiguration)
+        MinIOService minioService)
     {
         this.environment = environment;
+        this.tlCacheDirectory = tlCacheDirectory();
         this.minioService = minioService;
-        this.pkiConfiguration = pkiConfiguration;
     }
 
     @Bean
-	public PAdESService padesService() {
+	public PAdESService padesService() 
+    {
 		final var service = new PAdESService(certificateVerifier());
 		service.setTspSource(tspSource());
 		return service;
 	}
 
     @Bean
-	public CertificateVerifier certificateVerifier() {
-        final TLValidationJob job = lotlJob();
-        final var ojCertificates = new TrustedListsCertificateSource();
-        job.setTrustedListCertificateSource(ojCertificates);
-        job.offlineRefresh();
+	public CertificateVerifier certificateVerifier() 
+    {
 		final var certificateVerifier = new CommonCertificateVerifier();
-		certificateVerifier.setTrustedCertSources(ojCertificates, belgianCACertificates());
+		certificateVerifier.setTrustedCertSources(caCertificates());
         certificateVerifier.setAIASource(aiaSource());
         certificateVerifier.setCrlSource(crlSource());
         certificateVerifier.setOcspSource(oscpSource());
@@ -84,71 +81,39 @@ public class DSSConfiguration {
         certificateVerifier.setRevocationDataLoadingStrategyFactory(new OCSPFirstRevocationDataLoadingStrategyFactory());
 		// Default configs
 		certificateVerifier.setAlertOnMissingRevocationData(new ExceptionOnStatusAlert());
-		certificateVerifier.setCheckRevocationForUntrustedChains(true);
-
+		certificateVerifier.setCheckRevocationForUntrustedChains(false);
 		return certificateVerifier;
 	}
 
-	public CommonTrustedCertificateSource belgianCACertificates() {
-		final var certificateSource = new CommonTrustedCertificateSource();
-        for (X509Certificate caCertificate : pkiConfiguration.belgianCACertificates()) {
-            final var certificateToken = new CertificateToken(caCertificate);
-            certificateSource.addCertificate(certificateToken);
-        }
-		return certificateSource;
-	}
-
-    public AIASource aiaSource()
+	private CommonTrustedCertificateSource caCertificates() 
     {
-        return new DefaultAIASource();
-    }
-
-    public CRLSource crlSource()
-    {
-        return new OnlineCRLSource();
-    }
-
-    public OCSPSource oscpSource()
-    {
-        final var ocspSource = new OnlineOCSPSource();
-        ocspSource.setCertIDDigestAlgorithm(DigestAlgorithm.SHA256);
-        return ocspSource;
-    }
-
-    public TSPSource tspSource()
-    {
-        final var tspSource = new OnlineTSPSource(environment.getProperty("dss.timestamp.url"));
-        tspSource.setDataLoader(new TimestampDataLoader());
-        return tspSource;
-    }
-
-	public TLValidationJob lotlJob() {
-		TLValidationJob job = new TLValidationJob();
-		job.setTrustedListCertificateSource(trustedListSource());
+		final TLValidationJob job = new TLValidationJob();
+        final var caCertificates = new TrustedListsCertificateSource();
+		job.setTrustedListCertificateSource(caCertificates);
 		job.setListOfTrustedListSources(listOfTrustedListSources());
 		job.setOfflineDataLoader(offlineLoader());
 		job.setOnlineDataLoader(onlineLoader());
-		return job;
+        job.onlineRefresh();
+		return caCertificates;
 	}
 
-    public TrustedListsCertificateSource trustedListSource() {
-		return new TrustedListsCertificateSource();
-	}
-
-    public LOTLSource[] listOfTrustedListSources() {
+    private LOTLSource[] listOfTrustedListSources() 
+    {
 		final var lotlSourceList = new ArrayList<LOTLSource>();
 		lotlSourceList.add(europeanLOTL());
 		return lotlSourceList.toArray(new LOTLSource[0]);
 	}
 
-    public LOTLSource europeanLOTL() {
+    private LOTLSource europeanLOTL() 
+    {
 		final var lotlSource = new LOTLSource();
 		lotlSource.setUrl(environment.getProperty("dss.lotl.url"));
-		lotlSource.setCertificateSource(ojCertificates());
+		lotlSource.setCertificateSource(ojSignatureCertificates());
+        lotlSource.setTlPredicate(TLPredicateFactory.createEUTLCountryCodePredicate("BE"));
 		return lotlSource;
 	}
 
-    public CommonTrustedCertificateSource ojCertificates() 
+    private CommonTrustedCertificateSource ojSignatureCertificates() 
     {
         final var certificateSource = new CommonTrustedCertificateSource();
         final Iterable<Result<Item>> certListing = minioService.listObjects(
@@ -157,12 +122,12 @@ public class DSSConfiguration {
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
             for (Result<Item> result : certListing) {
-                X509Certificate ojCertificate = 
+                X509Certificate ojSignatureCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         minioService.objectAsStream(
                             environment.getProperty("objectstorage.admin-bucket"), 
                             result.get().objectName()));
-                    certificateSource.addCertificate(new CertificateToken(ojCertificate));
+                certificateSource.addCertificate(new CertificateToken(ojSignatureCertificate));
             }
             return certificateSource; 
         } catch (Exception exception) {
@@ -171,31 +136,58 @@ public class DSSConfiguration {
         }
     }
 
-	public DSSFileLoader offlineLoader() {
+	private DSSFileLoader offlineLoader() 
+    {
 		FileCacheDataLoader offlineFileLoader = new FileCacheDataLoader();
 		offlineFileLoader.setCacheExpirationTime(-1);
 		offlineFileLoader.setDataLoader(new IgnoreDataLoader());
-		offlineFileLoader.setFileCacheDirectory(tlCacheDirectory());
+		offlineFileLoader.setFileCacheDirectory(tlCacheDirectory);
 		return offlineFileLoader;
 	}
 
-    public DSSFileLoader onlineLoader() {
+    private DSSFileLoader onlineLoader() 
+    {
 		FileCacheDataLoader onlineFileLoader = new FileCacheDataLoader();
 		onlineFileLoader.setCacheExpirationTime(0);
 		onlineFileLoader.setDataLoader(new CommonsDataLoader());
-		onlineFileLoader.setFileCacheDirectory(tlCacheDirectory());
+		onlineFileLoader.setFileCacheDirectory(tlCacheDirectory);
 		return onlineFileLoader;
 	}
 
-	public File tlCacheDirectory() {
+    private File tlCacheDirectory()
+    {
         final var path = String.format(
             "%s/%s",
             System.getProperty("user.dir"),
             Path.DSS_TRUST_LISTS);
-		final var tslCache = new File(path);
-        tslCache.mkdirs();
-		return tslCache;
-	}
+        final var tlCacheDirectory = new File(path); 
+        tlCacheDirectory.mkdirs();
+        return tlCacheDirectory;
+    }
+
+    private AIASource aiaSource()
+    {
+        return new DefaultAIASource();
+    }
+
+    private CRLSource crlSource()
+    {
+        return new OnlineCRLSource();
+    }
+
+    private OCSPSource oscpSource()
+    {
+        final var ocspSource = new OnlineOCSPSource();
+        ocspSource.setCertIDDigestAlgorithm(DigestAlgorithm.SHA256);
+        return ocspSource;
+    }
+
+    private TSPSource tspSource()
+    {
+        final var tspSource = new OnlineTSPSource(environment.getProperty("dss.timestamp.url"));
+        tspSource.setDataLoader(new TimestampDataLoader());
+        return tspSource;
+    }
 
     
 }

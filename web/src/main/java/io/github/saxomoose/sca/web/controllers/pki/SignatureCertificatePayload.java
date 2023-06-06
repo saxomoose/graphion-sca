@@ -33,14 +33,16 @@ public class SignatureCertificatePayload {
         this.supportedSignatureAlgorithms = supportedSignatureAlgorithms;
     }
 
-    public X509Certificate toX509Certificate() throws CertificateException {
+    public X509Certificate toX509Certificate() throws CertificateException 
+    {
         final byte[] certificateBytes = Base64.getDecoder().decode(signatureCertificate);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(certificateBytes);
         final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         return (X509Certificate) certificateFactory.generateCertificate(inputStream);
     }
 
-    public List<String> supportedAlgorithmNames() {
+    public List<String> supportedAlgorithmNames() 
+    {
         return supportedSignatureAlgorithms
             .stream()
             .map(SignatureAlgorithm::hashAlgorithm)

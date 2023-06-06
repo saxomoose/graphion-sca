@@ -17,7 +17,8 @@
             const challengeResponse = await fetch("/pki/challenge", {
                 method: "GET",
                 headers: {
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
                 }
             });
             await webeiderrors.checkHttpError(challengeResponse);
@@ -28,7 +29,8 @@
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
+                    "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                    "X-Requested-With": "XMLHttpRequest"
                 },
                 body: `{"auth-token": ${JSON.stringify(authToken)}, "username": ${JSON.stringify(username)}}`
             });
