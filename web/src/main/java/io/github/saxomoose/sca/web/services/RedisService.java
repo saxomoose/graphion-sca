@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.enums.Redis;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.utils.Job;
+import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpSession;
 
 @Service
@@ -98,7 +99,11 @@ public class RedisService {
                 String.valueOf(1),
                 Duration.ofMinutes(1));
             if (!result) {
-                throw new BusinessLogicException("signature.file.locked");
+                throw new BusinessLogicException(
+                    new Notification(
+                        Notification.Type.INFORMATION,
+                        "signature",
+                        "signature.file.locked"));
             }
         } catch (BusinessLogicException exception) {
             logger.error(exception.getMessage());

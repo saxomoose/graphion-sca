@@ -91,13 +91,18 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
         final var user = userService.userByUsername(username);
         final var issuerCountryCode = issuerCountryCode(userCertificate);
         final var rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
-        final var firstName = rawFirstName.contains(" ") ? rawFirstName.substring(0, rawFirstName.indexOf(" ")) : rawFirstName;
+        final var firstName = rawFirstName.contains(" ") ?
+             rawFirstName.substring(0, rawFirstName.indexOf(" ")) 
+             : rawFirstName;
         final var lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
         final var nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
         final var rawBirthYear = Integer.parseInt(nrn.substring(0, 2));
         final var birthMonth = Integer.parseInt(nrn.substring(2, 4));
         final var birthDay = Integer.parseInt(nrn.substring(4, 6));
-        final var numberToCheck = Long.parseLong(String.format("%d%s", 2, nrn.substring(0, 9)));
+        final var numberToCheck = Long.parseLong(String.format(
+            "%d%s", 
+            2, 
+            nrn.substring(0, 9)));
         final var controlNumber = Integer.parseInt(nrn.substring(9, 11));
         final var bornAfter2000 = (97 - (numberToCheck % 97)) == controlNumber;
         LocalDate dateOfBirth;

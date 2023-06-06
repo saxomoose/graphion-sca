@@ -68,18 +68,21 @@ public class PKISignatureService {
         final var file = new File(path);
         file.getParentFile().mkdirs();
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
         final var x509Certificate = signatureCertificate.toX509Certificate();
         final var certificateToken = new CertificateToken(x509Certificate);
         final var parameters = new PAdESSignatureParameters();
         parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
         parameters.setSigningCertificate(certificateToken);
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
+        
         final var toSignDocument = new FileDocument(file);
         final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
         final var digest = new Digest(
             DigestAlgorithm.SHA256, 
             DSSUtils.digest(DigestAlgorithm.SHA256, toBeSigned.getBytes()));
         final String base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
+
         return Tuple.of(
             new io.github.saxomoose.sca.web.controllers.pki.DigestPayload(
                 base64Digest, 
@@ -102,28 +105,44 @@ public class PKISignatureService {
             bucket,
             fileUUID);
         final var file = resourceLoader.getResource(path).getFile();
+
         final var toSignDocument = new FileDocument(file);
         final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
         final byte[] signatureBytes = Base64.getDecoder().decode(signature.base64Signature());
         final var signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
-        Assert.isTrue(padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate()), "The signature value is invalid.");
+        Assert.isTrue(
+            padesService.isValidSignatureValue(
+                toBeSigned, 
+                signatureValue, 
+                parameters.getSigningCertificate()), 
+            "The signature value computed client-side is invalid.");
         final DSSDocument signedDocument = padesService.signDocument(toSignDocument, parameters, signatureValue);
+        
         parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LT);
         final var extendedDocument = padesService.extendDocument(signedDocument, parameters);
+
+        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
+        final var ltaExtendedDocument = padesService.extendDocument(extendedDocument, parameters);
+ 
         minioService.storeObject(
             bucket, 
             String.format("/%s/%s", Path.SIGNED, fileUUID),
             signedDocument.openStream());
         minioService.storeObject(
-                bucket, 
-                String.format("/%s/%s-%s", Path.SIGNED, fileUUID, "extended-lt"),
-                extendedDocument.openStream());
+            bucket, 
+            String.format("/%s/%s-%s", Path.SIGNED, fileUUID, "extended-lt"),
+            extendedDocument.openStream());
+        minioService.storeObject(
+            bucket, 
+            String.format("/%s/%s-%s", Path.SIGNED, fileUUID, "extended-lta"),
+            ltaExtendedDocument.openStream());
         file.delete();
         final var parentPath = Paths.get(file.getAbsolutePath()).getParent();
         if (!Files.list(parentPath).findFirst().isPresent()) {
             Files.delete(parentPath);
         }
         //redisService.unlockFile(fileUUID);
-        return signedDocument;
+        
+        return extendedDocument;
     }
 }

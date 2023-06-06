@@ -8,7 +8,8 @@ import org.springframework.util.Assert;
 public class RowMapperCollection {
     private Map<Class<?>, RowMapper<?>> mappers = new LinkedHashMap<>();
 
-    public <T> RowMapper<? extends T> getRowMapper(Class<T> type) {
+    public <T> RowMapper<? extends T> getRowMapper(Class<T> type) 
+    {
         Assert.notNull(type, "Type must not be null");
         RowMapper<?> candidate = mappers.get(type);
         if (candidate == null) {
@@ -27,7 +28,8 @@ public class RowMapperCollection {
      *
      * @return this instance, so this can be used as a fluent interface.
      */
-    public <T> RowMapperCollection registerRowMapper(Class<T> type, RowMapper<? extends T> rowMapper) {
+    public <T> RowMapperCollection registerRowMapper(Class<T> type, RowMapper<? extends T> rowMapper) 
+    {
         mappers.put(type, rowMapper);
         return this;
     }

@@ -2,11 +2,13 @@ package io.github.saxomoose.sca.web.enums;
 
 public enum Path {
     CERTS_BELGIUM("certs/belgium"),
+    CLOSINGS("closings"),
     DSS_TRUST_LISTS("dss/trust-lists"),
     DSS_WORKBENCH("dss/workbench"),
     CLOSING_DOCUMENTS("closing-documents"),
     CERTS_OJ("certs/oj"),
-    SIGNED("signed");
+    SIGNED("signed"),
+    TENANTS("tenants");
 
     private final String key;
 

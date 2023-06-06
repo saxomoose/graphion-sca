@@ -9,7 +9,8 @@ import io.github.saxomoose.sca.web.models.Closing;
 public class ClosingRowMapper implements RowMapper<Closing> {
 
     @Override
-    public Closing mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public Closing mapRow(ResultSet rs, int rowNum) throws SQLException 
+    {
         return new Closing(
             rs.getLong("tenant"),
             rs.getLong("id"),

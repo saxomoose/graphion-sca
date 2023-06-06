@@ -9,7 +9,8 @@
                 <div class="d-flex flex-column">
                     <ul class="nav nav-pills flex-column mb-3">
                         <li class="nav-item">
-                            <a class="nav-link text-center" data-th-classappend="${activeNavLink == 0} ? active : _"
+                            <a class="nav-link text-center" data-bs-placement="right" data-bs-title="Dashboard"
+                                data-bs-toggle="tooltip" data-th-classappend="${activeNavLink == 0} ? active : _"
                                 data-th-href="@{/dashboard}">
                                 <img class="me-2"
                                     data-th-src="@{/svg/ui-checks{color}.svg(color=(__${activeNavLink == 0}__ ? '-white' : ''))}"
@@ -17,7 +18,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-center" data-th-classappend="${activeNavLink == 1} ? active : _"
+                            <a class="nav-link text-center" data-bs-placement="right" data-bs-title="Closings"
+                                data-bs-toggle="tooltip" data-th-classappend="${activeNavLink == 1} ? active : _"
                                 data-th-href="@{/closings}">
                                 <img class="me-2"
                                     data-th-src="@{/svg/vector-pen{color}.svg(color=(__${activeNavLink == 1}__ ? '-white' : ''))}"
@@ -25,7 +27,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-center" data-th-classappend="${activeNavLink == 2} ? active : _"
+                            <a class="nav-link text-center" data-bs-placement="right" data-bs-title="Users"
+                                data-bs-toggle="tooltip" data-th-classappend="${activeNavLink == 2} ? active : _"
                                 data-th-href="@{/users}">
                                 <img class="me-2"
                                     data-th-src="@{/svg/person-vcard{color}.svg(color=(__${activeNavLink == 2}__ ? '-white' : ''))}"
@@ -33,7 +36,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-center" data-th-classappend="${activeNavLink == 3} ? active : _"
+                            <a class="nav-link text-center" data-bs-placement="right" data-bs-title="Documents"
+                                data-bs-toggle="tooltip" data-th-classappend="${activeNavLink == 3} ? active : _"
                                 data-th-href="@{/documents}">
                                 <img class="me-2"
                                     data-th-src="@{/svg/files{color}.svg(color=(__${activeNavLink == 3}__ ? '-white' : ''))}"
@@ -41,7 +45,8 @@
                             </a>
                         </li>
                     </ul>
-                    <div class="dropdown border-top d-flex">
+                    <div class="dropdown border-top d-flex" data-bs-placement="right" data-bs-title="Account"
+                        data-bs-toggle="tooltip">
                         <a class="d-flex align-items-center p-3 dropdown-toggle" data-bs-toggle="dropdown" href="#">
                             <img data-th-src="@{/svg/person.svg}" width="32" height="32">
                         </a>
@@ -64,7 +69,8 @@
                 <div class="d-flex flex-column">
                     <ul class="nav nav-pills flex-column mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">
+                            <a class="nav-link active" href="#" data-bs-placement="right" data-bs-title="Organisations"
+                                data-bs-toggle="tooltip">
                                 <img class="me-2" data-th-src="@{/svg/diagram-3-white.svg}" width="32" height="32">
                             </a>
                         </li>

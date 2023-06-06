@@ -8,11 +8,13 @@ public class ChallengePayload {
     public ChallengePayload() {}
 
     @JsonProperty("nonce")
-    public String nonce() {
+    public String nonce() 
+    {
         return nonce;
     }
 
-    public void setNonce(String nonce) {
+    public void setNonce(String nonce) 
+    {
         this.nonce = nonce;
     }
 }

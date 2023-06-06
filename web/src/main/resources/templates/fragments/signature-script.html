@@ -17,8 +17,10 @@
                 const prepareSigningResponse = await fetch(`/pki/sign/dtbsr/${closingId}/${fileUUID}`, {
                     method: "POST",
                     headers: {
+                        "Accept": "application/json",
                         "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
+                        "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                        "X-Requested-With": "XMLHttpRequest"
                     },
                     body: JSON.stringify({ certificate, supportedSignatureAlgorithms }),
                 });
@@ -30,8 +32,10 @@
                 const finalizeSigningResponse = await fetch(`/pki/sign/apply/${closingId}/${fileUUID}`, {
                     method: "POST",
                     headers: {
+                        "Accept": "application/json",
                         "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": [[${ _csrf.getToken() }]]
+                        "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                        "X-Requested-With": "XMLHttpRequest"
                     },
                     body: JSON.stringify({ signature, signatureAlgorithm }),
                 });

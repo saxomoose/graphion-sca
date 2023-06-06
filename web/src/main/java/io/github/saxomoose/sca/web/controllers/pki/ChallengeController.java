@@ -11,7 +11,8 @@ public class ChallengeController {
     private final ChallengeNonceGenerator challengeNonceGenerator;
 
     @Autowired
-    public ChallengeController(ChallengeNonceGenerator challengeNonceGenerator) {
+    public ChallengeController(ChallengeNonceGenerator challengeNonceGenerator) 
+    {
         this.challengeNonceGenerator = challengeNonceGenerator;
     }
 
@@ -20,7 +21,8 @@ public class ChallengeController {
      * TODO: Secure endpoint.
      */
     @GetMapping(value = "/pki/challenge", produces = "application/json")
-    public ResponseEntity<ChallengePayload> challenge() {
+    public ResponseEntity<ChallengePayload> challenge() 
+    {
         final var challenge = new ChallengePayload();
         challenge.setNonce(challengeNonceGenerator.generateAndStoreNonce().getBase64EncodedNonce());
         return ResponseEntity.ok().body(challenge);

@@ -14,7 +14,8 @@
                     <div class="row">
                         <div class="alert alert-danger" id="error-message" role="alert" style="display: none;"></div>
                         <nav class="d-flex flex-row-reverse">
-                            <a data-th-href="@{/closings/create}"><img data-th-src="@{/svg/plus-circle.svg}" width="20"
+                            <a data-bs-placement="left" data-bs-title="Add closing" data-bs-toggle="tooltip"
+                                data-th-href="@{/closings/create}"><img data-th-src="@{/svg/plus-circle.svg}" width="20"
                                     height="20"></a>
                         </nav>
                         <!-- Table -->
@@ -28,7 +29,7 @@
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="table-group-divider">
                                 <th-block data-th-each="closing,closingIterStat : ${closingToIndex.closingPage()}">
                                     <tr class="activable-row" data-th-id="${closing.id()}">
                                         <th data-th-text="${closingToIndex.closingPage().getNumber() * 10 + closingIterStat.getIndex() + 1}"
@@ -84,7 +85,7 @@
                                                 type="checkbox">
                                         </th>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="table-group-divider">
                                         <th-block data-th-each="user,userIterStat : ${closing.getValue()}">
                                             <tr class="activable-row">
                                                 <td data-th-text="${user.lastName()}"></td>
@@ -129,7 +130,7 @@
                                             <th scope="col">Signature timestamp</th>
                                             <th scope="col"></th>
                                         </thead>
-                                        <tbody>
+                                        <tbody class="table-group-divider">
                                             <th-block data-th-each="document : ${user.getValue()}">
                                                 <tr>
                                                     <td data-th-text="${document.filename()}"></td>
@@ -172,10 +173,11 @@
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-src="@{/js/web-eid.min.js}" type="text/javascript"></script>
     <script data-th-src="@{/js/web-eid-errors.js}" type="text/javascript"></script>
-    <script data-th-replace=" ~{fragments/signature-script}"></script>
-    <script data-th-replace=" ~{fragments/bootstrap-script}"></script>
-    <script data-th-replace="~{fragments/toast-script}"></script>
+    <script data-th-replace="~{fragments/bootstrap-script}"></script>
+    <script data-th-replace="~{fragments/signature-script}"></script>
     <script data-th-replace="~{fragments/modal-script}"></script>
+    <script data-th-replace="~{fragments/toast-script}"></script>
+    <script data-th-replace="~{fragments/tooltip-script}"></script>
 
     <script type="text/javascript">
         const triggerCollapseElList = document.querySelectorAll(".trigger-collapse");
