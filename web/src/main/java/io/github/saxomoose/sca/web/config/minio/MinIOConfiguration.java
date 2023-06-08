@@ -11,9 +11,11 @@ public class MinIOConfiguration {
     public MinioClient minioClient(final Environment environment) 
     {
         return new MinioClient.Builder()
-            .credentials(environment.getProperty("objectstorage.accesskey"),
-            environment.getProperty("objectstorage.secretkey"))
-            .endpoint(environment.getProperty("objectstorage.endpoint")).build();
+            .credentials(
+                environment.getProperty("objectstorage.accesskey"),
+                environment.getProperty("objectstorage.secretkey"))
+            .endpoint(environment.getProperty("objectstorage.endpoint"))
+            .build();
     }
 
     

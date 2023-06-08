@@ -16,7 +16,7 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
     @Bean
     public MessageSource messageSource() 
     {
-        final var messageSource = new ReloadableResourceBundleMessageSource();
+        final ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasenames("classpath:i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
@@ -25,7 +25,7 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
     @Bean
     public LocaleResolver localeResolver() 
     {
-        final var sessionLocaleResolver = new SessionLocaleResolver();
+        final SessionLocaleResolver sessionLocaleResolver = new SessionLocaleResolver();
         sessionLocaleResolver.setDefaultLocale(Locale.US);
         // sessionLocaleResolver.setLocaleAttributeName("session.current.locale");
         return sessionLocaleResolver;

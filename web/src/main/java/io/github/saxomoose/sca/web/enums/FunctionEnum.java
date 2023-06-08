@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.enums;
 
-public enum Function {
+public enum FunctionEnum {
     DIRECTOR,
     PERMANENT_REPRESENTATIVE,
     PERSON_IN_CHARGE_OF_DAILY_MANAGEMENT

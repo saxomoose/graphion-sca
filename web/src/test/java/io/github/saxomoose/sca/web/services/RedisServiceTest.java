@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import jakarta.servlet.http.HttpSession;
@@ -24,7 +25,7 @@ public class RedisServiceTest {
     @BeforeAll
     public void setup() 
     {
-        httpSession.setAttribute("tenant", Tenant.of(null));
+        httpSession.setAttribute(SessionEnum.TENANT.toString(), Tenant.of(null));
     }
 
     // @Test

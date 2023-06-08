@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 public class Function implements Serializable {
-    private io.github.saxomoose.sca.web.enums.Function function;
+    private io.github.saxomoose.sca.web.enums.FunctionEnum function;
     private LocalDate startDate;
 
-    public io.github.saxomoose.sca.web.enums.Function functionEnum() {
+    public io.github.saxomoose.sca.web.enums.FunctionEnum functionEnum() {
         return function;
     }
 
@@ -15,7 +15,7 @@ public class Function implements Serializable {
         return startDate;
     }
 
-    public void setFunctionEnum(io.github.saxomoose.sca.web.enums.Function function) {
+    public void setFunctionEnum(io.github.saxomoose.sca.web.enums.FunctionEnum function) {
         this.function = function;
     }
 

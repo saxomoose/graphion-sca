@@ -58,8 +58,8 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
             logger.error("Content type not supported: %s", contentType);
             throw new RuntimeException();
         }
-        final var authenticationPayload = objectMapper.readValue(request.getReader(), AuthenticationPayload.class);
-        final var token = new PreAuthenticatedAuthenticationToken(null, authenticationPayload);
+        final AuthenticationPayload authenticationPayload = objectMapper.readValue(request.getReader(), AuthenticationPayload.class);
+        final PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(null, authenticationPayload);
         // TODO: validation should happen sooner
         try {
             validationService.authentication(authenticationPayload);

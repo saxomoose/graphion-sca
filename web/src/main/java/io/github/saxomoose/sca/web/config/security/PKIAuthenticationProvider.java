@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import eu.webeid.security.certificate.CertificateData;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
-import io.github.saxomoose.sca.web.enums.Role;
+import io.github.saxomoose.sca.web.enums.RoleEnum;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
@@ -65,7 +65,7 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
             if (defaultTenant != null) {
                 return PKIAuthentication.of(user, defaultTenant.first(), defaultTenant.second());
             } else {
-                return PKIAuthentication.of(user, List.of(new SimpleGrantedAuthority(Role.ROLE_NULL.toString())));
+                return PKIAuthentication.of(user, List.of(new SimpleGrantedAuthority(RoleEnum.ROLE_NULL.toString())));
             }
         } catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -85,27 +85,27 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
      * TODO: only accept Belgian id cards
      */
     private User userFromCertificate(
-        String username, 
-        X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
+        final String username, 
+        final X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
     {
-        final var user = userService.userByUsername(username);
-        final var issuerCountryCode = issuerCountryCode(userCertificate);
-        final var rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
-        final var firstName = rawFirstName.contains(" ") ?
+        final User user = userService.userByUsername(username);
+        final String issuerCountryCode = issuerCountryCode(userCertificate);
+        final String rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
+        final String firstName = rawFirstName.contains(" ") ?
              rawFirstName.substring(0, rawFirstName.indexOf(" ")) 
              : rawFirstName;
-        final var lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
-        final var nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
-        final var rawBirthYear = Integer.parseInt(nrn.substring(0, 2));
-        final var birthMonth = Integer.parseInt(nrn.substring(2, 4));
-        final var birthDay = Integer.parseInt(nrn.substring(4, 6));
-        final var numberToCheck = Long.parseLong(String.format(
+        final String lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
+        final String nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
+        final Integer rawBirthYear = Integer.parseInt(nrn.substring(0, 2));
+        final Integer birthMonth = Integer.parseInt(nrn.substring(2, 4));
+        final Integer birthDay = Integer.parseInt(nrn.substring(4, 6));
+        final Long numberToCheck = Long.parseLong(String.format(
             "%d%s", 
             2, 
             nrn.substring(0, 9)));
-        final var controlNumber = Integer.parseInt(nrn.substring(9, 11));
-        final var bornAfter2000 = (97 - (numberToCheck % 97)) == controlNumber;
-        LocalDate dateOfBirth;
+        final Integer controlNumber = Integer.parseInt(nrn.substring(9, 11));
+        final Boolean bornAfter2000 = (97 - (numberToCheck % 97)) == controlNumber;
+        LocalDate dateOfBirth = null;
         if(bornAfter2000) {
             dateOfBirth = LocalDate.of(
                 Integer.parseInt(String.format("%d%d", 20, rawBirthYear)),
@@ -128,16 +128,16 @@ public class PKIAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(final User user)
+    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(User user)
     {
         return tenantService.tenantWithUserAuthority(user.id(), Boolean.TRUE);
     }
 
-    private String issuerCountryCode(final X509Certificate userCertificate)
+    private String issuerCountryCode(X509Certificate userCertificate)
     {
         final String issuerName = userCertificate.getIssuerX500Principal().getName();
         String countryCode = null;
-        String[] parts = issuerName.split(",");
+        final String[] parts = issuerName.split(",");
         for (String part : parts) {
             if (part.trim().startsWith("C=")) {
                 countryCode = part.trim().substring(2);

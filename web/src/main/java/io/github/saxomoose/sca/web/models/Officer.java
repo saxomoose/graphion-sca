@@ -1,14 +1,14 @@
 package io.github.saxomoose.sca.web.models;
 
-import io.github.saxomoose.sca.web.enums.Function;
+import io.github.saxomoose.sca.web.enums.FunctionEnum;
 
 public class Officer {
     private final Long legalPerson;
     private final Long signatory;
-    private final Function function;
+    private final FunctionEnum function;
     private final Long enterpriseNumber;
 
-    public Officer(Long legalPerson, Long signatory, Function function, Long enterpriseNumber) {
+    public Officer(Long legalPerson, Long signatory, FunctionEnum function, Long enterpriseNumber) {
         this.legalPerson = legalPerson;
         this.signatory = signatory;
         this.function = function;
@@ -23,7 +23,7 @@ public class Officer {
         return signatory;
     }
 
-    public Function function() {
+    public FunctionEnum function() {
         return function;
     }
 

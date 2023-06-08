@@ -2,6 +2,7 @@
 
 [libraries]
 # digidoc4j = { module = "org.digidoc4j:digidoc4j", version = "latest.release" }
+dss-crl-parser = { module = "eu.europa.ec.joinup.sd-dss:dss-crl-parser-stream", "version" = "latest.release" }
 # Common code which is shared between dss-pades-pdfbox and dss-pades-openpdf.
 dss-pades = { module = "eu.europa.ec.joinup.sd-dss:dss-pades", version = "latest.release" }
 # Implementation of the PAdES signature, augmentation and validation with PDFBox.

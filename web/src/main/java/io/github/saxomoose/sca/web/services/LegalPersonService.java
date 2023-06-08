@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
-import io.github.saxomoose.sca.web.enums.Function;
+import io.github.saxomoose.sca.web.enums.FunctionEnum;
 import io.github.saxomoose.sca.web.models.LegalPerson;
 
 @Service
@@ -21,7 +21,7 @@ public class LegalPersonService {
     // Read
 
     public LegalPerson firstLegalPerson() {
-        final var sql = """
+        final String sql = """
         SELECT * FROM sca.legal_person LIMIT 1;    
         """;
         return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(LegalPerson.class));
@@ -30,12 +30,12 @@ public class LegalPersonService {
     // Update
     public LegalPerson insert(LegalPerson legalPerson, Long principalId)
     {
-        final var sql = """
+        final String sql = """
         INSERT INTO sca.legal_person
         VALUES (:tenantId, DEFAULT, :enterpriseNumber, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
-        final var params = new MapSqlParameterSource(
+        final MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", legalPerson.tenantId(),
                 "enterpriseNumber", legalPerson.tenantId(),
@@ -44,13 +44,13 @@ public class LegalPersonService {
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(LegalPerson.class));
     }
 
-    public void insertOfficer(Long legalPersonId, Long signatoryId, Function function, Long enterpriseNumber) 
+    public void insertOfficer(Long legalPersonId, Long signatoryId, FunctionEnum function, Long enterpriseNumber) 
     {
-        final var sql = """
+        final String sql = """
             INSERT INTO sca.officer (legal_person, signatory, "function", enterprise_number)
             VALUES (:legalPersonId, :signatoryId, :function, :enterpriseNumber);
         """;
-        final var params = new MapSqlParameterSource().addValues(
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValues(
             Map.of(
                 "legalPersonId", legalPersonId,
                 "signatoryId", signatoryId,

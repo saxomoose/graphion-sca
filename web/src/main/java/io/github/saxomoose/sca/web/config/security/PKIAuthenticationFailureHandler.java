@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Component
 public class PKIAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
@@ -21,7 +22,7 @@ public class PKIAuthenticationFailureHandler extends SimpleUrlAuthenticationFail
         AuthenticationException exception) throws IOException, ServletException 
     {
         logger.error(exception.getMessage());
-        final var session = request.getSession(false);
+        final HttpSession session = request.getSession(false);
         if (session != null) {
             logger.info("Invalidating session: %S", session.getId());
             session.invalidate();

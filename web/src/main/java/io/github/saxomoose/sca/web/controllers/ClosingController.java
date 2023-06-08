@@ -2,7 +2,9 @@ package io.github.saxomoose.sca.web.controllers;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
@@ -16,7 +18,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
+import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
+import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingToCreate;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
 import io.github.saxomoose.sca.web.services.ClosingService;
@@ -48,15 +53,15 @@ public class ClosingController {
         final HttpServletRequest request,
         @SortDefault(sort = "name") Pageable pageable) 
     {
-        // final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
+        // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
         final var tenantId = 1L;
         final ClosingToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
         if (closingToIndex.closingPage().isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final var modelAndView = new ModelAndView("closings/index");
+        final ModelAndView modelAndView = new ModelAndView("closings/index");
         modelAndView.addObject("closingToIndex", closingToIndex);
-        final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -77,17 +82,16 @@ public class ClosingController {
         if (documentPageIndex == null) {
             documentPageIndex = 0;
         }
-        final var userPageable = PageRequest.of(userPageIndex, 10);
-        final var documentPageable = PageRequest.of(documentPageIndex, 10);
-        final var userPage = userService.usersByTenant(1L, userPageable);
-        final var documentPage = documentService.documentsByTenant(1L, documentPageable);
-        final var modelAndView = new ModelAndView("closings/create");
+        final PageRequest userPageable = PageRequest.of(userPageIndex, 10);
+        final PageRequest documentPageable = PageRequest.of(documentPageIndex, 10);
+        final Page<User> userPage = userService.usersByTenant(1L, userPageable);
+        final Page<Document> documentPage = documentService.documentsByTenant(1L, documentPageable);
+        final ModelAndView modelAndView = new ModelAndView("closings/create");
         modelAndView.addObject("userPage", userPage);
         modelAndView.addObject("documentPage", documentPage);
-        final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
-            modelAndView.addObject(
-                "notifications", inputFlashMap.get("notifications"));
+            modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
         return modelAndView;
     }
@@ -103,15 +107,12 @@ public class ClosingController {
         // Validation
         
         final var test = "test";
-        final var tenant = (Tenant) httpSession.getAttribute("tenant");
+        final var tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
         // final var filename = validationService.documentArgs(rawFilename);
         // signatoryService.create(tenant, filename);
         redirectAttributes.addFlashAttribute(
             "notifications", 
-            List.of(new Notification(
-                Notification.Type.SUCCESS, 
-                "notification.success",
-                "users.create.success")));
+            List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "users.create.success")));
         return new RedirectView("/users");
     }
 

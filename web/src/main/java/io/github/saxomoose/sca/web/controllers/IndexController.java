@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import java.security.Principal;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -17,8 +18,8 @@ public class IndexController {
     @GetMapping("/")
     public ModelAndView index(final Principal principal, final HttpServletRequest request)
     {
-        final var modelAndView = new ModelAndView();
-        final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        final ModelAndView modelAndView = new ModelAndView();
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -39,14 +40,14 @@ public class IndexController {
     @GetMapping("/ping")
     public ModelAndView ping(HttpServletRequest request)
     {
-        final var principal = request.getUserPrincipal();
+        final Principal principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 
     @GetMapping("/pki/ping")
     public ModelAndView pkiPing(HttpServletRequest request)
     {
-        final var principal = request.getUserPrincipal();
+        final Principal principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 }

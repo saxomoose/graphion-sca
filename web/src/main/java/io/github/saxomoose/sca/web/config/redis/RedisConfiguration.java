@@ -3,6 +3,7 @@ package io.github.saxomoose.sca.web.config.redis;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,15 +19,15 @@ public class RedisConfiguration {
     // return new LettuceConnectionFactory();
     // }
     @Bean
-    public RedisConnection redisConnection(RedisConnectionFactory redisConnectionFactory) 
+    public RedisConnection redisConnection(final RedisConnectionFactory redisConnectionFactory) 
     {
         return redisConnectionFactory.getConnection();
     }
 
     @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) 
+    public StringRedisTemplate stringRedisTemplate(final RedisConnectionFactory redisConnectionFactory) 
     {
-        StringRedisTemplate template = new StringRedisTemplate();
+        final StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
     }
@@ -47,8 +48,7 @@ public class RedisConfiguration {
     @Bean
     public RedisScript<String> script() 
     {
-        final var scriptSource = new ResourceScriptSource(
-            new ClassPathResource("redis/job-id.lua")).getResource();
+        final Resource scriptSource = new ResourceScriptSource(new ClassPathResource("redis/job-id.lua")).getResource();
         return RedisScript.of(scriptSource, String.class);
     }
 
