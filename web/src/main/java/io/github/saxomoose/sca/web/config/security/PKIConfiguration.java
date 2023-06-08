@@ -17,7 +17,7 @@ import eu.webeid.security.challenge.ChallengeNonceGeneratorBuilder;
 import eu.webeid.security.challenge.ChallengeNonceStore;
 import eu.webeid.security.validator.AuthTokenValidator;
 import eu.webeid.security.validator.AuthTokenValidatorBuilder;
-import io.github.saxomoose.sca.web.enums.Path;
+import io.github.saxomoose.sca.web.enums.PathEnum;
 import io.github.saxomoose.sca.web.services.MinIOService;
 import io.minio.Result;
 import io.minio.messages.Item;
@@ -52,13 +52,13 @@ public class PKIConfiguration {
      */
     public X509Certificate[] belgianCACertificates() 
     {
-        List<X509Certificate> caCertificates = new ArrayList<>();
+        final List<X509Certificate> caCertificates = new ArrayList<>();
         final Iterable<Result<Item>> certListing = minioService.listObjects(
                 environment.getProperty("objectstorage.admin-bucket"),
-                Path.CERTS_BELGIUM.toString());
+                PathEnum.CERTS_WEBEID.toString());
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            for (Result<Item> result : certListing) {
+            for (final Result<Item> result : certListing) {
                 X509Certificate caCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         minioService.objectAsStream(
@@ -85,13 +85,10 @@ public class PKIConfiguration {
     public AuthTokenValidator validator() 
     {
         try {
-            AuthTokenValidatorBuilder validatorBuilder = new AuthTokenValidatorBuilder()
+            return new AuthTokenValidatorBuilder()
                 .withSiteOrigin(URI.create(environment.getProperty("web-eid-auth-token.validation.local-origin")))
-                .withTrustedCertificateAuthorities(belgianCACertificates());
-            if (environment.getProperty("spring.profiles.active").equals("dev")) {
-                validatorBuilder = validatorBuilder.withoutUserCertificateRevocationCheckWithOcsp();
-            }
-            return validatorBuilder.build();
+                .withTrustedCertificateAuthorities(belgianCACertificates())
+                .build();
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);

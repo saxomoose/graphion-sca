@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
+import org.springframework.data.redis.connection.stream.ByteRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,8 +19,9 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.enums.Redis;
+import io.github.saxomoose.sca.web.enums.RedisEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.SignatureException;
 import io.github.saxomoose.sca.web.utils.Job;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpSession;
@@ -52,9 +54,9 @@ public class RedisService {
     /**
      * XADD graphionscaweb:jobs MAXLEN ~ 5 * "payload" "test1"
      */
-    public void sendJobToQueue(Long tenantId)
+    public void sendJobToQueue(final Long tenantId)
     {
-        final var job = new Job(tenantId, Job.Type.UPLOAD, "message", Map.of("", ""));
+        final Job job = new Job(tenantId, Job.Type.UPLOAD, "message", Map.of("", ""));
         String serializedJob;
         try {
             serializedJob = objectMapper.writeValueAsString(job);
@@ -63,26 +65,30 @@ public class RedisService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        final var record = StreamRecords
-            .rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
-            .withStreamKey(Redis.JOB_KEY.toString().getBytes());
+        final ByteRecord record = 
+            StreamRecords
+                .rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
+                .withStreamKey(RedisEnum.JOB_KEY.toString().getBytes());
         RecordId recordId;
         try {
-            recordId = redisConnection.streamCommands().xAdd(
-                record,
-                RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE));
+            recordId = 
+                redisConnection.streamCommands()
+                    .xAdd(
+                        record,
+                        RedisStreamCommands.XAddOptions.maxlen(5).approximateTrimming(Boolean.TRUE));
             Objects.requireNonNull(recordId);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        final var outputStringKey = String.format("%s:%s:%s", Redis.JOB_KEY, tenantId, recordId);
+        final String outputStringKey = String.format("%s:%s:%s", RedisEnum.JOB_KEY, tenantId, recordId);
         try {
-            redisConnection.stringCommands().set(
-                outputStringKey.getBytes(),
-                serializedJob.getBytes(),
-                Expiration.from(Duration.ofHours(1)),
-                SetOption.SET_IF_ABSENT);
+            redisConnection.stringCommands()
+                .set(
+                    outputStringKey.getBytes(),
+                    serializedJob.getBytes(),
+                    Expiration.from(Duration.ofHours(1)),
+                    SetOption.SET_IF_ABSENT);
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
@@ -91,22 +97,20 @@ public class RedisService {
         // serializedJob.getBytes());
     }
 
-    public void lockFile(UUID fileUUID) throws BusinessLogicException
+    public void lockFile(final UUID fileUUID) throws BusinessLogicException
     {
         try {
-            final var result = stringRedisTemplate.opsForValue().setIfAbsent(
-                String.format("%s:%s", Redis.WORKBENCH_KEY, fileUUID),
-                String.valueOf(1),
-                Duration.ofMinutes(1));
+            final Boolean result = 
+                stringRedisTemplate.opsForValue()
+                    .setIfAbsent(
+                        String.format("%s:%s", RedisEnum.WORKBENCH_KEY, fileUUID),
+                        String.valueOf(1),
+                        Duration.ofMinutes(1));
             if (!result) {
-                throw new BusinessLogicException(
-                    new Notification(
-                        Notification.Type.INFORMATION,
-                        "signature",
-                        "signature.file.locked"));
+                throw new SignatureException(new Notification(Notification.Type.INFORMATION, "signature", "signature.file.locked"));
             }
-        } catch (BusinessLogicException exception) {
-            logger.error(exception.getMessage());
+        } catch (SignatureException exception) {
+            logger.error("File with UUID {} is locked.", fileUUID);
             throw exception;
         } catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -114,12 +118,10 @@ public class RedisService {
         }
     }
 
-    public void unlockFile(UUID fileUUID)
+    public void unlockFile(final UUID fileUUID)
     {
         try {
-            stringRedisTemplate.delete(
-                String.format("%s:%s", Redis.WORKBENCH_KEY, 
-                fileUUID));
+            stringRedisTemplate.delete(String.format("%s:%s", RedisEnum.WORKBENCH_KEY, fileUUID));
         } catch (Exception exception) {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
@@ -137,13 +139,14 @@ public class RedisService {
     /**
      * TODO
      */
-    public void setUserPINCode(Long id)
+    public void setUserPINCode(final Long id)
     {
-        final var pinCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
-        stringRedisTemplate.opsForValue().set(
-            String.format("%s:%s", Redis.USER_PINCODE_KEY, id),
-            String.valueOf(pinCode),
-            Duration.ofDays(2));
+        final Integer pinCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
+        stringRedisTemplate.opsForValue()
+            .set(
+                String.format("%s:%s", RedisEnum.USER_PINCODE_KEY, id),
+                String.valueOf(pinCode),
+                Duration.ofDays(2));
     }
 
 

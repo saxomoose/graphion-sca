@@ -23,7 +23,7 @@ public class ChallengeController {
     @GetMapping(value = "/pki/challenge", produces = "application/json")
     public ResponseEntity<ChallengePayload> challenge() 
     {
-        final var challenge = new ChallengePayload();
+        final ChallengePayload challenge = new ChallengePayload();
         challenge.setNonce(challengeNonceGenerator.generateAndStoreNonce().getBase64EncodedNonce());
         return ResponseEntity.ok().body(challenge);
     }

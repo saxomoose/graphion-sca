@@ -13,7 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
-import io.github.saxomoose.sca.web.enums.Role;
+import io.github.saxomoose.sca.web.enums.RoleEnum;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.utils.Tuple;
 
@@ -32,16 +32,16 @@ public class TenantService {
 
     // Aggregate
     public Long count() {
-        final var sql = """
+        final String sql = """
         SELECT COUNT(*)
         FROM sca.tenant;
         """;
         return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, Long.class);
     }
 
-    public Long countTenantsByUser(Long userId) 
+    public Long countTenantsByUser(final Long userId) 
     {
-        final var sql = """
+        final String sql = """
         SELECT COUNT(*)
         FROM sca.tenant
         WHERE id IN (
@@ -49,15 +49,15 @@ public class TenantService {
             FROM sca.tenant_user
             WHERE user = userId);    
         """;
-        final var params = new MapSqlParameterSource().addValue("userId", userId);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("userId", userId);
         return namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
     }
 
     // Read
-    public Page<Tenant> tenantsByUser(Long userId, Pageable pageable)
+    public Page<Tenant> tenantsByUser(final Long userId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
-        final var sql = """
+        final String sql = """
             SELECT *
             FROM sca.tenant
             WHERE id IN (
@@ -66,7 +66,7 @@ public class TenantService {
                 WHERE "user" = :userId)
             LIMIT 10 OFFSET 0;
         """;
-        final var params = new MapSqlParameterSource(
+        final MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "userId", userId,
                 "pageSize", pageable.getPageSize(),
@@ -80,40 +80,40 @@ public class TenantService {
     }
 
     public Tenant firstTenant() {
-        final var sql = """
+        final String sql = """
             SELECT * FROM sca.tenant LIMIT 1;    
             """;
             return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Tenant.class));
     }
 
-    public Tenant tenantById(Long tenantId)
+    public Tenant tenantById(final Long tenantId)
     {
-        final var sql = """
+        final String sql = """
         SELECT * FROM sca.tenant WHERE id = :tenantId;    
         """;
-        final var params = new MapSqlParameterSource().addValue("tenantId", tenantId);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantId", tenantId);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
     }
 
-    public Tenant tenantByName(String tenantName)
+    public Tenant tenantByName(final String tenantName)
     {
-        final var sql = """
+        final String sql = """
         SELECT * FROM sca.tenant WHERE name = :tenantName;    
         """;
-        final var params = new MapSqlParameterSource().addValue("tenantName", tenantName);
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantName", tenantName);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
     }
 
-    public Tuple<Tenant, List<GrantedAuthority>> tenantWithUserAuthority(Long userId, Boolean defaultConnection)
+    public Tuple<Tenant, List<GrantedAuthority>> tenantWithUserAuthority(final Long userId, final Boolean defaultConnection)
     {
-        final var sql = """
+        final String sql = """
             SELECT t.*, tu.role AS role
             FROM sca.tenant t
             JOIN sca.tenant_user tu ON t.id = tu.tenant
             WHERE tu."user" = :userId AND tu.default_connection = :defaultConnection 
         """;
 
-        final var params = new MapSqlParameterSource(
+        final MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "userId", userId,
                 "defaultConnection", defaultConnection)
@@ -134,14 +134,14 @@ public class TenantService {
     }
 
     // Update
-    public Tenant insert(Tenant tenant, Long principalId)
+    public Tenant insert(final Tenant tenant, final Long principalId)
     {
-        final var sql = """
+        final String sql = """
         INSERT INTO sca.tenant
         VALUES (DEFAULT, :name, :bucket, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
-        final var params = new MapSqlParameterSource(
+        final MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "name", tenant.name(),
                 "bucket", tenant.bucket(),
@@ -150,13 +150,13 @@ public class TenantService {
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
     }
 
-    public void insertRole(Long tenantId, Long userId, Role role) 
+    public void insertRole(final Long tenantId, final Long userId, final RoleEnum role) 
     {
-        final var sql = """
+        final String sql = """
             INSERT INTO sca.tenant_user
             VALUES (:tenantId, :userId, :role, DEFAULT);
         """;
-        final var params = new MapSqlParameterSource().addValues(
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValues(
             Map.of(
                 "tenantId", tenantId,
                 "userId", userId,
@@ -166,9 +166,9 @@ public class TenantService {
     }
 
     // Update
-    public void setDefaultConnection(Long tenantId, Long userId) 
+    public void setDefaultConnection(final Long tenantId, final Long userId) 
     {
-        final var sql = """
+        final String sql = """
             UPDATE sca.tenant_user
             SET default_connection = 
                 CASE 
@@ -177,7 +177,7 @@ public class TenantService {
                 END
             WHERE tenant = :tenantId AND "user" = :userId;
         """;
-        final var params = new MapSqlParameterSource().addValues(
+        final MapSqlParameterSource params = new MapSqlParameterSource().addValues(
             Map.of(
                 "tenantId", tenantId,
                 "userId", userId));

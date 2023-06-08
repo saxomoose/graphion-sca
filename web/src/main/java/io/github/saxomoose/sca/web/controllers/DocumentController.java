@@ -5,6 +5,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
@@ -64,17 +66,17 @@ public class DocumentController {
     @GetMapping("/documents")
     public ModelAndView index(
         final HttpServletRequest request,
-        Pageable pageable) 
+        final Pageable pageable) 
     {
-        // final var tenantId = ((Tenant) httpSession.getAttribute("tenant")).id();
+        // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
         final var tenantId = 1L;
         final Page<Document> documentPage = documentService.documentsByTenant(tenantId, pageable);
         if (documentPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final var modelAndView = new ModelAndView("documents/index");
+        final ModelAndView modelAndView = new ModelAndView("documents/index");
         modelAndView.addObject("documentPage", documentPage);
-        final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -87,12 +89,11 @@ public class DocumentController {
         @PathVariable final String rawFileUUID,
         @RequestParam final Boolean download) throws Exception 
     {
-        final var tenant = ((Tenant) httpSession.getAttribute("tenant"));
+        final Tenant tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
         final UUID fileUUID = validationService.uuid(rawFileUUID);
         // TODO validate tenantId (uuid)
         final String filename = documentService.documentByTenantAndFileUUID(tenant.id(), fileUUID).filename();
-        final Resource inputStreamResource = 
-            new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
+        final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
         return ResponseEntity.ok().headers(httpHeaders -> {
             httpHeaders.setContentType(MediaType.APPLICATION_PDF);
             if (download) {
@@ -107,11 +108,10 @@ public class DocumentController {
     @GetMapping("/documents/create")
     public ModelAndView create(final HttpServletRequest request) 
     {
-        final var modelAndView = new ModelAndView("documents/create");
-        final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        final ModelAndView modelAndView = new ModelAndView("documents/create");
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
-            modelAndView.addObject(
-                "notifications", inputFlashMap.get("notifications"));
+            modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
         return modelAndView;
     }
@@ -128,7 +128,7 @@ public class DocumentController {
         String rawFilename = null;
         Long clientSideFileSize = null;
         InputStream rawFileInputStream = null;
-        for (Part part : parts) {
+        for (final Part part : parts) {
             if (part.getName().equals("fileSize")) {
                 final byte[] bytes = part.getInputStream().readAllBytes();
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
@@ -145,15 +145,12 @@ public class DocumentController {
         Objects.requireNonNull(rawFilename);
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
-        final var tenant = (Tenant) httpSession.getAttribute("tenant");
+        final var tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
         final String filename = validationService.documentFilename(rawFilename);
         documentService.create(tenant, ((User) request.getUserPrincipal()).id(), filename, clientSideFileSize, rawFileInputStream);
         redirectAttributes.addFlashAttribute(
             "notifications",
-            List.of(new Notification(
-                Notification.Type.SUCCESS, 
-                "document.create",
-                "document.create")));
+            List.of(new Notification(Notification.Type.SUCCESS, "document.create", "document.create")));
         return new RedirectView("/documents");
     }
 

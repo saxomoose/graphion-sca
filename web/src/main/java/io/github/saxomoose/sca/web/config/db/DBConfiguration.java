@@ -40,19 +40,19 @@ public class DBConfiguration {
     }
 
     @Bean
-    DataSourceInitializer initializer(DataSource dataSource) {
-        var initializer = new DataSourceInitializer();
+    DataSourceInitializer initializer(final DataSource dataSource) {
+        DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(dataSource);
         return initializer;
     }
 
     @Bean
-    NamedParameterJdbcOperations namedParameterJdbcOperations(DataSource dataSource) {
+    NamedParameterJdbcOperations namedParameterJdbcOperations(final DataSource dataSource) {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Bean
-    TransactionManager transactionManager(DataSource dataSource) {
+    TransactionManager transactionManager(final DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 

@@ -37,6 +37,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation(libs.dss.crl.parser)
     implementation(libs.dss.pades.pdfbox)
     implementation(libs.dss.pades)
     // implementation(libs.dss.pdfa)

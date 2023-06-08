@@ -1,6 +1,6 @@
 package io.github.saxomoose.sca.web.enums;
 
-public enum Role {
+public enum RoleEnum {
     ROLE_ADMIN,
     ROLE_ANONYMOUS,
     ROLE_NULL,

@@ -1,15 +1,15 @@
 package io.github.saxomoose.sca.web.models;
 
-import io.github.saxomoose.sca.web.enums.Role;
+import io.github.saxomoose.sca.web.enums.RoleEnum;
 
 public class TenantUser {
     private final Long tenant;
     private final Long user;
 
-    private Role role;
+    private RoleEnum role;
     private Boolean defaultConnection;
 
-    public TenantUser(Long tenant, Long user, Role role, Boolean defaultConnection)
+    public TenantUser(Long tenant, Long user, RoleEnum role, Boolean defaultConnection)
     {
         this.tenant = tenant;
         this.user = user;
@@ -27,7 +27,7 @@ public class TenantUser {
         return user;
     }
 
-    public Role role() 
+    public RoleEnum role() 
     {
         return role;
     }

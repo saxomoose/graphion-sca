@@ -35,7 +35,7 @@ public class ValidationService {
         return filename;
     }
 
-    public void documentFileFormat(String fileFormat) throws BusinessLogicException
+    public void documentFileFormat(final String fileFormat) throws BusinessLogicException
     {
         if (!fileFormat.equals(MediaType.APPLICATION_PDF.toString())) {
             throw new BusinessLogicException(new Notification(
@@ -45,7 +45,7 @@ public class ValidationService {
         }
     }
 
-    public void documentFileSize(Long fileSize, Long clientSideFileSize) throws BusinessLogicException {
+    public void documentFileSize(final Long fileSize, final Long clientSideFileSize) throws BusinessLogicException {
         if (fileSize == 0) {
             throw new BusinessLogicException(new Notification(
                 Notification.Type.ERROR,
@@ -59,12 +59,12 @@ public class ValidationService {
         }
     }
 
-    public UUID uuid(String uuid)
+    public UUID uuid(final String uuid)
     {
         return UUID.fromString(uuid);
     }
 
-    public void authentication(AuthenticationPayload auth) throws BusinessLogicException 
+    public void authentication(final AuthenticationPayload auth) throws BusinessLogicException 
     {
         try {
             // TODO: validate incoming JSON and email

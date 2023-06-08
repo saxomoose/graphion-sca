@@ -1,15 +1,22 @@
 package io.github.saxomoose.sca.web.services;
 
+import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import eu.europa.esig.dss.model.DSSDocument;
+import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.executor.ValidationLevel;
 import eu.europa.esig.dss.validation.reports.Reports;
+import io.github.saxomoose.sca.web.exceptions.SignatureException;
+import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
 public class PKIValidationService {
+    private static final Logger logger = LoggerFactory.getLogger(RedisSubService.class);
+
     private final CertificateVerifier certificateVerifier;
 
     @Autowired
@@ -18,14 +25,20 @@ public class PKIValidationService {
         this.certificateVerifier = certificateVerifier;
     }
 
-    public void validateSignature(DSSDocument signedDocument)
+    public Boolean validateSignature(final File workbenchFile) throws SignatureException
     {
-        final var documentValidator = SignedDocumentValidator.fromDocument(signedDocument);
+        final var documentValidator = SignedDocumentValidator.fromDocument(new FileDocument(workbenchFile));
         documentValidator.setCertificateVerifier(certificateVerifier);
-        documentValidator.setValidationLevel(ValidationLevel.ARCHIVAL_DATA);
+        documentValidator.setValidationLevel(ValidationLevel.LONG_TERM_DATA);
         final Reports reports = documentValidator.validateDocument();
-        final var simpleReport = reports.getSimpleReport();
-        final var indication = simpleReport.getIndication(simpleReport.getFirstSignatureId());
-        System.out.println(simpleReport);
+        if (reports.getSimpleReport().getSignaturesCount() == reports.getSimpleReport().getValidSignaturesCount()) {
+            return Boolean.TRUE;
+        } else {
+            logger.error("Signature validation failed: {}", reports.getXmlSimpleReport());
+            throw new SignatureException(new Notification(
+                Notification.Type.ERROR,
+                "TODO",
+                "TODO"));
+        }
     }
 }

@@ -1,11 +1,14 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import java.util.List;
+import java.util.Map;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -20,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.config.security.PKIAuthentication;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
@@ -55,14 +59,14 @@ public class TenantController {
         final HttpServletRequest request) 
     {
         // TODO: validate id
-        final var userId = Long.parseLong(rawUserId);
-        final var tenantPage = tenantService.tenantsByUser(userId, pageable);
+        final Long userId = Long.parseLong(rawUserId);
+        final Page<Tenant> tenantPage = tenantService.tenantsByUser(userId, pageable);
         if (tenantPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final var modelAndView = new ModelAndView("tenants/index");
+        final ModelAndView modelAndView = new ModelAndView("tenants/index");
         modelAndView.addObject("tenantPage", tenantPage);
-        final var inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -95,19 +99,16 @@ public class TenantController {
                 tenantWithUserAuthority.second());
             tenantService.setDefaultConnection( tenantWithUserAuthority.first().id(), user.id());
         }
-        final var securityContext = securityContextHolderStrategy.createEmptyContext();
+        final SecurityContext securityContext = securityContextHolderStrategy.createEmptyContext();
         securityContext.setAuthentication(authentication);
         securityContextHolderStrategy.setContext(securityContext);
         securityContextRepository.saveContext(securityContext, request, response);
         
-        httpSession.setAttribute("tenant", tenantWithUserAuthority.first());
+        httpSession.setAttribute(SessionEnum.TENANT.toString(), tenantWithUserAuthority.first());
         
         redirectAttributes.addFlashAttribute(
             "notifications",
-            List.of(new Notification(
-                Notification.Type.SUCCESS, 
-                "authorization.success",
-                "authorization.success")));
+            List.of(new Notification(Notification.Type.SUCCESS, "authorization.success", "authorization.success")));
         return new RedirectView("/closings");
     }
 }

@@ -6,14 +6,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.Assert;
 
 public class RowMapperCollection {
-    private Map<Class<?>, RowMapper<?>> mappers = new LinkedHashMap<>();
+    private final Map<Class<?>, RowMapper<?>> mappers = new LinkedHashMap<>();
 
-    public <T> RowMapper<? extends T> getRowMapper(Class<T> type) 
+    public <T> RowMapper<? extends T> getRowMapper(final Class<T> type) 
     {
         Assert.notNull(type, "Type must not be null");
         RowMapper<?> candidate = mappers.get(type);
         if (candidate == null) {
-            for (Map.Entry<Class<?>, RowMapper<?>> entry : mappers.entrySet()) {
+            for (final Map.Entry<Class<?>, RowMapper<?>> entry : mappers.entrySet()) {
 
                 if (type.isAssignableFrom(entry.getKey())) {
                     candidate = entry.getValue();
@@ -28,7 +28,7 @@ public class RowMapperCollection {
      *
      * @return this instance, so this can be used as a fluent interface.
      */
-    public <T> RowMapperCollection registerRowMapper(Class<T> type, RowMapper<? extends T> rowMapper) 
+    public <T> RowMapperCollection registerRowMapper(final Class<T> type, final RowMapper<? extends T> rowMapper) 
     {
         mappers.put(type, rowMapper);
         return this;

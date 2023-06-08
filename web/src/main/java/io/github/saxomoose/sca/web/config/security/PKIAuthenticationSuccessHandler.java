@@ -7,7 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.enums.Path;
+import io.github.saxomoose.sca.web.enums.PathEnum;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import jakarta.servlet.ServletException;
@@ -38,19 +39,18 @@ public class PKIAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         final Tenant defaultTenant = ((PKIAuthentication) authentication).defaultTenant();
         String successURL;
         if(defaultTenant != null) {
-            httpSession.setAttribute("tenant", defaultTenant);
-            successURL = String.format("/%s", Path.CLOSINGS);
+            httpSession.setAttribute(SessionEnum.TENANT.toString(), defaultTenant);
+            successURL = String.format("/%s", PathEnum.CLOSINGS);
         } else {
             successURL = String.format(
                 "/%s/%s", 
-                Path.TENANTS, 
+                PathEnum.TENANTS, 
                 ((User) authentication.getPrincipal()).id());
         }   
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setHeader("Content-Type", "application/json");
-        final var serializedAuthSuccess = objectMapper.writeValueAsString(
-            new AuthenticationSuccessPayload(successURL));
+        final String serializedAuthSuccess = objectMapper.writeValueAsString(new AuthenticationSuccessPayload(successURL));
         response.getWriter().write(serializedAuthSuccess);
     }
 }
