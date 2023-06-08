@@ -164,7 +164,8 @@ public class DocumentController {
         final String path = URI.create(request.getHeader("referer")).getPath();
         redirectAttributes.addFlashAttribute(
             "notifications", 
-            List.of(new Notification(
+            List.of(
+                new Notification(
                     businessLogicException.notification().type(),
                     businessLogicException.notification().header(),
                     businessLogicException.notification().body())));

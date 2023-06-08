@@ -1,7 +1,10 @@
 package io.github.saxomoose.sca.web.services;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,26 +16,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import eu.europa.esig.dss.model.DSSDocument;
 import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
+import io.github.saxomoose.sca.web.enums.PathEnum;
+import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
+import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
 public class ClosingService {
-
+    private final MinIOService minioService;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RowMapperCollection rowMappers;
+    private final RowMapper<Closing> rowMapper;
 
     @Autowired
-    public ClosingService(NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
-    {
+    public ClosingService(MinIOService minioService, NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
+    {   
+        this.minioService = minioService;
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.rowMappers = rowMappers;
+        this.rowMapper = (RowMapper<Closing>) rowMappers.getRowMapper(Closing.class);
+
     }
 
     // Aggregate
@@ -58,9 +69,18 @@ public class ClosingService {
     public Closing firstClosing()
     {
         final String sql = """
-        SELECT * FROM sca.closing LIMIT 1;    
+            SELECT * FROM sca.closing LIMIT 1;    
         """;
-        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Closing.class));
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMapper);
+    }
+
+    public Closing closingById(final Long closingId)
+    {
+        final String sql = """
+            SELECT * FROM sca.closing WHERE id = :closingId;     
+        """;
+        final var params = new MapSqlParameterSource(Map.of("closingId", closingId));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
     public ClosingToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
@@ -79,12 +99,13 @@ public class ClosingService {
             ORDER BY :sort_order
             LIMIT :pageSize OFFSET :offset;
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
-            Map.of(
-                "tenantId", tenantId,
-                "pageSize", pageable.getPageSize(),
-                "offset", offset,
-                "sort_order", pageable.getSort().stream().findFirst().get().getProperty()));
+        final MapSqlParameterSource params = 
+            new MapSqlParameterSource(
+                Map.of(
+                    "tenantId", tenantId,
+                    "pageSize", pageable.getPageSize(),
+                    "offset", offset,
+                    "sort_order", pageable.getSort().stream().findFirst().get().getProperty()));
         final List<Closing> tenantClosings = namedParameterJdbcOperations.query(sql, params, (rs) -> {
             final Map<Long, Closing> closingsMap = new HashMap<Long, Closing>();
             final Map<Long, User> usersMap = new HashMap<Long, User>();
@@ -145,16 +166,29 @@ public class ClosingService {
             JOIN sca.document AS d ON d.id = cs.document
             WHERE cs.closing = :closingId AND cs.signatory = :userId AND d.file_uuid = :fileUUID;        
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
-            Map.of(
-                "closingId", closingId,
-                "userId", userId,
-                "fileUUID", fileUUID
-            ));
+        final MapSqlParameterSource params = 
+            new MapSqlParameterSource(
+                Map.of(
+                    "closingId", closingId,
+                    "userId", userId,
+                    "fileUUID", fileUUID));
         final Long count = namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
         return count == 1L ? Boolean.TRUE : Boolean.FALSE;
     }
-    
+
+    public Boolean userIsLastSignatory(final Long closingId)
+    {
+        final var sql  = """
+            SELECT COUNT(*)
+            FROM sca.closing_signatory
+            WHERE closing = :closingId AND signature_timestamp IS NULL;        
+        """;
+        final MapSqlParameterSource params =
+            new MapSqlParameterSource(Map.of("closingId", closingId));
+        final Long count = namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
+        return count == 1L ? Boolean.TRUE : Boolean.FALSE;
+    }
+
     // Update
     public Closing insert(final Closing closing, final Long principalId)
     {
@@ -163,16 +197,17 @@ public class ClosingService {
         VALUES (:tenantId, DEFAULT, :name, :timestamp, :zoneId, :location, DEFAULT, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
-            Map.of(
-                "tenantId", closing.tenantId(),
-                "name", closing.name(),
-                "timestamp", closing.timestamp(),
-                "location", closing.location(),
-                "createdBy", principalId,
-                "lastUpdatedBy", principalId));
+        final MapSqlParameterSource params = 
+            new MapSqlParameterSource(
+                Map.of(
+                    "tenantId", closing.tenantId(),
+                    "name", closing.name(),
+                    "timestamp", closing.timestamp(),
+                    "location", closing.location(),
+                    "createdBy", principalId,
+                    "lastUpdatedBy", principalId));
         params.addValue("zoneId", closing.zoneId().getId(), java.sql.Types.VARCHAR);
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Closing.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
     
     public void insertNaturalPersonSignatory(final Long closingId, final Long signatoryId, final Long documentId)
@@ -181,12 +216,12 @@ public class ClosingService {
             INSERT INTO sca.closing_signatory (closing, signatory, document, signature_timestamp)
             VALUES (:closingId, :signatoryId, :documentId, DEFAULT);
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValues(
-            Map.of(
-                "closingId", closingId,
-                "signatoryId", signatoryId,
-                "documentId", documentId));
-
+        final MapSqlParameterSource params = 
+            new MapSqlParameterSource().addValues(
+                Map.of(
+                    "closingId", closingId,
+                    "signatoryId", signatoryId,
+                    "documentId", documentId));
         namedParameterJdbcOperations.update(sql, params);
     }
 
@@ -196,11 +231,53 @@ public class ClosingService {
             INSERT INTO sca.closing_legal_person (closing, legal_person, status)
             VALUES (:closingId, :legalPersonId, DEFAULT);
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValues(
-            Map.of(
-                "closingId", closingId,
-                "legalPersonId", legalPersonId));
-
+        final MapSqlParameterSource params = 
+            new MapSqlParameterSource().addValues(
+                Map.of(
+                    "closingId", closingId,
+                    "legalPersonId", legalPersonId));
         namedParameterJdbcOperations.update(sql, params);
     }
+
+    public void closingIsExpired(final Long closingId) throws BusinessLogicException
+    {
+        if (closingById(closingId).isExpired()) {
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+    }
+
+    @Transactional
+    public void storeDocument(
+        Closing closing,
+        Long userId,
+        String bucket,
+        UUID fileUUID,
+        DSSDocument signedDocument,
+        Instant signatureTimestamp)
+    {
+        final LocalDateTime signatureTimestampAtClosingZoneId = ZonedDateTime.ofInstant(signatureTimestamp, closing.zoneId()).toLocalDateTime();
+
+        minioService.storeObject(
+            bucket, 
+            String.format("%s/%s", PathEnum.SIGNED, fileUUID),
+            signedDocument.openStream());
+
+        final String sql = """
+            UPDATE sca.closing_signatory
+            SET signature_timestamp = :signatureTimestamp
+            WHERE closing = :closingId
+                AND signatory = :userId
+                AND document = (SELECT id FROM sca.document WHERE file_uuid = :fileUUID);
+        """;
+        final MapSqlParameterSource params = 
+            new MapSqlParameterSource(
+                Map.of(
+                "signatureTimestamp", signatureTimestampAtClosingZoneId,
+                "closingId", closing.id(),
+                "userId", userId,
+                "fileUUID", fileUUID));
+        namedParameterJdbcOperations.update(sql, params);
+    }
+
+
 }

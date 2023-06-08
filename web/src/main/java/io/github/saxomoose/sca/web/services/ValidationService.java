@@ -13,12 +13,16 @@ import io.github.saxomoose.sca.web.utils.Notification;
 @Service
 public class ValidationService {
 
+    private final ClosingService closingService;
     private final DocumentService documentService;
+    private final RedisService redisService;
 
     @Autowired
-    public ValidationService(DocumentService documentService)
+    public ValidationService(ClosingService closingService, DocumentService documentService, RedisService redisService)
     {
+        this.closingService = closingService;
         this.documentService = documentService;
+        this.redisService = redisService;
     }
 
     public String documentFilename(final String filename) throws BusinessLogicException
@@ -26,10 +30,7 @@ public class ValidationService {
         final Pattern pattern = Pattern.compile("^[a-zA-Z0-9_-]{1,255}$", Pattern.CASE_INSENSITIVE);
         final Matcher matcher = pattern.matcher(filename);
         if (filename.isBlank() || !matcher.matches()) {
-            throw new BusinessLogicException(new Notification(
-                Notification.Type.ERROR,
-                "document.validate",
-                "document.filename.invalid"
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "document.validate","document.filename.invalid"
             ));
         }
         return filename;
@@ -38,24 +39,15 @@ public class ValidationService {
     public void documentFileFormat(final String fileFormat) throws BusinessLogicException
     {
         if (!fileFormat.equals(MediaType.APPLICATION_PDF.toString())) {
-            throw new BusinessLogicException(new Notification(
-                Notification.Type.ERROR,
-                "document.validate",
-                "document.file.unsupported_file_format"));
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.unsupported_file_format"));
         }
     }
 
     public void documentFileSize(final Long fileSize, final Long clientSideFileSize) throws BusinessLogicException {
         if (fileSize == 0) {
-            throw new BusinessLogicException(new Notification(
-                Notification.Type.ERROR,
-                "document.validate",
-                "document.file.empty"));
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.empty"));
         } else if (fileSize != clientSideFileSize) {
-            throw new BusinessLogicException(new Notification(
-                Notification.Type.ERROR,
-                "document.validate",
-                "document.file.size_mismatch"));
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.size_mismatch"));
         }
     }
 
@@ -72,6 +64,5 @@ public class ValidationService {
             throw new UnsupportedOperationException();
         }
     }
-
 
 }

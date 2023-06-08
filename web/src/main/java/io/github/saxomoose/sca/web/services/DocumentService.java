@@ -106,7 +106,7 @@ public class DocumentService {
 
     private String filePath(PathEnum path, final UUID fileUUID)
     {
-        return String.format("/%s/%s", path, fileUUID);
+        return String.format("%s/%s", path, fileUUID);
     }
 
     // Update

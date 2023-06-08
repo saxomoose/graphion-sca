@@ -1,22 +1,19 @@
 package io.github.saxomoose.sca.web.services;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
@@ -35,41 +32,46 @@ import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.PathEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.SignatureException;
+import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.utils.Tuple;
 
 @Service
 public class PKISignatureService {
+    private static final Logger logger = LoggerFactory.getLogger(PKISignatureService.class);
+    
+    private final DocumentService documentService;
     private final MinIOService minioService;
     private final PAdESService padesService;
     private final RedisService redisService;
-    private final ResourceLoader resourceLoader;
     private final TempFileResourcesHandlerBuilder tempFileResourcesHandlerBuilder;
 
     @Autowired
     public PKISignatureService(
+        DocumentService documentService,
         MinIOService minioService, 
         PAdESService padesService, 
         RedisService redisService, 
-        ResourceLoader resourceLoader,
         TempFileResourcesHandlerBuilder tempFileResourcesHandlerBuilder) 
     {
+        this.documentService = documentService;
         this.minioService = minioService;
         this.padesService = padesService;
         this.redisService = redisService;
-        this.resourceLoader = resourceLoader;
         this.tempFileResourcesHandlerBuilder = tempFileResourcesHandlerBuilder;
     }
 
     public Tuple<DigestPayload, PAdESSignatureParameters> dataToSign(
         final String bucket,
         final UUID fileUUID,
-        final SignatureCertificatePayload signatureCertificate) 
+        final SignatureCertificatePayload signatureCertificate,
+        final Boolean userIsLastSignatory) 
     throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException 
     {
-        // redisService.lockFile(fileUUID);
+        redisService.lockFile(fileUUID);
         final InputStream inputStream = minioService.objectAsStream(
             bucket, 
-            String.format("/%s/%s", PathEnum.CLOSING_DOCUMENTS, fileUUID));
+            String.format("%s/%s", PathEnum.CLOSING_DOCUMENTS, fileUUID));
         final File file = workbenchFile(bucket, fileUUID);
         file.getParentFile().mkdirs();
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -77,7 +79,12 @@ public class PKISignatureService {
         final X509Certificate x509Certificate = signatureCertificate.toX509Certificate();
         final CertificateToken certificateToken = new CertificateToken(x509Certificate);
         final PAdESSignatureParameters parameters = new PAdESSignatureParameters();
-        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
+        if (!userIsLastSignatory) {
+            parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
+        } else {
+            parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
+        }
+        
         parameters.setSigningCertificate(certificateToken);
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         
@@ -88,18 +95,14 @@ public class PKISignatureService {
             DSSUtils.digest(DigestAlgorithm.SHA256, toBeSigned.getBytes()));
         final String base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
 
-        return Tuple.of(
-            new DigestPayload(
-                base64Digest, 
-                DigestAlgorithm.SHA256.getJavaName()),
-            parameters);
+        return Tuple.of(new DigestPayload(base64Digest, DigestAlgorithm.SHA256.getJavaName()), parameters);
     }
 
-    public File applySignature(
+    public DSSDocument applySignature(
         final String bucket,
         final UUID fileUUID, 
         final PAdESSignatureParameters parameters,
-        final SignaturePayload signature) throws CertificateException, IOException
+        final SignaturePayload signature) throws CertificateException, IOException, BusinessLogicException
     {    
         final File workbenchFile = workbenchFile(bucket, fileUUID);
 
@@ -107,42 +110,33 @@ public class PKISignatureService {
         final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
         final byte[] signatureBytes = Base64.getDecoder().decode(signature.base64Signature());
         final SignatureValue signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
-        Assert.isTrue(
-            padesService.isValidSignatureValue(
-                toBeSigned, 
-                signatureValue, 
-                parameters.getSigningCertificate()), 
-            "The signature value computed client-side is invalid.");
-        final DSSDocument signedDocument = padesService.signDocument(toSignDocument, parameters, signatureValue);
-        Files.copy(signedDocument.openStream(), workbenchFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        tempFileResourcesHandlerBuilder.clear();
+        if(!padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate())) {
+            logger.error("File {}: the signature value computed client-side is invalid.", fileUUID);
+            throw new SignatureException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        } 
+        final FileDocument signedDocument = (FileDocument) padesService.signDocument(toSignDocument, parameters, signatureValue);
 
-        return workbenchFile;
+        return signedDocument;
     }
 
-    public void storeDocument(
+    public void cleanUp(
         final String bucket,
         final UUID fileUUID) throws IOException
     {
         final File workbenchFile = workbenchFile(bucket, fileUUID);
-        minioService.storeObject(
-            bucket, 
-            String.format("/%s/%s", PathEnum.SIGNED, fileUUID),
-            new FileInputStream(workbenchFile));
-
         workbenchFile.delete();
-        final Path parentPath = Paths.get(workbenchFile.getAbsolutePath()).getParent();
-        if (!Files.list(parentPath).findFirst().isPresent()) {
-            Files.delete(parentPath);
+        final File parentFile = workbenchFile.getParentFile();
+        if (!Files.list(parentFile.toPath()).findFirst().isPresent()) {
+            Files.delete(parentFile.toPath());
         }
-        //redisService.unlockFile(fileUUID);
+        tempFileResourcesHandlerBuilder.clear();
+        redisService.unlockFile(fileUUID);
     }
 
     private File workbenchFile(final String bucket, final UUID fileUUID)
     {
         final String path = String.format(
-            "%s:%s/%s/%s/%s",
-            "file",
+            "%s/%s/%s/%s",
             System.getProperty("user.dir"),
             PathEnum.DSS_WORKBENCH,
             bucket,

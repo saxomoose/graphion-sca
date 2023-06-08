@@ -1,9 +1,9 @@
 package io.github.saxomoose.sca.web.controllers.pki;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +15,15 @@ import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.support.SessionFlashMapManager;
+import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
+import io.github.saxomoose.sca.web.config.security.PKIAuthentication;
 import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.exceptions.SignatureException;
+import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Tenant;
+import io.github.saxomoose.sca.web.models.User;
+import io.github.saxomoose.sca.web.services.ClosingService;
 import io.github.saxomoose.sca.web.services.PKISignatureService;
 import io.github.saxomoose.sca.web.services.PKIValidationService;
 import io.github.saxomoose.sca.web.services.ValidationService;
@@ -30,17 +34,20 @@ import jakarta.servlet.http.HttpSession;
 
 @RestController
 public class SignatureController {
+    private final ClosingService closingService;
     private final HttpSession httpSession;
     private final PKISignatureService pkiSignatureService;
     private final PKIValidationService pkiValidationService;
     private final ValidationService validationService;
 
     public SignatureController(
+        ClosingService closingService,
         HttpSession httpSession, 
         PKISignatureService pkiSignatureService,
         PKIValidationService pkiValidationService,
         ValidationService validationService) 
     {
+        this.closingService = closingService;
         this.httpSession = httpSession;
         this.pkiSignatureService = pkiSignatureService;
         this.pkiValidationService = pkiValidationService;
@@ -51,13 +58,17 @@ public class SignatureController {
     public ResponseEntity<DigestPayload> dataToSign(
         HttpServletRequest request,
         HttpServletResponse response,
+        @PathVariable final Long rawClosingId,
         @PathVariable final String rawFileUUID,
         @RequestBody final SignatureCertificatePayload signatureCertificate
     ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
+        closingService.closingIsExpired(rawClosingId);
+        final Boolean userIsLastSignatory = closingService.userIsLastSignatory(rawClosingId);
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
-        final Tuple<DigestPayload, PAdESSignatureParameters> tuple = pkiSignatureService.dataToSign(bucket, fileUUID, signatureCertificate);
+        final Tuple<DigestPayload, PAdESSignatureParameters> tuple = 
+            pkiSignatureService.dataToSign(bucket, fileUUID, signatureCertificate, userIsLastSignatory);
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         final FlashMap flashMap = new FlashMap();
         flashMap.put("parameters", tuple.second());
@@ -68,18 +79,21 @@ public class SignatureController {
     @PostMapping(value = "/pki/sign/apply/{rawClosingId}/{rawFileUUID}", produces = "application/json")
     public ResponseEntity sign(
         HttpServletRequest request,
+        @PathVariable final Long rawClosingId,
         @PathVariable final String rawFileUUID,
         @RequestBody final SignaturePayload signature
-    ) throws CertificateException, IOException, SignatureException
+    ) throws CertificateException, IOException, BusinessLogicException
     {
+        final Long userId = ((User) ((PKIAuthentication) request.getUserPrincipal()).getPrincipal()).id();
+        final Closing closing = closingService.closingById(rawClosingId);
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
         final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final PAdESSignatureParameters parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");
-        final File workbenchFile = pkiSignatureService.applySignature(bucket, fileUUID, parameters, signature);
-        if (pkiValidationService.validateSignature(workbenchFile)) {
-            pkiSignatureService.storeDocument(bucket, fileUUID);
-        }
+        final DSSDocument signedDocument = pkiSignatureService.applySignature(bucket, fileUUID, parameters, signature);
+        final Instant signatureTimestamp = pkiValidationService.validateSignature(fileUUID, signedDocument);
+        closingService.storeDocument(closing, userId, bucket, fileUUID, signedDocument, signatureTimestamp);
+        pkiSignatureService.cleanUp(bucket, fileUUID);
         return ResponseEntity.noContent().build();
     }
 }
