@@ -82,14 +82,14 @@ public class TenantService {
     public Tenant firstTenant() {
         final String sql = """
             SELECT * FROM sca.tenant LIMIT 1;    
-            """;
-            return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Tenant.class));
+        """;
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Tenant.class));
     }
 
     public Tenant tenantById(final Long tenantId)
     {
         final String sql = """
-        SELECT * FROM sca.tenant WHERE id = :tenantId;    
+            SELECT * FROM sca.tenant WHERE id = :tenantId;    
         """;
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantId", tenantId);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));
@@ -98,7 +98,7 @@ public class TenantService {
     public Tenant tenantByName(final String tenantName)
     {
         final String sql = """
-        SELECT * FROM sca.tenant WHERE name = :tenantName;    
+            SELECT * FROM sca.tenant WHERE name = :tenantName;    
         """;
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantName", tenantName);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Tenant.class));

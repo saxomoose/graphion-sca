@@ -110,7 +110,7 @@ public class RedisService {
                 throw new SignatureException(new Notification(Notification.Type.INFORMATION, "signature", "signature.file.locked"));
             }
         } catch (SignatureException exception) {
-            logger.error("File with UUID {} is locked.", fileUUID);
+            logger.error("File {}: file is locked.", fileUUID);
             throw exception;
         } catch (Exception exception) {
             logger.error(exception.getMessage());

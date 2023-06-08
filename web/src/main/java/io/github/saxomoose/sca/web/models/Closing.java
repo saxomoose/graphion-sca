@@ -100,6 +100,11 @@ public class Closing {
         return expirationTimestamp;
     }
 
+    public ZonedDateTime zonedExpirationTimestamp()
+    {
+        return ZonedDateTime.of(expirationTimestamp(), zoneId());
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -129,5 +134,14 @@ public class Closing {
         }
         users.add(user);
         return this;
+    }
+
+    public Boolean isExpired()
+    {
+        if (zonedExpirationTimestamp().compareTo(ZonedDateTime.now(zoneId())) <= 0) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
 }
