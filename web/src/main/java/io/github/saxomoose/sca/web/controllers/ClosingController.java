@@ -69,8 +69,8 @@ public class ClosingController {
     }
 
     // Create
-    @GetMapping("/closings/create")
-    public ModelAndView create(
+    @GetMapping("/closings/prepare")
+    public ModelAndView prepare(
         final HttpServletRequest request,
         @RequestParam(required = false) Integer userPageIndex,
         @RequestParam(required = false) Integer documentPageIndex
@@ -86,7 +86,7 @@ public class ClosingController {
         final PageRequest documentPageable = PageRequest.of(documentPageIndex, 10);
         final Page<User> userPage = userService.usersByTenant(1L, userPageable);
         final Page<Document> documentPage = documentService.documentsByTenant(1L, documentPageable);
-        final ModelAndView modelAndView = new ModelAndView("closings/create");
+        final ModelAndView modelAndView = new ModelAndView("closings/prepare");
         modelAndView.addObject("userPage", userPage);
         modelAndView.addObject("documentPage", documentPage);
         final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
@@ -99,6 +99,36 @@ public class ClosingController {
     /**
      * TODO
      */
+    @PostMapping(value = "/closings/prepare", consumes = "application/x-www-form-urlencoded")
+    public RedirectView prepare(
+        final ClosingToCreate rawClosing,
+        final RedirectAttributes redirectAttributes) throws Exception 
+    {
+        final List<User> users = userService.usersByIds(rawClosing.users());
+        final List<Document> documents = documentService.documentsByIds(rawClosing.documents());
+        redirectAttributes.addFlashAttribute("users", users);
+        redirectAttributes.addFlashAttribute("documents", documents);
+        
+        return new RedirectView("/closings/create");
+    }
+
+    @GetMapping("/closings/create")
+    public ModelAndView create(
+        final HttpServletRequest request
+    ) 
+    {
+        final ModelAndView modelAndView = new ModelAndView("closings/create");
+        // modelAndView.addObject("userPage", userPage);
+        // modelAndView.addObject("documentPage", documentPage);
+        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        if (inputFlashMap != null) {
+            modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
+            modelAndView.addObject("users", inputFlashMap.get("users"));
+            modelAndView.addObject("documents", inputFlashMap.get("documents"));
+        }
+        return modelAndView;
+    }
+
     @PostMapping(value = "/closings", consumes = "application/x-www-form-urlencoded")
     public RedirectView store(
         final ClosingToCreate rawClosing,
@@ -113,7 +143,7 @@ public class ClosingController {
         redirectAttributes.addFlashAttribute(
             "notifications", 
             List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "users.create.success")));
-        return new RedirectView("/users");
+        return new RedirectView("/closings");
     }
 
 

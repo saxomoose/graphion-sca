@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -26,6 +27,7 @@ import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.enums.PathEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Closing;
+import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
@@ -35,17 +37,20 @@ import io.github.saxomoose.sca.web.utils.Notification;
 public class ClosingService {
     private final MinIOService minioService;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RowMapper<Closing> rowMapper;
+    private final RowMapper<Closing> closingRowMapper;
+    private final RowMapper<ClosingSignatory> closingSignatoryRowMapper;
 
     @Autowired
     public ClosingService(MinIOService minioService, NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
     {   
         this.minioService = minioService;
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.rowMapper = (RowMapper<Closing>) rowMappers.getRowMapper(Closing.class);
+        this.closingRowMapper = (RowMapper<Closing>) rowMappers.getRowMapper(Closing.class);
+        this.closingSignatoryRowMapper = (RowMapper<ClosingSignatory>) rowMappers.getRowMapper(ClosingSignatory.class);
 
     }
 
+    // Data
     // Aggregate
     public Long count() {
         final String sql = """
@@ -71,7 +76,7 @@ public class ClosingService {
         final String sql = """
             SELECT * FROM sca.closing LIMIT 1;    
         """;
-        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMapper);
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, closingRowMapper);
     }
 
     public Closing closingById(final Long closingId)
@@ -80,7 +85,7 @@ public class ClosingService {
             SELECT * FROM sca.closing WHERE id = :closingId;     
         """;
         final var params = new MapSqlParameterSource(Map.of("closingId", closingId));
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
+        return namedParameterJdbcOperations.queryForObject(sql, params, closingRowMapper);
     }
 
     public ClosingToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
@@ -158,10 +163,10 @@ public class ClosingService {
 
     }
 
-    public Boolean userIsSignatory(final Long closingId, final Long userId, final UUID fileUUID)
+    public ClosingSignatory closingSignatory(final Long closingId, final Long userId, final UUID fileUUID)
     {
         final String sql = """
-            SELECT COUNT(*) AS match_count
+            SELECT *
             FROM sca.closing_signatory AS cs
             JOIN sca.document AS d ON d.id = cs.document
             WHERE cs.closing = :closingId AND cs.signatory = :userId AND d.file_uuid = :fileUUID;        
@@ -172,8 +177,7 @@ public class ClosingService {
                     "closingId", closingId,
                     "userId", userId,
                     "fileUUID", fileUUID));
-        final Long count = namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
-        return count == 1L ? Boolean.TRUE : Boolean.FALSE;
+        return namedParameterJdbcOperations.queryForObject(sql, params, closingSignatoryRowMapper);
     }
 
     public Boolean userIsLastSignatory(final Long closingId)
@@ -207,7 +211,7 @@ public class ClosingService {
                     "createdBy", principalId,
                     "lastUpdatedBy", principalId));
         params.addValue("zoneId", closing.zoneId().getId(), java.sql.Types.VARCHAR);
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
+        return namedParameterJdbcOperations.queryForObject(sql, params, closingRowMapper);
     }
     
     public void insertNaturalPersonSignatory(final Long closingId, final Long signatoryId, final Long documentId)
@@ -237,13 +241,6 @@ public class ClosingService {
                     "closingId", closingId,
                     "legalPersonId", legalPersonId));
         namedParameterJdbcOperations.update(sql, params);
-    }
-
-    public void closingIsExpired(final Long closingId) throws BusinessLogicException
-    {
-        if (closingById(closingId).isExpired()) {
-            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
-        }
     }
 
     @Transactional
@@ -279,5 +276,24 @@ public class ClosingService {
         namedParameterJdbcOperations.update(sql, params);
     }
 
+    // Service
+    public void closingIsExpired(final Long closingId) throws BusinessLogicException
+    {
+        if (closingById(closingId).isExpired()) {
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+    }
 
+    public void userStatusOnClosing(Long closingId, Long userId, UUID fileUUID) throws BusinessLogicException
+    {
+        ClosingSignatory closingSignatory;
+        try {
+            closingSignatory = closingSignatory(closingId, userId, fileUUID);
+        } catch (EmptyResultDataAccessException exception) {
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+        if (closingSignatory.signatureTimestamp() != null) {
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+    }
 }

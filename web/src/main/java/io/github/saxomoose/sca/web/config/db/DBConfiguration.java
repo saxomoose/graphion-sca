@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import io.github.saxomoose.sca.web.models.Closing;
+import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.LegalPerson;
 import io.github.saxomoose.sca.web.models.Tenant;
@@ -64,6 +65,7 @@ public class DBConfiguration {
             .registerRowMapper(Tenant.class, new TenantRowMapper())
             .registerRowMapper(LegalPerson.class, new LegalPersonRowMapper())
             .registerRowMapper(Closing.class, new ClosingRowMapper())
-            .registerRowMapper(Document.class, new DocumentRowMapper());
+            .registerRowMapper(Document.class, new DocumentRowMapper())
+            .registerRowMapper(ClosingSignatory.class, new ClosingSignatoryRowMapper());
     }
 }

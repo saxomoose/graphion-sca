@@ -63,12 +63,13 @@ public class SignatureController {
         @RequestBody final SignatureCertificatePayload signatureCertificate
     ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
-        closingService.closingIsExpired(rawClosingId);
-        final Boolean userIsLastSignatory = closingService.userIsLastSignatory(rawClosingId);
+        final Long userId = ((User) ((PKIAuthentication) request.getUserPrincipal()).getPrincipal()).id();
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
+        closingService.closingIsExpired(rawClosingId);
+        closingService.userStatusOnClosing(rawClosingId, userId, fileUUID);
         final Tuple<DigestPayload, PAdESSignatureParameters> tuple = 
-            pkiSignatureService.dataToSign(bucket, fileUUID, signatureCertificate, userIsLastSignatory);
+            pkiSignatureService.dataToSign(bucket, fileUUID, signatureCertificate);
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         final FlashMap flashMap = new FlashMap();
         flashMap.put("parameters", tuple.second());
@@ -85,13 +86,13 @@ public class SignatureController {
     ) throws CertificateException, IOException, BusinessLogicException
     {
         final Long userId = ((User) ((PKIAuthentication) request.getUserPrincipal()).getPrincipal()).id();
-        final Closing closing = closingService.closingById(rawClosingId);
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
+        final Closing closing = closingService.closingById(rawClosingId);
         final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         final PAdESSignatureParameters parameters = (PAdESSignatureParameters) inputFlashMap.get("parameters");
         final DSSDocument signedDocument = pkiSignatureService.applySignature(bucket, fileUUID, parameters, signature);
-        final Instant signatureTimestamp = pkiValidationService.validateSignature(fileUUID, signedDocument);
+        final Instant signatureTimestamp = pkiValidationService.validateSignature(fileUUID, parameters, signedDocument);
         closingService.storeDocument(closing, userId, bucket, fileUUID, signedDocument, signatureTimestamp);
         pkiSignatureService.cleanUp(bucket, fileUUID);
         return ResponseEntity.noContent().build();

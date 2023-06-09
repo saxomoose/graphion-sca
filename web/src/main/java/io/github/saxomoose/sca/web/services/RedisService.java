@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.enums.RedisEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.exceptions.SignatureException;
 import io.github.saxomoose.sca.web.utils.Job;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpSession;
@@ -107,9 +106,9 @@ public class RedisService {
                         String.valueOf(1),
                         Duration.ofMinutes(1));
             if (!result) {
-                throw new SignatureException(new Notification(Notification.Type.INFORMATION, "signature", "signature.file.locked"));
+                throw new BusinessLogicException(new Notification(Notification.Type.INFORMATION, "signature", "signature.file.locked"));
             }
-        } catch (SignatureException exception) {
+        } catch (BusinessLogicException exception) {
             logger.error("File {}: file is locked.", fileUUID);
             throw exception;
         } catch (Exception exception) {

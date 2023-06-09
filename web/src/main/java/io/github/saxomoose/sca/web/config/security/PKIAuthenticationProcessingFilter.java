@@ -64,8 +64,7 @@ public class PKIAuthenticationProcessingFilter extends AbstractAuthenticationPro
         try {
             validationService.authentication(authenticationPayload);
         } catch (BusinessLogicException exception) {
-            logger.error(exception.getMessage());
-            throw new RuntimeException();
+            throw new RuntimeException(exception);
         }
         return getAuthenticationManager().authenticate(token);
     }

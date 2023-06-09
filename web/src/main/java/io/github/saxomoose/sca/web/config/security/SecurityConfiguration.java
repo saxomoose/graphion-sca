@@ -3,7 +3,6 @@ package io.github.saxomoose.sca.web.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -84,7 +83,7 @@ public class SecurityConfiguration {
                     "/pki/challenge").permitAll()
                 // .requestMatchers("/closings", "/documents").access(new WebExpressionAuthorizationManager("hasAnyRole('ADMIN', 'USER', 'SIGNATORY')"))
                 // .anyRequest().hasRole("ADMIN"));
-                .requestMatchers(HttpMethod.POST, "/pki/sign/dtbsr/{rawClosingId}/{rawFileUUID}").access(pkiSignatureAuthorizationManager)
+                // .requestMatchers(HttpMethod.POST, "/pki/sign/dtbsr/{rawClosingId}/{rawFileUUID}").access(pkiSignatureAuthorizationManager)
                 .anyRequest().permitAll());
         return httpSecurity.build();
     }

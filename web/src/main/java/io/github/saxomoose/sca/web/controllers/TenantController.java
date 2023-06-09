@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.config.security.PKIAuthentication;
@@ -28,7 +27,6 @@ import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.ValidationService;
-import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.utils.Tuple;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -77,7 +75,6 @@ public class TenantController {
     public RedirectView setAuthorization(
         @PathVariable final String rawTenantName,
         @RequestParam final Boolean setDefaultConnection,
-        final RedirectAttributes redirectAttributes,
         final HttpSession httpSession,
         final HttpServletRequest request,
         final HttpServletResponse response
@@ -106,9 +103,6 @@ public class TenantController {
         
         httpSession.setAttribute(SessionEnum.TENANT.toString(), tenantWithUserAuthority.first());
         
-        redirectAttributes.addFlashAttribute(
-            "notifications",
-            List.of(new Notification(Notification.Type.SUCCESS, "authorization.success", "authorization.success")));
         return new RedirectView("/closings");
     }
 }

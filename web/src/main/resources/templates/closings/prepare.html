@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="h-100" lang="en">
+
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Prepare closing'})}"></head>
+
+<body class="d-flex flex-column h-100">
+    <header data-th-replace="~{fragments/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+    <div class="flex-shrink-0">
+        <div class="container-fluid">
+            <div class="row mt-3">
+                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = 1)}"></aside>
+                <main class="col-md-10">
+                    <form id="closing-form" data-th-action="@{/closings/prepare}" method="post">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="name">Name</label>
+                                    <input class="form-control" id="name" name="name" type="text" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="timestamp">Time</label>
+                                    <input class="form-control" id="timestamp" name="timestamp" type="datetime-local"
+                                        required>
+                                </div>
+                                <div data-th-replace="~{fragments/zoneid-picker}"></div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="location">Location</label>
+                                    <input class="form-control" id="location" name="location" type="text" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="expiration-timestamp">Expiration time</label>
+                                    <input class="form-control" id="expiration-timestamp" name="expirationTimestamp"
+                                        type="datetime-local" required>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label class="form-label" for="user-select">Users</label>
+                                    <select class="form-select mb-1" id="user-select" name="users" multiple size="10"
+                                        required>
+                                        <th-block data-th-each="user,userIterStat : ${userPage}">
+                                            <option class="user-option"
+                                                data-th-text="${#strings.concat(user.firstName(), ' ', user.lastName(), ' - ', user.username())}"
+                                                data-th-value="${user.id()}">
+                                            </option>
+                                        </th-block>
+                                    </select>
+                                    <nav class="d-flex flex-row-reverse">
+                                        <ul class="pagination">
+                                            <li class="page-item"
+                                                data-th-classappend="${userPage.isFirst() ? 'disabled' : _}">
+                                                <a class="page-link"
+                                                    data-th-href="@{/{route}(route = 'closings/prepare', userPageIndex = __${userPage.getNumber() - 1}__)}">
+                                                    <span>&laquo;</span>
+                                                </a>
+                                            </li>
+                                            <li class="page-item"
+                                                data-th-classappend="${userPage.isLast() ? 'disabled' : _}">
+                                                <a class="page-link"
+                                                    data-th-href="@{/{route}(route = 'closings/prepare', userPageIndex = __${userPage.getNumber() + 1}__)}">
+                                                    <span>&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" for="document-select">Documents</label>
+                                    <select class="form-select mb-1" id="document-select" name="documents" multiple
+                                        size="10" required>
+                                        <th-block data-th-each="document,documentIterStat : ${documentPage}">
+                                            <option class="document-option" data-th-text="${document.filename()}"
+                                                data-th-value="${document.id()}">
+                                            </option>
+                                        </th-block>
+                                    </select>
+                                    <nav class="d-flex flex-row-reverse">
+                                        <ul class="pagination">
+                                            <li class="page-item"
+                                                data-th-classappend="${documentPage.isFirst() ? 'disabled' : _}">
+                                                <a class="page-link"
+                                                    data-th-href="@{/{route}(route = 'closings/prepare', documentPageIndex = __${documentPage.getNumber() - 1}__)}">
+                                                    <span>&laquo;</span>
+                                                </a>
+                                            </li>
+                                            <li class="page-item"
+                                                data-th-classappend="${documentPage.isLast() ? 'disabled' : _}">
+                                                <a class="page-link"
+                                                    data-th-href="@{/{route}(route = 'closings/prepare', documentPageIndex = __${documentPage.getNumber() + 1}__)}">
+                                                    <span>&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Continue</button>
+                    </form>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <footer data-th-replace="~{fragments/footer}"></footer>
+    <script data-th-replace="~{fragments/bootstrap-script}"></script>
+    <script data-th-replace="~{fragments/toast-script}"></script>
+    <script>
+        const form = document.getElementById("closing-form");
+        const pageAnchorElList = document.querySelectorAll(".page-link");
+        const urlParams = new URLSearchParams(window.location.search);
+        let userPageIndex = pageIndex(urlParams, "userPageIndex");
+        let documentPageIndex = pageIndex(urlParams, "documentPageIndex");
+        const nameInputEl = document.getElementById("name");
+        const timestampInputEl = document.getElementById("timestamp");
+        const zoneIdSelectEl = document.getElementById("zone-id");
+        const locationInputEl = document.getElementById("location");
+        const expirationTimestampInputEl = document.getElementById("expiration-timestamp");
+
+        const userSelectEl = document.getElementById("user-select");
+        const userOptionElList = document.querySelectorAll(".user-option");
+        let userDict = {};
+        const documentSelectEl = document.getElementById("document-select");
+        const documentOptionElList = document.querySelectorAll(".document-option");
+        let documentDict = {};
+
+        if (sessionStorage.getItem("name")) {
+            nameInputEl.value = sessionStorage.getItem("name");
+            timestampInputEl.value = sessionStorage.getItem("timestamp");
+            zoneIdSelectEl.value = sessionStorage.getItem("zone-id");
+            locationInputEl.value = sessionStorage.getItem("location");
+            expirationTimestampInputEl.value = sessionStorage.getItem("expiration-timestamp");
+            userDict = JSON.parse(sessionStorage.getItem("userDict"));
+            documentDict = JSON.parse(sessionStorage.getItem("documentDict"));
+            const userValues = userDict[userPageIndex];
+            const documentValues = documentDict[documentPageIndex];
+            setSelected(userValues, userOptionElList);
+            setSelected(documentValues, documentOptionElList);
+        }
+
+        pageAnchorElList.forEach(
+            pageAnchorEl => pageAnchorEl.addEventListener("click", (event) => {
+                const userOptionElList = userSelectEl.selectedOptions;
+                const userSelectedValues = Array.from(userOptionElList).map((optionEl) => optionEl.value);
+                const documentOptionElList = documentSelectEl.selectedOptions;
+                const documentSelectedValues = Array.from(documentOptionElList).map((optionEl) => optionEl.value);
+                const urlParams = new URLSearchParams(window.location.search);
+                let userPageIndex = pageIndex(urlParams, "userPageIndex");
+                let documentPageIndex = pageIndex(urlParams, "documentPageIndex");
+                addToList(userDict, userPageIndex, userSelectedValues);
+                addToList(documentDict, documentPageIndex, documentSelectedValues);
+                sessionStorage.setItem("name", nameInputEl.value);
+                sessionStorage.setItem("timestamp", timestampInputEl.value);
+                sessionStorage.setItem("zone-id", zoneIdSelectEl.value);
+                sessionStorage.setItem("location", locationInputEl.value);
+                sessionStorage.setItem("expiration-timestamp", expirationTimestampInputEl.value);
+                sessionStorage.setItem("userDict", JSON.stringify(userDict));
+                sessionStorage.setItem("documentDict", JSON.stringify(documentDict));
+            }));
+
+        form.addEventListener("submit", (event) => {
+            userDict = JSON.parse(sessionStorage.getItem("userDict"));
+            const flattenedUserList = flattenedList(userDict);
+            documentDict = JSON.parse(sessionStorage.getItem("documentDict"));
+            const flattenedDocumentList = flattenedList(documentDict);
+            userSelectEl.value = flattenedUserList;
+            documentSelectEl.value = flattenedDocumentList;
+            sessionStorage.removeItem("name", nameInputEl.value);
+            sessionStorage.removeItem("timestamp", timestampInputEl.value);
+            sessionStorage.removeItem("zone-id", zoneIdSelectEl.value);
+            sessionStorage.removeItem("location", locationInputEl.value);
+            sessionStorage.removeItem("expiration-timestamp", expirationTimestampInputEl.value);
+            sessionStorage.removeItem("userDict");
+            sessionStorage.removeItem("documentDict");
+        });
+
+        function pageIndex(urlParams, key) {
+            let pageIndex = urlParams.get(key);
+            if (pageIndex == null) {
+                pageIndex = 0;
+            }
+            return pageIndex;
+        }
+
+        function setSelected(values, elList) {
+            for (const value of values) {
+                elList.forEach(el => {
+                    if (el.value === value) {
+                        el.selected = true;
+                    }
+                });
+            }
+        }
+
+        function addToList(dict, key, values) {
+            dict[key] = [...values];
+        }
+
+        function flattenedList(dict) {
+            return Object.entries(dict).reduce((list, [key, values]) => {
+                return list.concat(values);
+            });
+        }
+
+    </script>
+</body>
+
+</html>
