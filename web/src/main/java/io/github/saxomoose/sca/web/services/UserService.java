@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
@@ -19,14 +20,13 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RowMapperCollection rowMappers;
-
+    private final RowMapper<User> rowMapper;
 
     @Autowired
     public UserService(NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
     {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.rowMappers = rowMappers;
+        this.rowMapper = (RowMapper<User>) rowMappers.getRowMapper(User.class);
     }
 
     // Aggregate
@@ -44,6 +44,17 @@ public class UserService {
     }
 
     // Read
+    public List<User> usersByIds(final List<Long> userIds)
+    {
+        final String sql = """
+            SELECT *
+            FROM sca.user
+            WHERE id IN (:userIds);    
+        """;
+        final MapSqlParameterSource params = new MapSqlParameterSource(Map.of("userIds", userIds));
+        return namedParameterJdbcOperations.query(sql, params, rowMapper);
+    }
+
     public Page<User> usersByTenant(final Long tenantId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
@@ -62,7 +73,7 @@ public class UserService {
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, rowMappers.getRowMapper(User.class));
+        final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, rowMapper);
         return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> countUsersByTenant(tenantId));
     }
 
@@ -71,7 +82,7 @@ public class UserService {
         final String sql = """
         SELECT * FROM sca.user LIMIT 1;    
         """;
-        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(User.class));
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMapper);
     }
 
     public User userById(final Long userId)
@@ -80,7 +91,7 @@ public class UserService {
         SELECT * FROM sca.user WHERE id = :userId;    
         """;
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue("userId", userId);
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(User.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
     public User userByUsername(final String username)
@@ -89,7 +100,7 @@ public class UserService {
         SELECT * FROM sca.user WHERE username = :username;    
         """;
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue("username", username);
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(User.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
     // Update
@@ -108,6 +119,6 @@ public class UserService {
                 "dateOfBirth", user.dateOfBirth(),
                 "createdBy", principalId,
                 "lastUpdatedBy", principalId));
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(User.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 }

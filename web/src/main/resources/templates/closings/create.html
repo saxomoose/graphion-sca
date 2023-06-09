@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" lang="en">
 
-<head data-th-replace="~{fragments/head :: frag(~{title = 'Create user'})}"></head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Create closing'})}"></head>
 
 <body class="d-flex flex-column h-100">
     <header data-th-replace="~{fragments/header}"></header>
@@ -10,86 +10,33 @@
         <div class="container-fluid">
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = 1)}"></aside>
-                <main class="col-md-9">
-                    <form id="upload-form" data-th-action="@{/closings}" method="post">
+                <main class="col-md-10">
+                    <form id="closing-form" data-th-action="@{/closings/create}" method="post">
                         <div class="row">
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label class="form-label" for="name">Name</label>
-                                    <input class="form-control" id="name" name="name" type="text" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="timestamp">Time</label>
-                                    <input class="form-control" id="timestamp" name="timestamp" type="datetime-local"
-                                        required>
-                                </div>
-                                <div data-th-replace="~{fragments/zoneid-picker}"></div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="location">Location</label>
-                                    <input class="form-control" id="location" name="location" type="text" required>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="user-select">Users</label>
-                                    <select class="form-select mb-1" id="user-select" name="users" multiple size="10"
-                                        required>
-                                        <th-block data-th-each="user,userIterStat : ${userPage}">
-                                            <option
+                                    <select class="form-select mb-1" id="user-select" name="users" size="10" required>
+                                        <th-block data-th-each="user,userIterStat : ${users}">
+                                            <option class="user-option"
                                                 data-th-text="${#strings.concat(user.firstName(), ' ', user.lastName(), ' - ', user.username())}"
                                                 data-th-value="${user.id()}">
                                             </option>
                                         </th-block>
                                     </select>
-                                    <nav class="d-flex flex-row-reverse">
-                                        <ul class="pagination">
-                                            <li class="page-item"
-                                                data-th-classappend="${userPage.isFirst() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/create', userPageIndex = __${userPage.getNumber() - 1}__)}">
-                                                    <span>&laquo;</span>
-                                                </a>
-                                            </li>
-                                            <li class="page-item"
-                                                data-th-classappend="${userPage.isLast() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/create', userPageIndex = __${userPage.getNumber() + 1}__)}">
-                                                    <span>&raquo;</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </nav>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="document-select">Documents</label>
                                     <select class="form-select mb-1" id="document-select" name="documents" multiple
                                         size="10" required>
-                                        <th-block data-th-each="document,documentIterStat : ${documentPage}">
+                                        <th-block data-th-each="document,documentIterStat : ${documents}">
                                             <option data-th-text="${document.filename()}"
                                                 data-th-value="${document.id()}">
                                             </option>
                                         </th-block>
                                     </select>
-                                    <nav class="d-flex flex-row-reverse">
-                                        <ul class="pagination">
-                                            <li class="page-item"
-                                                data-th-classappend="${documentPage.isFirst() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/create', documentPageIndex = __${documentPage.getNumber() - 1}__)}">
-                                                    <span>&laquo;</span>
-                                                </a>
-                                            </li>
-                                            <li class="page-item"
-                                                data-th-classappend="${documentPage.isLast() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/create', documentPageIndex = __${documentPage.getNumber() + 1}__)}">
-                                                    <span>&raquo;</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </nav>
                                 </div>
                             </div>
                         </div>

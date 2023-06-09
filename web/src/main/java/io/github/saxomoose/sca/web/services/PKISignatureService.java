@@ -32,7 +32,6 @@ import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.PathEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
-import io.github.saxomoose.sca.web.exceptions.SignatureException;
 import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.utils.Tuple;
 
@@ -64,8 +63,7 @@ public class PKISignatureService {
     public Tuple<DigestPayload, PAdESSignatureParameters> dataToSign(
         final String bucket,
         final UUID fileUUID,
-        final SignatureCertificatePayload signatureCertificate,
-        final Boolean userIsLastSignatory) 
+        final SignatureCertificatePayload signatureCertificate) 
     throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException 
     {
         redisService.lockFile(fileUUID);
@@ -79,12 +77,7 @@ public class PKISignatureService {
         final X509Certificate x509Certificate = signatureCertificate.toX509Certificate();
         final CertificateToken certificateToken = new CertificateToken(x509Certificate);
         final PAdESSignatureParameters parameters = new PAdESSignatureParameters();
-        if (!userIsLastSignatory) {
-            parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
-        } else {
-            parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
-        }
-        
+        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
         parameters.setSigningCertificate(certificateToken);
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         
@@ -112,11 +105,15 @@ public class PKISignatureService {
         final SignatureValue signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
         if(!padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate())) {
             logger.error("File {}: the signature value computed client-side is invalid.", fileUUID);
-            throw new SignatureException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         } 
         final FileDocument signedDocument = (FileDocument) padesService.signDocument(toSignDocument, parameters, signatureValue);
+        // parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LT);
+        // final FileDocument extendedLTDocument = (FileDocument) padesService.extendDocument(signedDocument, parameters);
+        parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
+        final FileDocument extendedLTADocument = (FileDocument) padesService.extendDocument(signedDocument, parameters);
 
-        return signedDocument;
+        return extendedLTADocument;
     }
 
     public void cleanUp(

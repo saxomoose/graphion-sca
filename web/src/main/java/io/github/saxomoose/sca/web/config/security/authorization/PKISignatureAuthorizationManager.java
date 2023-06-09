@@ -28,10 +28,7 @@ public class PKISignatureAuthorizationManager implements AuthorizationManager<Re
         final Long userId = ((User) authentication.get().getPrincipal()).id();
         final Long rawClosingId = Long.parseLong(context.getVariables().get("rawClosingId"));
         final UUID rawFileUUID = UUID.fromString(context.getVariables().get("rawFileUUID"));
-        if (closingService.userIsSignatory(rawClosingId, userId , rawFileUUID)) {
-            return new AuthorizationDecision(true);
-        } else {
-            return new AuthorizationDecision(false);
-        }
+        
+        return new AuthorizationDecision(true);
     }    
 }

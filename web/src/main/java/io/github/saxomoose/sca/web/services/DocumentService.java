@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class DocumentService {
 
     private final MinIOService minioService;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final RowMapperCollection rowMappers;
+    private final RowMapper<Document> rowMapper;
 
     @Autowired
     public DocumentService(
@@ -35,7 +36,7 @@ public class DocumentService {
     {
         this.minioService = minioService;
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.rowMappers = rowMappers;
+        this.rowMapper = (RowMapper<Document>) rowMappers.getRowMapper(Document.class);
     }
 
     // Aggregate
@@ -50,6 +51,17 @@ public class DocumentService {
     }
 
     // Read
+    public List<Document> documentsByIds(final List<Long> documentIds)
+    {
+        final String sql = """
+            SELECT *
+            FROM sca.document
+            WHERE id IN (:documentIds);    
+        """;
+        final MapSqlParameterSource params = new MapSqlParameterSource(Map.of("documentIds", documentIds));
+        return namedParameterJdbcOperations.query(sql, params, rowMapper);
+    }
+
     public Page<Document> documentsByTenant(final Long tenantId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
@@ -65,7 +77,7 @@ public class DocumentService {
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final List<Document> tenantDocuments = namedParameterJdbcOperations.query(sql, params, rowMappers.getRowMapper(Document.class));
+        final List<Document> tenantDocuments = namedParameterJdbcOperations.query(sql, params, rowMapper);
         return PageableExecutionUtils.getPage(tenantDocuments, pageable, () -> countDocumentsByTenant(tenantId));
     }
 
@@ -74,7 +86,7 @@ public class DocumentService {
         final String sql = """
         SELECT * FROM sca.document LIMIT 1;    
         """;
-        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMappers.getRowMapper(Document.class));
+        return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMapper);
     }
 
     public Document documentById(final Long documentId)
@@ -83,7 +95,7 @@ public class DocumentService {
         SELECT * FROM sca.document WHERE id = :documentId;    
         """;
         final MapSqlParameterSource params = new MapSqlParameterSource().addValue("documentId", documentId);
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Document.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
     public Document documentByTenantAndFileUUID(final Long tenantId, final UUID fileUUID)
@@ -96,7 +108,7 @@ public class DocumentService {
                 "tenantId", tenantId,
                 "fileUUID", fileUUID
             ));
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Document.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
     public InputStream fileAsStream(final String bucket, final UUID fileUUID)
@@ -142,6 +154,6 @@ public class DocumentService {
                 "filename", document.filename(),
                 "createdBy", principalId,
                 "lastUpdatedBy", principalId));
-        return namedParameterJdbcOperations.queryForObject(sql, params, rowMappers.getRowMapper(Document.class));
+        return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 }

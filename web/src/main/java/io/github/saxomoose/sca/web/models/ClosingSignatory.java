@@ -13,6 +13,7 @@ public class ClosingSignatory {
         this.closing = closing;
         this.signatory = signatory;
         this.document = document;
+        this.signatureTimestamp = signatoryTimestamp;
     }
 
     public Long closing() 

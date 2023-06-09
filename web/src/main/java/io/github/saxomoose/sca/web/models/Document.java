@@ -1,10 +1,11 @@
 package io.github.saxomoose.sca.web.models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Document {
+public class Document implements Serializable {
     private final Long tenant;
     
     private final Long id;
