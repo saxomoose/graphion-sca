@@ -196,6 +196,11 @@ public class ClosingService {
     // Update
     public Closing insert(final Closing closing, final Long principalId)
     {
+        final LocalDateTime expirationTimestamp = closing.expirationTimestamp();
+        if (expirationTimestamp == null) {
+            closing.setExpirationTimestamp(closing.timestamp().plusDays(30));
+        }
+
         final String sql = """
         INSERT INTO sca.closing
         VALUES (:tenantId, DEFAULT, :name, :timestamp, :zoneId, :location, :expirationTimestamp, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
@@ -208,8 +213,7 @@ public class ClosingService {
                     "name", closing.name(),
                     "timestamp", closing.timestamp(),
                     "location", closing.location(),
-                    "expirationTimestamp",
-                        closing.expirationTimestamp() != null ? closing.expirationTimestamp() : "DEFAULT",
+                    "expirationTimestamp", closing.expirationTimestamp(),
                     "createdBy", principalId,
                     "lastUpdatedBy", principalId));
         params.addValue("zoneId", closing.zoneId().getId(), java.sql.Types.VARCHAR);
@@ -302,7 +306,11 @@ public class ClosingService {
     }
 
     @Transactional
-    public void create(final Closing closing, final Long userId, final List<ClosingSignatory> closingSignatories) {
-
+    public void create(final Closing closingToCreate, final Long principalId, final List<ClosingSignatory> closingSignatories) {
+        final Closing createdClosing = insert(closingToCreate, principalId);
+        for (final ClosingSignatory closingSignatory : closingSignatories) {
+            closingSignatory.setClosingId(createdClosing.id());
+        }
+        insertNaturalPersonSignatories(closingSignatories);
     }
 }

@@ -142,9 +142,11 @@ public class ClosingController {
         // Validation
         List<ClosingSignatory> closingSignatories = new ArrayList<>();
         for (final Map.Entry<String, List<String>> entry : formData.entrySet()) {
-            final Long userId = Long.parseLong(entry.getKey());
-            for (final String documentId : entry.getValue()) {
+            if (!entry.getKey().equals("_csrf")) {
+                final Long userId = Long.parseLong(entry.getKey());
+                for (final String documentId : entry.getValue()) {
                 closingSignatories.add(ClosingSignatory.of(userId, Long.parseLong(documentId)));
+                }
             }
         }
         final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute("closing");
@@ -158,7 +160,7 @@ public class ClosingController {
             rawClosing.location(),
             rawClosing.expirationTimestamp()
         );
-        // closingService.create(closing, userId, );
+        closingService.create(closing, principalId, closingSignatories);
         redirectAttributes.addFlashAttribute(
             "notifications", 
             List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "users.create.success")));
