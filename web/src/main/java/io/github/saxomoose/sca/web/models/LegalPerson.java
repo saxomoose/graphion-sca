@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class LegalPerson {
-    private final Long tenant;
+    private final Long tenantId;
     
     private final Long id;
     private final Long enterpriseNumber;
@@ -19,14 +19,14 @@ public class LegalPerson {
         return new LegalPerson(tenantId, null, enterpriseNumber);
     }
 
-    public LegalPerson(Long tenant, Long id, Long enterpriseNumber) {
-        this.tenant = tenant;
+    public LegalPerson(Long tenantId, Long id, Long enterpriseNumber) {
+        this.tenantId = tenantId;
         this.id = id;
         this.enterpriseNumber = enterpriseNumber;
     }
 
     public Long tenantId() {
-        return tenant;
+        return tenantId;
     }
 
     public Long id() {

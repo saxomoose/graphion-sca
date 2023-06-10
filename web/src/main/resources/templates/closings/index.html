@@ -75,7 +75,7 @@
                                 <table class="table table-user table-hover collapse"
                                     data-th-id="${#strings.concat('user-table-', closing.getKey().id())}">
                                     <caption class="text-muted"
-                                        data-th-text="${#strings.concat(closing.getKey().name(), ' - signatories')}">
+                                        data-th-text="${#strings.concat('Signatories - ', closing.getKey().name())}">
                                     </caption>
                                     <thead>
                                         <th scope="col">Last name</th>
@@ -123,7 +123,7 @@
                                     <table class="table table-hover collapse"
                                         data-th-id="${#strings.concat('document-table-', closing.getKey(), '-',  user.getKey().id())}">
                                         <caption class="text-muted"
-                                            data-th-text="${#strings.concat(user.getKey().username(), ' - documents')}">
+                                            data-th-text="${#strings.concat('Documents - ', user.getKey().username())}">
                                         </caption>
                                         <thead>
                                             <th scope="col">Filename</th>

@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Closing {
-    private final Long tenant;
+    private final Long tenantId;
     
     private final Long id;
     private final String name;
@@ -29,35 +29,51 @@ public class Closing {
     {
         return new Closing(null, id, name, timestamp, zoneId, location, null, null);
     }
-    
-    public static Closing of(Long tenantId, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
+
+    public static Closing of(
+        Long tenantId, 
+        String name, 
+        LocalDateTime timestamp, 
+        ZoneId zoneId, 
+        String location)
     {
         return new Closing(tenantId, null, name, timestamp, zoneId, location, null, null);
     }
+    
+    public static Closing of(
+        Long tenantId, 
+        String name, 
+        LocalDateTime timestamp, 
+        ZoneId zoneId, 
+        String location,
+        LocalDateTime expirationTimestamp)
+    {
+        return new Closing(tenantId, null, name, timestamp, zoneId, location, expirationTimestamp, null);
+    }
 
     public Closing(
-        Long tenant, 
+        Long tenantId, 
         Long id, 
         String name, 
         LocalDateTime timestamp, 
         ZoneId zoneId, 
         String location, 
-        Boolean invitesSent,
-        LocalDateTime expirationTimestamp)
+        LocalDateTime expirationTimestamp,
+        Boolean invitesSent)
     {
-        this.tenant = tenant;
+        this.tenantId = tenantId;
         this.id = id;
         this.name = name;
         this.zoneId = zoneId;
         this.timestamp = timestamp;
         this.location = location;
-        this.invitesSent = invitesSent;
         this.expirationTimestamp = expirationTimestamp;
+        this.invitesSent = invitesSent;
     }
 
     public Long tenantId()
     {
-        return tenant;
+        return tenantId;
     }
 
     public Long id()
@@ -80,29 +96,19 @@ public class Closing {
         return zoneId;
     }
 
-    public ZonedDateTime zonedTimestamp()
-    {
-        return ZonedDateTime.of(timestamp(), zoneId());
-    }
-
     public String location()
     {
         return location;
-    }
-
-    public Boolean invitesSent()
-    {
-        return invitesSent;
     }
 
     public LocalDateTime expirationTimestamp()
     {
         return expirationTimestamp;
     }
-
-    public ZonedDateTime zonedExpirationTimestamp()
+    
+    public Boolean invitesSent()
     {
-        return ZonedDateTime.of(expirationTimestamp(), zoneId());
+        return invitesSent;
     }
 
     @Override
@@ -134,6 +140,16 @@ public class Closing {
         }
         users.add(user);
         return this;
+    }
+
+    public ZonedDateTime zonedTimestamp()
+    {
+        return ZonedDateTime.of(timestamp(), zoneId());
+    }
+
+    public ZonedDateTime zonedExpirationTimestamp()
+    {
+        return ZonedDateTime.of(expirationTimestamp(), zoneId());
     }
 
     public Boolean isExpired()

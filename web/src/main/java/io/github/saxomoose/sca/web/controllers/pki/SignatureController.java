@@ -17,15 +17,15 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.support.SessionFlashMapManager;
 import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
-import io.github.saxomoose.sca.web.config.security.PKIAuthentication;
+import io.github.saxomoose.sca.web.config.security.PkiAuthentication;
 import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.services.ClosingService;
-import io.github.saxomoose.sca.web.services.PKISignatureService;
-import io.github.saxomoose.sca.web.services.PKIValidationService;
+import io.github.saxomoose.sca.web.services.PkiSignatureService;
+import io.github.saxomoose.sca.web.services.PkiValidationService;
 import io.github.saxomoose.sca.web.services.ValidationService;
 import io.github.saxomoose.sca.web.utils.Tuple;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,15 +36,15 @@ import jakarta.servlet.http.HttpSession;
 public class SignatureController {
     private final ClosingService closingService;
     private final HttpSession httpSession;
-    private final PKISignatureService pkiSignatureService;
-    private final PKIValidationService pkiValidationService;
+    private final PkiSignatureService pkiSignatureService;
+    private final PkiValidationService pkiValidationService;
     private final ValidationService validationService;
 
     public SignatureController(
         ClosingService closingService,
         HttpSession httpSession, 
-        PKISignatureService pkiSignatureService,
-        PKIValidationService pkiValidationService,
+        PkiSignatureService pkiSignatureService,
+        PkiValidationService pkiValidationService,
         ValidationService validationService) 
     {
         this.closingService = closingService;
@@ -63,7 +63,7 @@ public class SignatureController {
         @RequestBody final SignatureCertificatePayload signatureCertificate
     ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
     {
-        final Long userId = ((User) ((PKIAuthentication) request.getUserPrincipal()).getPrincipal()).id();
+        final Long userId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
         closingService.closingIsExpired(rawClosingId);
@@ -85,7 +85,7 @@ public class SignatureController {
         @RequestBody final SignaturePayload signature
     ) throws CertificateException, IOException, BusinessLogicException
     {
-        final Long userId = ((User) ((PKIAuthentication) request.getUserPrincipal()).getPrincipal()).id();
+        final Long userId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
         final UUID fileUUID = validationService.uuid(rawFileUUID);
         final Closing closing = closingService.closingById(rawClosingId);
