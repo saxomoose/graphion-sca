@@ -24,17 +24,17 @@ import io.github.saxomoose.sca.web.models.Tenant;
 public class DocumentService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final MinIOService minioService;
+    private final ObjectStorageService objectStorageService;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
     private final RowMapper<Document> rowMapper;
 
     @Autowired
     public DocumentService(
-        MinIOService minioService, 
+        ObjectStorageService objectStorageService, 
         NamedParameterJdbcOperations namedParameterJdbcOperations, 
         RowMapperCollection rowMappers)
     {
-        this.minioService = minioService;
+        this.objectStorageService = objectStorageService;
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
         this.rowMapper = (RowMapper<Document>) rowMappers.getRowMapper(Document.class);
     }
@@ -113,7 +113,7 @@ public class DocumentService {
 
     public InputStream fileAsStream(final String bucket, final UUID fileUUID)
     {
-        return minioService.objectAsStream(bucket, filePath(PathEnum.CLOSING_DOCUMENTS, fileUUID));
+        return objectStorageService.objectAsStream(bucket, filePath(PathEnum.CLOSING_DOCUMENTS, fileUUID));
     }
 
     private String filePath(PathEnum path, final UUID fileUUID)
@@ -133,10 +133,10 @@ public class DocumentService {
         final Document documentToCreate = Document.of(tenant.id(), filename);
         final UUID fileUUID = insert(documentToCreate, principalId).fileUUID();
         final String filePath = filePath(PathEnum.CLOSING_DOCUMENTS, fileUUID);
-        minioService.storeObject(tenant.bucket(), filePath, inputStream);
-        if (minioService.statObject(tenant.bucket(), filePath).size() != clientSideFileSize) {
+        objectStorageService.storeObject(tenant.bucket(), filePath, inputStream);
+        if (objectStorageService.statObject(tenant.bucket(), filePath).size() != clientSideFileSize) {
             logger.error("The file size stored in the bucket does not match the client-side file size.");
-            minioService.deleteObject(tenant.bucket(), filePath);
+            objectStorageService.deleteObject(tenant.bucket(), filePath);
             throw new RuntimeException();
         }
     }

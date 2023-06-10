@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-import io.github.saxomoose.sca.web.config.security.PKIAuthentication;
+import io.github.saxomoose.sca.web.config.security.PkiAuthentication;
 import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
@@ -86,11 +86,11 @@ public class TenantController {
             tenantService.tenantWithUserAuthority(user.id(), Boolean.FALSE);
         Authentication authentication = null;
         if (!setDefaultConnection) {
-            authentication = PKIAuthentication.of(
+            authentication = PkiAuthentication.of(
                 user,
                 tenantWithUserAuthority.second());
         } else if (setDefaultConnection) {
-            authentication = PKIAuthentication.of(
+            authentication = PkiAuthentication.of(
                 user,
                 tenantWithUserAuthority.first(),
                 tenantWithUserAuthority.second());

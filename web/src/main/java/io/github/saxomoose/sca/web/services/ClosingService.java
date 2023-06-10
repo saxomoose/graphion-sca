@@ -35,15 +35,15 @@ import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
 public class ClosingService {
-    private final MinIOService minioService;
+    private final ObjectStorageService objectStorageService;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
     private final RowMapper<Closing> closingRowMapper;
     private final RowMapper<ClosingSignatory> closingSignatoryRowMapper;
 
     @Autowired
-    public ClosingService(MinIOService minioService, NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
+    public ClosingService(ObjectStorageService objectStorageService, NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
     {   
-        this.minioService = minioService;
+        this.objectStorageService = objectStorageService;
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
         this.closingRowMapper = (RowMapper<Closing>) rowMappers.getRowMapper(Closing.class);
         this.closingSignatoryRowMapper = (RowMapper<ClosingSignatory>) rowMappers.getRowMapper(ClosingSignatory.class);
@@ -198,7 +198,7 @@ public class ClosingService {
     {
         final String sql = """
         INSERT INTO sca.closing
-        VALUES (:tenantId, DEFAULT, :name, :timestamp, :zoneId, :location, DEFAULT, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
+        VALUES (:tenantId, DEFAULT, :name, :timestamp, :zoneId, :location, :expirationTimestamp, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
         final MapSqlParameterSource params = 
@@ -208,25 +208,29 @@ public class ClosingService {
                     "name", closing.name(),
                     "timestamp", closing.timestamp(),
                     "location", closing.location(),
+                    "expirationTimestamp",
+                        closing.expirationTimestamp() != null ? closing.expirationTimestamp() : "DEFAULT",
                     "createdBy", principalId,
                     "lastUpdatedBy", principalId));
         params.addValue("zoneId", closing.zoneId().getId(), java.sql.Types.VARCHAR);
         return namedParameterJdbcOperations.queryForObject(sql, params, closingRowMapper);
     }
     
-    public void insertNaturalPersonSignatory(final Long closingId, final Long signatoryId, final Long documentId)
-    {
+    public void insertNaturalPersonSignatories(List<ClosingSignatory> closingSignatories) {
         final String sql = """
-            INSERT INTO sca.closing_signatory (closing, signatory, document, signature_timestamp)
-            VALUES (:closingId, :signatoryId, :documentId, DEFAULT);
+            INSERT INTO sca.closing_signatory (closing, signatory, document)
+            VALUES (:closingId, :signatoryId, :documentId);
         """;
-        final MapSqlParameterSource params = 
-            new MapSqlParameterSource().addValues(
-                Map.of(
-                    "closingId", closingId,
-                    "signatoryId", signatoryId,
-                    "documentId", documentId));
-        namedParameterJdbcOperations.update(sql, params);
+        final List<MapSqlParameterSource> batchParams = new ArrayList<>();
+        for (final ClosingSignatory closingSignatory : closingSignatories) {
+            batchParams.add(
+                new MapSqlParameterSource(
+                    Map.of(
+                        "closingId", closingSignatory.closingId(),
+                        "signatoryId", closingSignatory.signatoryId(),
+                        "documentId", closingSignatory.documentId())));
+        }
+        namedParameterJdbcOperations.batchUpdate(sql, batchParams.toArray(new MapSqlParameterSource[0]));
     }
 
     public void insertLegalPersonSignatory(final Long closingId, final Long legalPersonId)
@@ -254,7 +258,7 @@ public class ClosingService {
     {
         final LocalDateTime signatureTimestampAtClosingZoneId = ZonedDateTime.ofInstant(signatureTimestamp, closing.zoneId()).toLocalDateTime();
 
-        minioService.storeObject(
+        objectStorageService.storeObject(
             bucket, 
             String.format("%s/%s", PathEnum.SIGNED, fileUUID),
             signedDocument.openStream());
@@ -295,5 +299,10 @@ public class ClosingService {
         if (closingSignatory.signatureTimestamp() != null) {
             throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         }
+    }
+
+    @Transactional
+    public void create(final Closing closing, final Long userId, final List<ClosingSignatory> closingSignatories) {
+
     }
 }

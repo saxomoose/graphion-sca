@@ -14,7 +14,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.config.security.authorization.PKISignatureAuthorizationManager;
+import io.github.saxomoose.sca.web.config.security.authorization.PkiSignatureAuthorizationManager;
 import io.github.saxomoose.sca.web.services.ValidationService;
 
 @Configuration 
@@ -45,10 +45,10 @@ public class SecurityConfiguration {
         final HttpSecurity httpSecurity,
         final SecurityContextRepository securityContextRepository,
         final ObjectMapper objectMapper,
-        final PKIAuthenticationFailureHandler pkiAuthenticationFailureHandler,
-        final PKIAuthenticationProvider pkiAuthenticationProvider,
-        final PKIAuthenticationSuccessHandler pkiAuthenticationSuccessHandler,
-        final PKISignatureAuthorizationManager pkiSignatureAuthorizationManager,
+        final PkiAuthenticationFailureHandler pkiAuthenticationFailureHandler,
+        final PkiAuthenticationProvider pkiAuthenticationProvider,
+        final PkiAuthenticationSuccessHandler pkiAuthenticationSuccessHandler,
+        final PkiSignatureAuthorizationManager pkiSignatureAuthorizationManager,
         final ValidationService validationService) throws Exception
     {
         httpSecurity
@@ -61,7 +61,7 @@ public class SecurityConfiguration {
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .sessionFixation().changeSessionId())
             .authenticationProvider(pkiAuthenticationProvider)
-            .addFilterBefore(new PKIAuthenticationProcessingFilter(
+            .addFilterBefore(new PkiAuthenticationProcessingFilter(
                 authenticationManager,
                 securityContextRepository,
                 pkiAuthenticationFailureHandler,

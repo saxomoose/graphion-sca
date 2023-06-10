@@ -6,7 +6,7 @@ import org.springframework.core.env.Environment;
 import io.minio.MinioClient;
 
 @Configuration
-public class MinIOConfiguration {
+public class ObjectStorageConfiguration {
     @Bean
     public MinioClient minioClient(final Environment environment) 
     {

@@ -11,34 +11,26 @@
             <div class="row mt-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = 1)}"></aside>
                 <main class="col-md-10">
-                    <form id="closing-form" data-th-action="@{/closings/create}" method="post">
+                    <form id="closing-form" data-th-action="@{/closings}" method="post">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="user-select">Users</label>
-                                    <select class="form-select mb-1" id="user-select" name="users" size="10" required>
-                                        <th-block data-th-each="user,userIterStat : ${users}">
-                                            <option class="user-option"
-                                                data-th-text="${#strings.concat(user.firstName(), ' ', user.lastName(), ' - ', user.username())}"
-                                                data-th-value="${user.id()}">
-                                            </option>
-                                        </th-block>
-                                    </select>
+                            <th-block data-th-each="user,userIterStat : ${users}">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"
+                                            data-th-for="${#strings.concat('document-select-', user.id())}"
+                                            data-th-text="${#strings.concat('Documents - ', user.username())}"></label>
+                                        <select class="form-select mb-1" data-th-id="${user.id()}"
+                                            data-th-name="${user.id()}" data-th-size="${documents.size()}" multiple
+                                            required>
+                                            <th-block data-th-each="document,documentIterStat : ${documents}">
+                                                <option data-th-text="${document.filename()}"
+                                                    data-th-value="${document.id()}">
+                                                </option>
+                                            </th-block>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="document-select">Documents</label>
-                                    <select class="form-select mb-1" id="document-select" name="documents" multiple
-                                        size="10" required>
-                                        <th-block data-th-each="document,documentIterStat : ${documents}">
-                                            <option data-th-text="${document.filename()}"
-                                                data-th-value="${document.id()}">
-                                            </option>
-                                        </th-block>
-                                    </select>
-                                </div>
-                            </div>
+                            </th-block>
                         </div>
                         <button class="btn btn-primary" type="submit">Submit</button>
                     </form>
@@ -50,6 +42,24 @@
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
+    <script>
+        window.addEventListener("load", initializePage);
+
+        function initializePage() {
+            const closingFormEl = document.getElementById("closing-form");
+
+
+            closingFormEl.addEventListener("submit", (event) => {
+                sessionStorage.removeItem("name");
+                sessionStorage.removeItem("timestamp");
+                sessionStorage.removeItem("zone-id");
+                sessionStorage.removeItem("location");
+                sessionStorage.removeItem("expiration-timestamp");
+                sessionStorage.removeItem("userDict");
+                sessionStorage.removeItem("documentDict");
+            });
+        }
+    </script>
 </body>
 
 </html>

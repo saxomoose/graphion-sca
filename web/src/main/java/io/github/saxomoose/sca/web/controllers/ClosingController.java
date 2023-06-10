@@ -1,6 +1,7 @@
 package io.github.saxomoose.sca.web.controllers;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,9 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
-import io.github.saxomoose.sca.web.enums.SessionEnum;
+import io.github.saxomoose.sca.web.models.Closing;
+import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingToCreate;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
@@ -104,11 +107,11 @@ public class ClosingController {
         final ClosingToCreate rawClosing,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        final List<User> users = userService.usersByIds(rawClosing.users());
-        final List<Document> documents = documentService.documentsByIds(rawClosing.documents());
-        redirectAttributes.addFlashAttribute("users", users);
-        redirectAttributes.addFlashAttribute("documents", documents);
-        
+        final List<User> users = userService.usersByIds(rawClosing.userIds());
+        final List<Document> documents = documentService.documentsByIds(rawClosing.documentIds());
+        rawClosing.setUsers(users);
+        rawClosing.setDocuments(documents);
+        httpSession.setAttribute("closing", rawClosing);
         return new RedirectView("/closings/create");
     }
 
@@ -117,29 +120,45 @@ public class ClosingController {
         final HttpServletRequest request
     ) 
     {
+        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute("closing");
         final ModelAndView modelAndView = new ModelAndView("closings/create");
-        // modelAndView.addObject("userPage", userPage);
-        // modelAndView.addObject("documentPage", documentPage);
+        modelAndView.addObject("users", rawClosing.users());
+        modelAndView.addObject("documents", rawClosing.documents());
         final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
-            modelAndView.addObject("users", inputFlashMap.get("users"));
-            modelAndView.addObject("documents", inputFlashMap.get("documents"));
         }
         return modelAndView;
     }
 
-    @PostMapping(value = "/closings", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(value = "/closings", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public RedirectView store(
-        final ClosingToCreate rawClosing,
+        final HttpServletRequest request,
+        @RequestParam final MultiValueMap<String, String> formData,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
+        // final Long userId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
+        final Long principalId = 1L;
         // Validation
-        
-        final var test = "test";
-        final var tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
-        // final var filename = validationService.documentArgs(rawFilename);
-        // signatoryService.create(tenant, filename);
+        List<ClosingSignatory> closingSignatories = new ArrayList<>();
+        for (final Map.Entry<String, List<String>> entry : formData.entrySet()) {
+            final Long userId = Long.parseLong(entry.getKey());
+            for (final String documentId : entry.getValue()) {
+                closingSignatories.add(ClosingSignatory.of(userId, Long.parseLong(documentId)));
+            }
+        }
+        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute("closing");
+        // final Long tenantId = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).id();
+        final Long tenantId = 1L;
+        final Closing closing = Closing.of(
+            tenantId,
+            rawClosing.name(),
+            rawClosing.timestamp(),
+            rawClosing.zoneId(),
+            rawClosing.location(),
+            rawClosing.expirationTimestamp()
+        );
+        // closingService.create(closing, userId, );
         redirectAttributes.addFlashAttribute(
             "notifications", 
             List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "users.create.success")));

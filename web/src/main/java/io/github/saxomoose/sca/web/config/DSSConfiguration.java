@@ -43,7 +43,7 @@ import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.validation.OCSPFirstRevocationDataLoadingStrategyFactory;
 import eu.europa.esig.trustedlist.jaxb.tsl.TSPType;
 import io.github.saxomoose.sca.web.enums.PathEnum;
-import io.github.saxomoose.sca.web.services.MinIOService;
+import io.github.saxomoose.sca.web.services.ObjectStorageService;
 import io.minio.Result;
 import io.minio.messages.Item;
 
@@ -53,16 +53,16 @@ public class DSSConfiguration {
 
     private final Environment environment;
     private final File tlCacheDirectory;
-    private final MinIOService minioService;
+    private final ObjectStorageService objectStorageService;
 
     @Autowired
     public DSSConfiguration(
         Environment environment, 
-        MinIOService minioService)
+        ObjectStorageService objectStorageService)
     {
         this.environment = environment;
         this.tlCacheDirectory = tlCacheDirectory();
-        this.minioService = minioService;
+        this.objectStorageService = objectStorageService;
     }
 
     @Bean
@@ -196,7 +196,7 @@ public class DSSConfiguration {
     private CertificateSource signatureCertificates(final PathEnum path)
     {
         final CertificateSource certificateSource = new CommonTrustedCertificateSource();
-        final Iterable<Result<Item>> certListing = minioService.listObjects(
+        final Iterable<Result<Item>> certListing = objectStorageService.listObjects(
                 environment.getProperty("objectstorage.admin-bucket"),
                 path.toString());
         try {
@@ -204,7 +204,7 @@ public class DSSConfiguration {
             for (final Result<Item> result : certListing) {
                 X509Certificate signatureCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
-                        minioService.objectAsStream(
+                        objectStorageService.objectAsStream(
                             environment.getProperty("objectstorage.admin-bucket"), 
                             result.get().objectName()));
                 certificateSource.addCertificate(new CertificateToken(signatureCertificate));

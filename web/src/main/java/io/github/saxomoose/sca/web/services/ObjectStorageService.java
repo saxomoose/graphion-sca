@@ -17,13 +17,13 @@ import io.minio.messages.Item;
 
 // Singleton by default.
 @Service
-public class MinIOService {
-    private static final Logger logger = LoggerFactory.getLogger(MinIOService.class);
+public class ObjectStorageService {
+    private static final Logger logger = LoggerFactory.getLogger(ObjectStorageService.class);
 
     private final MinioClient minioClient;
 
     @Autowired
-    public MinIOService(MinioClient minioClient)
+    public ObjectStorageService(MinioClient minioClient)
     {
         this.minioClient = minioClient;
     }

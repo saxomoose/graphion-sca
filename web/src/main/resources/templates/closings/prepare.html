@@ -31,14 +31,14 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="expiration-timestamp">Expiration time</label>
                                     <input class="form-control" id="expiration-timestamp" name="expirationTimestamp"
-                                        type="datetime-local" required>
+                                        type="datetime-local">
                                 </div>
                             </div>
                             <div class="col-md-5">
                                 <div class="mb-3">
                                     <label class="form-label" for="user-select">Users</label>
-                                    <select class="form-select mb-1" id="user-select" name="users" multiple size="10"
-                                        required>
+                                    <select class="form-select mb-1" id="user-select" name="userIds" multiple required
+                                        size="10">
                                         <th-block data-th-each="user,userIterStat : ${userPage}">
                                             <option class="user-option"
                                                 data-th-text="${#strings.concat(user.firstName(), ' ', user.lastName(), ' - ', user.username())}"
@@ -69,8 +69,8 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label" for="document-select">Documents</label>
-                                    <select class="form-select mb-1" id="document-select" name="documents" multiple
-                                        size="10" required>
+                                    <select class="form-select mb-1" id="document-select" name="documentIds" multiple
+                                        required size="10">
                                         <th-block data-th-each="document,documentIterStat : ${documentPage}">
                                             <option class="document-option" data-th-text="${document.filename()}"
                                                 data-th-value="${document.id()}">
@@ -108,100 +108,114 @@
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
-    <script>
-        const form = document.getElementById("closing-form");
-        const pageAnchorElList = document.querySelectorAll(".page-link");
-        const urlParams = new URLSearchParams(window.location.search);
-        let userPageIndex = pageIndex(urlParams, "userPageIndex");
-        let documentPageIndex = pageIndex(urlParams, "documentPageIndex");
-        const nameInputEl = document.getElementById("name");
-        const timestampInputEl = document.getElementById("timestamp");
-        const zoneIdSelectEl = document.getElementById("zone-id");
-        const locationInputEl = document.getElementById("location");
-        const expirationTimestampInputEl = document.getElementById("expiration-timestamp");
+    <script type="text/javascript">
+        window.addEventListener("load", initializePage);
 
-        const userSelectEl = document.getElementById("user-select");
-        const userOptionElList = document.querySelectorAll(".user-option");
-        let userDict = {};
-        const documentSelectEl = document.getElementById("document-select");
-        const documentOptionElList = document.querySelectorAll(".document-option");
-        let documentDict = {};
+        function initializePage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let userPageIndex = pageIndex(urlParams, "userPageIndex");
+            let documentPageIndex = pageIndex(urlParams, "documentPageIndex");
+            const closingFormEl = document.getElementById("closing-form");
+            const pageAnchorElList = document.querySelectorAll(".page-link");
+            const selectElList = document.querySelectorAll(".form-select");
+            const nameInputEl = document.getElementById("name");
+            const timestampInputEl = document.getElementById("timestamp");
+            const zoneIdSelectEl = document.getElementById("zone-id");
+            const locationInputEl = document.getElementById("location");
+            const expirationTimestampInputEl = document.getElementById("expiration-timestamp");
+            const userSelectEl = document.getElementById("user-select");
+            const userOptionElList = document.querySelectorAll(".user-option");
+            let userDict = {};
+            const documentSelectEl = document.getElementById("document-select");
+            const documentOptionElList = document.querySelectorAll(".document-option");
+            let documentDict = {};
 
-        if (sessionStorage.getItem("name")) {
-            nameInputEl.value = sessionStorage.getItem("name");
-            timestampInputEl.value = sessionStorage.getItem("timestamp");
-            zoneIdSelectEl.value = sessionStorage.getItem("zone-id");
-            locationInputEl.value = sessionStorage.getItem("location");
-            expirationTimestampInputEl.value = sessionStorage.getItem("expiration-timestamp");
-            userDict = JSON.parse(sessionStorage.getItem("userDict"));
-            documentDict = JSON.parse(sessionStorage.getItem("documentDict"));
-            const userValues = userDict[userPageIndex];
-            const documentValues = documentDict[documentPageIndex];
-            setSelected(userValues, userOptionElList);
-            setSelected(documentValues, documentOptionElList);
+            if (sessionStorage.length > 0) {
+                nameInputEl.value = sessionStorage.getItem("name");
+                timestampInputEl.value = sessionStorage.getItem("timestamp");
+                zoneIdSelectEl.value = sessionStorage.getItem("zone-id");
+                locationInputEl.value = sessionStorage.getItem("location");
+                expirationTimestampInputEl.value = sessionStorage.getItem("expiration-timestamp");
+                userDict = JSON.parse(sessionStorage.getItem("userDict"));
+                documentDict = JSON.parse(sessionStorage.getItem("documentDict"));
+                const userValues = userDict[userPageIndex];
+                const documentValues = documentDict[documentPageIndex];
+                setSelected(userOptionElList, userValues);
+                setSelected(documentOptionElList, documentValues);
+            }
+
+            selectElList.forEach(selectEl => {
+                selectEl.addEventListener("change", (event) => {
+                    const userOptionElList = userSelectEl.selectedOptions;
+                    const userSelectedValues = Array.from(userOptionElList).map((optionEl) => optionEl.value);
+                    const documentOptionElList = documentSelectEl.selectedOptions;
+                    const documentSelectedValues = Array.from(documentOptionElList).map((optionEl) => optionEl.value);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let userPageIndex = pageIndex(urlParams, "userPageIndex");
+                    let documentPageIndex = pageIndex(urlParams, "documentPageIndex");
+                    updateDict(userDict, userPageIndex, userSelectedValues);
+                    updateDict(documentDict, documentPageIndex, documentSelectedValues);
+                    sessionStorage.setItem("name", nameInputEl.value);
+                    sessionStorage.setItem("timestamp", timestampInputEl.value);
+                    sessionStorage.setItem("zone-id", zoneIdSelectEl.value);
+                    sessionStorage.setItem("location", locationInputEl.value);
+                    sessionStorage.setItem("expiration-timestamp", expirationTimestampInputEl.value);
+                    sessionStorage.setItem("userDict", JSON.stringify(userDict));
+                    sessionStorage.setItem("documentDict", JSON.stringify(documentDict));
+                });
+            });
+
+            closingFormEl.addEventListener("submit", (event) => {
+                console.log(userSelectEl.value);
+                userDict = JSON.parse(sessionStorage.getItem("userDict"));
+                const flattenedUserList = flattenedList(userDict);
+                documentDict = JSON.parse(sessionStorage.getItem("documentDict"));
+                const flattenedDocumentList = flattenedList(documentDict);
+                if (flattenedUserList.length > 0) {
+                    userSelectEl.selectedIndex = -1;
+                    setSelectedOptions(userSelectEl, flattenedUserList);
+                }
+                if (flattenedDocumentList.length > 0) {
+                    documentSelectEl.selectedIndex = -1;
+                    setSelectedOptions(documentSelectEl, flattenedDocumentList);
+                }
+            });
         }
-
-        pageAnchorElList.forEach(
-            pageAnchorEl => pageAnchorEl.addEventListener("click", (event) => {
-                const userOptionElList = userSelectEl.selectedOptions;
-                const userSelectedValues = Array.from(userOptionElList).map((optionEl) => optionEl.value);
-                const documentOptionElList = documentSelectEl.selectedOptions;
-                const documentSelectedValues = Array.from(documentOptionElList).map((optionEl) => optionEl.value);
-                const urlParams = new URLSearchParams(window.location.search);
-                let userPageIndex = pageIndex(urlParams, "userPageIndex");
-                let documentPageIndex = pageIndex(urlParams, "documentPageIndex");
-                addToList(userDict, userPageIndex, userSelectedValues);
-                addToList(documentDict, documentPageIndex, documentSelectedValues);
-                sessionStorage.setItem("name", nameInputEl.value);
-                sessionStorage.setItem("timestamp", timestampInputEl.value);
-                sessionStorage.setItem("zone-id", zoneIdSelectEl.value);
-                sessionStorage.setItem("location", locationInputEl.value);
-                sessionStorage.setItem("expiration-timestamp", expirationTimestampInputEl.value);
-                sessionStorage.setItem("userDict", JSON.stringify(userDict));
-                sessionStorage.setItem("documentDict", JSON.stringify(documentDict));
-            }));
-
-        form.addEventListener("submit", (event) => {
-            userDict = JSON.parse(sessionStorage.getItem("userDict"));
-            const flattenedUserList = flattenedList(userDict);
-            documentDict = JSON.parse(sessionStorage.getItem("documentDict"));
-            const flattenedDocumentList = flattenedList(documentDict);
-            userSelectEl.value = flattenedUserList;
-            documentSelectEl.value = flattenedDocumentList;
-            sessionStorage.removeItem("name", nameInputEl.value);
-            sessionStorage.removeItem("timestamp", timestampInputEl.value);
-            sessionStorage.removeItem("zone-id", zoneIdSelectEl.value);
-            sessionStorage.removeItem("location", locationInputEl.value);
-            sessionStorage.removeItem("expiration-timestamp", expirationTimestampInputEl.value);
-            sessionStorage.removeItem("userDict");
-            sessionStorage.removeItem("documentDict");
-        });
 
         function pageIndex(urlParams, key) {
             let pageIndex = urlParams.get(key);
-            if (pageIndex == null) {
-                pageIndex = 0;
+            if (pageIndex === null) {
+                return "0";
             }
             return pageIndex;
         }
 
-        function setSelected(values, elList) {
-            for (const value of values) {
-                elList.forEach(el => {
-                    if (el.value === value) {
-                        el.selected = true;
-                    }
-                });
+        function setSelected(elList, values) {
+            if (values !== undefined) {
+                for (const value of values) {
+                    elList.forEach(el => {
+                        if (el.value === value) {
+                            el.selected = true;
+                        }
+                    });
+                }
             }
         }
 
-        function addToList(dict, key, values) {
+        function updateDict(dict, key, values) {
             dict[key] = [...values];
         }
 
         function flattenedList(dict) {
-            return Object.entries(dict).reduce((list, [key, values]) => {
-                return list.concat(values);
+            return Object.values(dict).flat();
+        }
+
+        function setSelectedOptions(selectElement, values) {
+            values.forEach(value => {
+                const option = document.createElement("option");
+                option.value = value;
+                option.selected = true;
+                selectElement.appendChild(option);
             });
         }
 

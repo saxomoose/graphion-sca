@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Document implements Serializable {
-    private final Long tenant;
+    private final Long tenantId;
     
     private final Long id;
     private final String filename;
@@ -28,15 +28,15 @@ public class Document implements Serializable {
         return new Document(tenantId, null, filename, null);
     }
 
-    public Document(Long tenant, Long id, String filename, UUID fileUUID) {
-        this.tenant = tenant;
+    public Document(Long tenantId, Long id, String filename, UUID fileUUID) {
+        this.tenantId = tenantId;
         this.id = id;
         this.filename = filename;
         this.fileUUID = fileUUID;
     }
 
     public Long tenantId() {
-        return tenant;
+        return tenantId;
     }
 
     public Long id() {
