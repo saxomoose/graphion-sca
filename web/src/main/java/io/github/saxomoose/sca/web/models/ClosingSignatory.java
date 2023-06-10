@@ -3,10 +3,10 @@ package io.github.saxomoose.sca.web.models;
 import java.time.LocalDateTime;
 
 public class ClosingSignatory {
-    private final Long closingId;
+    private Long closingId;
     private final Long signatoryId;
-    private Long documentId;
-    private LocalDateTime signatureTimestamp;
+    private final Long documentId;
+    private final LocalDateTime signatureTimestamp;
 
     public static ClosingSignatory of(Long signatoryId, Long documentId)
     {
@@ -44,5 +44,10 @@ public class ClosingSignatory {
     public LocalDateTime signatureTimestamp() 
     {
         return signatureTimestamp;
+    }
+
+    public void setClosingId(Long closingId)
+    {
+        this.closingId = closingId;
     }
 }

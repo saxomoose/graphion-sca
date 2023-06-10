@@ -16,7 +16,7 @@ public class Closing {
     private final ZoneId zoneId;
     private final String location;
     private final Boolean invitesSent;
-    private final LocalDateTime expirationTimestamp;
+    private LocalDateTime expirationTimestamp;
 
     private Long createdBy;
     private Long lastUpdatedBy;
@@ -111,6 +111,11 @@ public class Closing {
         return invitesSent;
     }
 
+    public Set<User> users()
+    {
+        return users;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -128,9 +133,9 @@ public class Closing {
         return Objects.hash(id);
     }
 
-    public Set<User> users()
+    public void setExpirationTimestamp(LocalDateTime expirationTimestamp)
     {
-        return users;
+        this.expirationTimestamp = expirationTimestamp;
     }
 
     public Closing addUser (User user)
