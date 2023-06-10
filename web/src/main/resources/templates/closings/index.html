@@ -26,6 +26,8 @@
                                     <th scope="col">Name</th>
                                     <th scope="col">Closing timestamp</th>
                                     <th scope="col">Location</th>
+                                    <th scope="col">Expiration timestamp</th>
+                                    <th scope="col">Invites sent</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
@@ -40,6 +42,11 @@
                                             data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
                                         </td>
                                         <td data-th-text="${closing.location()}"></td>
+                                        <td
+                                            data-th-text="${#temporals.format(closing.zonedExpirationTimestamp(), 'dd/MM/yyyy HH:mm XXX')}">
+                                        </td>
+                                        <td class="text-center"><img data-th-if="${closing.invitesSent()}"
+                                                data-th-src="@{/svg/check-lg.svg}" width="20" height="20"></td>
                                         <td class="text-end"><input
                                                 class="trigger-collapse trigger-root form-check-input me-2"
                                                 data-th-id="${#strings.concat('trigger-collapse-closing-', closing.id())}"

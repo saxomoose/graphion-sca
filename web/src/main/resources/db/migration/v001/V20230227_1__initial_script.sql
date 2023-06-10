@@ -140,19 +140,6 @@ BEFORE INSERT OR UPDATE ON sca.document
 FOR EACH ROW
 EXECUTE FUNCTION public.update_timestamps();
 
--- CREATE OR REPLACE FUNCTION sca.set_default_expiration_timestamp() 
--- RETURNS TRIGGER AS $$
--- BEGIN
---     NEW.expiration_timestamp := NEW.timestamp + INTERVAL '30 days';
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
-
--- CREATE TRIGGER set_default_expiration_timestamp_trigger
--- BEFORE INSERT OR UPDATE ON sca.closing
--- FOR EACH ROW
--- EXECUTE FUNCTION sca.set_default_expiration_timestamp();
-
 INSERT INTO sca.user
     VALUES (1, true, 'Mathieu', 'Tulpinck', 'admin@graphion.eu', '1990-11-08', true, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 

@@ -25,9 +25,16 @@ public class Closing {
 
     private Set<User> users;
 
-    public static Closing withId(Long id, String name, LocalDateTime timestamp, ZoneId zoneId, String location)
+    public static Closing withId(
+        Long id, 
+        String name, 
+        LocalDateTime timestamp, 
+        ZoneId zoneId, 
+        String location,
+        LocalDateTime expirationTimestamp,
+        Boolean invitesSent)
     {
-        return new Closing(null, id, name, timestamp, zoneId, location, null, null);
+        return new Closing(null, id, name, timestamp, zoneId, location, expirationTimestamp, invitesSent);
     }
 
     public static Closing of(
@@ -116,6 +123,11 @@ public class Closing {
         return users;
     }
 
+    public void setExpirationTimestamp(LocalDateTime expirationTimestamp)
+    {
+        this.expirationTimestamp = expirationTimestamp;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -131,11 +143,6 @@ public class Closing {
     public int hashCode()
     {
         return Objects.hash(id);
-    }
-
-    public void setExpirationTimestamp(LocalDateTime expirationTimestamp)
-    {
-        this.expirationTimestamp = expirationTimestamp;
     }
 
     public Closing addUser (User user)
