@@ -93,7 +93,7 @@ public class ClosingService {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
         final String sql = """
             SELECT
-                c.id AS closing_id, c.name AS closing_name, c.timestamp, c.zone_id, c.location, 
+                c.id AS closing_id, c.name AS closing_name, c.timestamp, c.zone_id, c.location, c.expiration_timestamp, c.invites_sent,
                 u.id AS user_id, u.first_name, u.last_name, u.username,
                 d.id AS document_id, d.filename, d.file_uuid, cs.signature_timestamp 
             FROM sca.closing c
@@ -120,7 +120,9 @@ public class ClosingService {
                     rs.getString("closing_name"),
                     rs.getTimestamp("timestamp").toLocalDateTime(),
                     ZoneId.of(rs.getString("zone_id")),
-                    rs.getString("location"));
+                    rs.getString("location"),
+                    rs.getTimestamp("expiration_timestamp").toLocalDateTime(),
+                    rs.getBoolean("invites_sent"));
                 if (!closingsMap.containsKey(closing.id())) {
                     usersMap.clear();
                     closingsMap.put(closing.id(), closing);
