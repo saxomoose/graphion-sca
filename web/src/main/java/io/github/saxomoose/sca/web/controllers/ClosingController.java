@@ -30,6 +30,7 @@ import io.github.saxomoose.sca.web.models.projections.ClosingToCreate;
 import io.github.saxomoose.sca.web.models.projections.ClosingsToIndex;
 import io.github.saxomoose.sca.web.services.ClosingService;
 import io.github.saxomoose.sca.web.services.DocumentService;
+import io.github.saxomoose.sca.web.services.MailService;
 import io.github.saxomoose.sca.web.services.UserService;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,13 +41,20 @@ public class ClosingController {
     private final ClosingService closingService;
     private final DocumentService documentService;
     private final HttpSession httpSession;
+    private final MailService mailService;
     private final UserService userService;
 
     @Autowired
-    public ClosingController(ClosingService closingService, DocumentService documentService, HttpSession httpSession, UserService userService) {
+    public ClosingController(
+        ClosingService closingService,
+        DocumentService documentService,
+        HttpSession httpSession,
+        MailService mailService, 
+        UserService userService) {
         this.closingService = closingService;
         this.documentService = documentService;
         this.httpSession = httpSession;
+        this.mailService = mailService;
         this.userService = userService;
     }
 
@@ -142,6 +150,7 @@ public class ClosingController {
         @RequestParam final MultiValueMap<String, String> formData,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
+        mailService.sendMail();
         // Validation
         List<ClosingSignatory> closingSignatories = new ArrayList<>();
         Boolean sendInvites = Boolean.FALSE;
@@ -159,7 +168,6 @@ public class ClosingController {
                 }
             }
         }
-
         // final Long principalId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
         final Long principalId = 1L;
         // final Long tenantId = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).id();

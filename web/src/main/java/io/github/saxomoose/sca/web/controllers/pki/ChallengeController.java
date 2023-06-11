@@ -23,7 +23,6 @@ public class ChallengeController {
      */
     @GetMapping(
         value = "/pki/challenge",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChallengePayload> challenge() 
     {
