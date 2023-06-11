@@ -7,12 +7,12 @@ import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
 
-public class ClosingToIndex {
+public class ClosingsToIndex {
     private final Page<Closing> closingPage;
     private final Map<Closing, Set<User>> users;
     private final Map<Long, Map<User, Set<Document>>> documents;
 
-    public ClosingToIndex(
+    public ClosingsToIndex(
         Page<Closing> closingPage,
         Map<Closing, Set<User>> users,
         Map<Long, Map<User, Set<Document>>> documents)

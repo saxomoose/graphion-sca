@@ -108,14 +108,14 @@ public class UserService {
     {
         final String sql = """
         INSERT INTO sca.user
-        VALUES (DEFAULT, DEFAULT, :firstName, :lastName, :username, :dateOfBirth, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
+        VALUES (DEFAULT, :username, NULL, :firstName, :lastName, :dateOfBirth, DEFAULT, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
         final MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
+                "username", user.username(),
                 "firstName", user.firstName(),
                 "lastName", user.lastName(),
-                "username", user.username(),
                 "dateOfBirth", user.dateOfBirth(),
                 "createdBy", principalId,
                 "lastUpdatedBy", principalId));

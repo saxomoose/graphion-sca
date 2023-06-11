@@ -6,6 +6,7 @@ import java.security.cert.CertificateException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,7 +55,10 @@ public class SignatureController {
         this.validationService = validationService;
     }
 
-    @PostMapping(value = "/pki/sign/dtbsr/{rawClosingId}/{rawFileUUID}", produces = "application/json")
+    @PostMapping(
+        value = "/pki/sign/dtbsr/{rawClosingId}/{rawFileUUID}",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DigestPayload> dataToSign(
         HttpServletRequest request,
         HttpServletResponse response,
@@ -77,7 +81,10 @@ public class SignatureController {
         return ResponseEntity.ok().body(tuple.first());
     }
 
-    @PostMapping(value = "/pki/sign/apply/{rawClosingId}/{rawFileUUID}", produces = "application/json")
+    @PostMapping(
+        value = "/pki/sign/apply/{rawClosingId}/{rawFileUUID}",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity sign(
         HttpServletRequest request,
         @PathVariable final Long rawClosingId,

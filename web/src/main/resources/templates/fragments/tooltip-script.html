@@ -1,5 +1,10 @@
 <script type="text/javascript">
-    const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
-    const tooltipList = [...tooltipTriggerList].map(
-        tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    "use-strict";
+    function initializeTooltipScript() {
+        const tooltipTriggerList = document.querySelectorAll(".trigger-tooltip");
+        const tooltipList = [...tooltipTriggerList].map(
+            tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    }
+
+    window.addEventListener("load", initializeTooltipScript);
 </script>

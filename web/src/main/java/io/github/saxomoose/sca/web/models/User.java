@@ -10,13 +10,14 @@ import java.util.Set;
 public class User implements Serializable {
     
     private final Long id;
-    private Boolean enabled;
+    private String username;
     private String firstName;
     private String lastName;
-    private String username;
     private LocalDate dateOfBirth;
     // Art. 1:5 New Belgian Civil Code.
     private Boolean electronicSignatureConsent;
+    private Boolean enabled;
+
 
     private Long createdBy;
     private Long lastUpdatedBy;
@@ -25,40 +26,40 @@ public class User implements Serializable {
 
     private Set<Document> documents;
 
-    public static User withId(Long id, String firstName, String lastName, String username)
+    public static User withId(Long id, String username, String firstName, String lastName)
     {
-        return new User(id, null, firstName, lastName, username, null, null);
+        return new User(id, username, firstName, lastName, null , null, null);
     }    
     
     public static User of(
+        String username,
         String firstName,
         String lastName,
-        String username,
         LocalDate dateOfBirth)
     {
         // User should only be enabled after email verification.
         // Role should be set by seeder.
         // Tenant should be set to seeders' tenant.
-        return new User(null, null, firstName, lastName, username, dateOfBirth, null);
+        return new User(null, username, firstName, lastName, dateOfBirth, null, null);
     }
 
     public User(
         Long id,
-        Boolean enabled,
+        String username,
         String firstName,
         String lastName,
-        String username,
         LocalDate dateOfBirth,
-        Boolean electronicSignatureConsent
+        Boolean electronicSignatureConsent,
+        Boolean enabled
     )
     {
         this.id = id;
-        this.enabled = enabled;
+        this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.username = username;
         this.dateOfBirth = dateOfBirth;
         this.electronicSignatureConsent = electronicSignatureConsent;
+        this.enabled = enabled;
     }
 
     public Long id()
@@ -66,9 +67,9 @@ public class User implements Serializable {
         return id;
     }
 
-    private Boolean enabled()
+    public String username()
     {
-        return enabled;
+        return username;
     }
 
     public String firstName()
@@ -81,11 +82,6 @@ public class User implements Serializable {
         return lastName;
     }
 
-    public String username()
-    {
-        return username;
-    }
-
     public LocalDate dateOfBirth()
     {
         return dateOfBirth;
@@ -94,6 +90,11 @@ public class User implements Serializable {
     public Boolean electronicSignatureConsent()
     {
         return electronicSignatureConsent;
+    }
+
+    private Boolean enabled()
+    {
+        return enabled;
     }
 
     public Long createdBy()

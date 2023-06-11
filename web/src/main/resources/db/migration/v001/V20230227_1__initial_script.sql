@@ -1,11 +1,12 @@
 CREATE TABLE sca.user (
     id bigserial PRIMARY KEY,
-    enabled boolean DEFAULT false,
+    username character varying(255) NOT NULL UNIQUE,
+    nrn character varying(255),
     first_name character varying(255) NOT NULL,
     last_name character varying(255) NOT NULL,
-    username character varying(255) NOT NULL UNIQUE,
     date_of_birth date NOT NULL,
     electronic_signature_consent boolean DEFAULT false,
+    enabled boolean DEFAULT false,
     created_by bigint NOT NULL,
     last_updated_by bigint NOT NULL,
     created_timestamp timestamp(0) NOT NULL,
@@ -141,7 +142,7 @@ FOR EACH ROW
 EXECUTE FUNCTION public.update_timestamps();
 
 INSERT INTO sca.user
-    VALUES (1, true, 'Mathieu', 'Tulpinck', 'admin@graphion.eu', '1990-11-08', true, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    VALUES (1, 'admin@graphion.eu', NULL, 'Mathieu', 'Tulpinck', '1990-11-08', true, true, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 SELECT setval('sca.user_id_seq', 1);
 

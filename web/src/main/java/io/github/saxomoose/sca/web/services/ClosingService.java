@@ -30,21 +30,27 @@ import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
+import io.github.saxomoose.sca.web.models.projections.ClosingsToIndex;
 import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
 public class ClosingService {
-    private final ObjectStorageService objectStorageService;
+    private final MailService mailService;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
+    private final ObjectStorageService objectStorageService;
     private final RowMapper<Closing> closingRowMapper;
     private final RowMapper<ClosingSignatory> closingSignatoryRowMapper;
 
     @Autowired
-    public ClosingService(ObjectStorageService objectStorageService, NamedParameterJdbcOperations namedParameterJdbcOperations, RowMapperCollection rowMappers)
+    public ClosingService(
+        MailService mailService,
+        NamedParameterJdbcOperations namedParameterJdbcOperations,
+        ObjectStorageService objectStorageService, 
+        RowMapperCollection rowMappers)
     {   
-        this.objectStorageService = objectStorageService;
+        this.mailService = mailService;
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
+        this.objectStorageService = objectStorageService;
         this.closingRowMapper = (RowMapper<Closing>) rowMappers.getRowMapper(Closing.class);
         this.closingSignatoryRowMapper = (RowMapper<ClosingSignatory>) rowMappers.getRowMapper(ClosingSignatory.class);
 
@@ -88,7 +94,7 @@ public class ClosingService {
         return namedParameterJdbcOperations.queryForObject(sql, params, closingRowMapper);
     }
 
-    public ClosingToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
+    public ClosingsToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
         final String sql = """
@@ -129,9 +135,9 @@ public class ClosingService {
                 }
                 final User user = User.withId(
                     rs.getLong("user_id"),
+                    rs.getString("username"),
                     rs.getString("first_name"),
-                    rs.getString("last_name"),
-                    rs.getString("username"));
+                    rs.getString("last_name"));
                 usersMap.putIfAbsent(user.id(), user);
                 final Document document = Document.withId(
                     rs.getLong("document_id"),
@@ -161,7 +167,7 @@ public class ClosingService {
                         Closing::id, 
                         closing -> closing.users().stream().collect(Collectors.toMap(user -> user, user -> user.documents()))));
 
-        return new ClosingToIndex(closingPage, users, documents);
+        return new ClosingsToIndex(closingPage, users, documents);
 
     }
 
@@ -314,5 +320,10 @@ public class ClosingService {
             closingSignatory.setClosingId(createdClosing.id());
         }
         insertNaturalPersonSignatories(closingSignatories);
+    }
+
+    public void sendInvites(final List<User> recipients)
+    {
+        
     }
 }

@@ -21,12 +21,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingToCreate;
-import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
+import io.github.saxomoose.sca.web.models.projections.ClosingsToIndex;
 import io.github.saxomoose.sca.web.services.ClosingService;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.UserService;
@@ -58,7 +59,7 @@ public class ClosingController {
     {
         // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
         final var tenantId = 1L;
-        final ClosingToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
+        final ClosingsToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
         if (closingToIndex.closingPage().isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
@@ -102,7 +103,9 @@ public class ClosingController {
     /**
      * TODO
      */
-    @PostMapping(value = "/closings/prepare", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(
+        value = "/closings/prepare",
+        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public RedirectView prepare(
         final ClosingToCreate rawClosing,
         final RedirectAttributes redirectAttributes) throws Exception 
@@ -111,7 +114,7 @@ public class ClosingController {
         final List<Document> documents = documentService.documentsByIds(rawClosing.documentIds());
         rawClosing.setUsers(users);
         rawClosing.setDocuments(documents);
-        httpSession.setAttribute("closing", rawClosing);
+        httpSession.setAttribute(SessionEnum.CLOSING.toString(), rawClosing);
         return new RedirectView("/closings/create");
     }
 
@@ -120,7 +123,7 @@ public class ClosingController {
         final HttpServletRequest request
     ) 
     {
-        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute("closing");
+        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
         final ModelAndView modelAndView = new ModelAndView("closings/create");
         modelAndView.addObject("users", rawClosing.users());
         modelAndView.addObject("documents", rawClosing.documents());
@@ -131,27 +134,39 @@ public class ClosingController {
         return modelAndView;
     }
 
-    @PostMapping(value = "/closings", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(
+        value = "/closings",
+        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public RedirectView store(
         final HttpServletRequest request,
         @RequestParam final MultiValueMap<String, String> formData,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        // final Long userId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
-        final Long principalId = 1L;
         // Validation
         List<ClosingSignatory> closingSignatories = new ArrayList<>();
+        Boolean sendInvites = Boolean.FALSE;
         for (final Map.Entry<String, List<String>> entry : formData.entrySet()) {
-            if (!entry.getKey().equals("_csrf")) {
+            if (entry.getKey().equals("_csrf")) {
+                continue;
+            } else if (entry.getKey().equals("sendInvites")) {
+                if (entry.getValue().get(0).equals("on")) {
+                    sendInvites = Boolean.TRUE;
+                }
+            } else {
                 final Long userId = Long.parseLong(entry.getKey());
                 for (final String documentId : entry.getValue()) {
                 closingSignatories.add(ClosingSignatory.of(userId, Long.parseLong(documentId)));
                 }
             }
         }
-        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute("closing");
+
+        // final Long principalId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
+        final Long principalId = 1L;
         // final Long tenantId = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).id();
         final Long tenantId = 1L;
+        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
+        httpSession.removeAttribute(SessionEnum.CLOSING.toString());
+   
         final Closing closing = Closing.of(
             tenantId,
             rawClosing.name(),

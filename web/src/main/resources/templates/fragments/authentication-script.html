@@ -1,52 +1,51 @@
 <script data-th-inline="javascript" type="text/javascript">
     "use strict";
-
-    webeiderrors.hideErrorMessage();
-
-    const loginFormEl = document.getElementById("login-form");
-
-    loginFormEl.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    function initializeAuthenticationScript() {
         webeiderrors.hideErrorMessage();
-        // loginForm.disabled = true;
-
-        const username = document.getElementById("username").value;
-
-        try {
-            const status = await webeid.status();
-            const challengeResponse = await fetch("/pki/challenge", {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "X-Requested-With": "XMLHttpRequest"
+        const loginFormEl = document.getElementById("login-form");
+        loginFormEl.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            webeiderrors.hideErrorMessage();
+            // loginForm.disabled = true;
+            const username = document.getElementById("username").value;
+            try {
+                const status = await webeid.status();
+                const challengeResponse = await fetch("/pki/challenge", {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+                await webeiderrors.checkHttpError(challengeResponse);
+                const { nonce } = await challengeResponse.json();
+                const authToken = await webeid.authenticate(nonce, "en");
+                const authTokenResponse = await fetch("/pki/login", {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: `{"auth-token": ${JSON.stringify(authToken)}, "username": ${JSON.stringify(username)}}`
+                });
+                await webeiderrors.checkHttpError(authTokenResponse);
+                const { successURL } = await authTokenResponse.json();
+                if (authTokenResponse.status === 200) {
+                    window.location.href = successURL;
+                } else {
+                    window.location.reload();
                 }
-            });
-            await webeiderrors.checkHttpError(challengeResponse);
-            const { nonce } = await challengeResponse.json();
-            const authToken = await webeid.authenticate(nonce, "en");
-            const authTokenResponse = await fetch("/pki/login", {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "X-CSRF-Token": [[${ _csrf.getToken() }]],
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: `{"auth-token": ${JSON.stringify(authToken)}, "username": ${JSON.stringify(username)}}`
-            });
-            await webeiderrors.checkHttpError(authTokenResponse);
-            const { successURL } = await authTokenResponse.json();
-            if (authTokenResponse.status === 200) {
-                window.location.href = successURL;
-            } else {
-                window.location.reload();
+            } catch (error) {
+                webeiderrors.showErrorMessage(error);
+                throw error;
             }
-        } catch (error) {
-            webeiderrors.showErrorMessage(error);
-            throw error;
-        }
-        // finally {
-        // loginForm.disabled = false;
-        // }
-    });
+            // finally {
+            // loginForm.disabled = false;
+            // }
+        });
+    }
+
+    window.addEventListener("load", initializeAuthenticationScript);
 </script>
