@@ -20,6 +20,7 @@ flywaycore = { module = "org.flywaydb:flyway-core", version = "latest.release" }
 xmlbind = { module = "javax.xml.bind:jaxb-api", version = "2.3.1" }
 # jaxb-core = { module = "org.glassfish.jaxb:jaxb-core", version = "latest.release" }
 jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version = "2.3.1" }
+mailgun = { module = "com.mailgun:mailgun-java", version = "latest.release" }
 minio = { module = "io.minio:minio", version = "latest.release" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version = "latest.release" }
 webeid = { module = "org.webeid.security:authtoken-validation", version = "latest.release" }

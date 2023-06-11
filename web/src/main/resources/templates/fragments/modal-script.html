@@ -1,14 +1,19 @@
 <script type="text/javascript">
-    const triggerModalElList = document.querySelectorAll(".trigger-modal");
-    console.log(triggerModalElList);
-    const modalElList = document.querySelectorAll(".modal");
-    if (triggerModalElList !== 0) {
-        const modalList = [...modalElList].map(
-            modalEl => new bootstrap.Modal(modalEl, {}));
-        console.log(modalList);
-        triggerModalElList.forEach(
-            (triggerEl, index) => triggerEl.addEventListener(
-                "click",
-                () => modalList[index].show()));
+    "use-script"
+    function initializeModalScript() {
+        const triggerModalElList = document.querySelectorAll(".trigger-modal");
+        console.log(triggerModalElList);
+        const modalElList = document.querySelectorAll(".modal");
+        if (triggerModalElList !== 0) {
+            const modalList = [...modalElList].map(
+                modalEl => new bootstrap.Modal(modalEl, {}));
+            console.log(modalList);
+            triggerModalElList.forEach(
+                (triggerEl, index) => triggerEl.addEventListener(
+                    "click",
+                    () => modalList[index].show()));
+        }
     }
+
+    window.addEventListener("load", initializeModalScript);
 </script>

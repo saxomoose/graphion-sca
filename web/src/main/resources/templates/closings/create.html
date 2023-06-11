@@ -32,7 +32,17 @@
                                 </div>
                             </th-block>
                         </div>
-                        <button class="btn btn-primary" type="submit">Submit</button>
+                        <input class="d-none" id="send-invites-input" name="sendInvites" type="checkbox">
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="save-submit-button" type="submit">Save</button>
+                            <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
+                                data-bs-toggle="dropdown" type="button">
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" id="save-send-submit-button" type="submit">Save and
+                                        send invites</button></li>
+                            </ul>
+                        </div>
                     </form>
                 </main>
             </div>
@@ -43,13 +53,15 @@
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
     <script>
-        window.addEventListener("load", initializePage);
-
+        "use strict";
         function initializePage() {
             const closingFormEl = document.getElementById("closing-form");
-
-
+            const sendInvitesInputEl = document.getElementById("send-invites-input");
             closingFormEl.addEventListener("submit", (event) => {
+                const activeElementId = document.activeElement.id;
+                if (activeElementId === "save-send-submit-button") {
+                    sendInvitesInputEl.checked = true;
+                }
                 sessionStorage.removeItem("name");
                 sessionStorage.removeItem("timestamp");
                 sessionStorage.removeItem("zone-id");
@@ -59,6 +71,8 @@
                 sessionStorage.removeItem("documentDict");
             });
         }
+
+        window.addEventListener("load", initializePage);
     </script>
 </body>
 

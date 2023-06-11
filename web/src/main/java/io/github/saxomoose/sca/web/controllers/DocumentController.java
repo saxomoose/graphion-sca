@@ -83,7 +83,9 @@ public class DocumentController {
         return modelAndView;
     }
 
-    @GetMapping(value = "/files/{rawFileUUID}", produces = "application/pdf")
+    @GetMapping(
+        value = "/files/{rawFileUUID}",
+        produces = MediaType.APPLICATION_PDF_VALUE)
     // @ResponseBody
     public ResponseEntity<Resource> serveFile(
         @PathVariable final String rawFileUUID,

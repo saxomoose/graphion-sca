@@ -24,7 +24,7 @@
                                     <input class="form-control" id="file" name="file" type="file"
                                         accept="application/pdf">
                                 </div>
-                                <button class="btn btn-primary" type="submit">Submit</button>
+                                <button class="btn btn-primary" type="submit">Save</button>
                             </form>
                         </div>
                     </div>
@@ -37,13 +37,17 @@
     <script data-th-replace="~{fragments/toast-script}"></script>
     <script data-th-inline="javascript">
         "use strict";
-        const fileEl = document.getElementById("file");
-        const fileSizeEl = document.getElementById("file-size");
-        fileEl.addEventListener("change", () => {
-            const size = fileEl.files[0].size;
-            console.log(size);
-            fileSizeEl.value = size;
-        }, false);
+        function initializePage() {
+            const fileEl = document.getElementById("file");
+            const fileSizeEl = document.getElementById("file-size");
+            fileEl.addEventListener("change", () => {
+                const size = fileEl.files[0].size;
+                console.log(size);
+                fileSizeEl.value = size;
+            }, false);
+        }
+
+        window.addEventListener("load", initializePage);
     </script>
 </body>
 

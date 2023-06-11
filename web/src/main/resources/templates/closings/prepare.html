@@ -109,8 +109,7 @@
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
     <script type="text/javascript">
-        window.addEventListener("load", initializePage);
-
+        "use strict";
         function initializePage() {
             const urlParams = new URLSearchParams(window.location.search);
             let userPageIndex = pageIndex(urlParams, "userPageIndex");
@@ -219,6 +218,7 @@
             });
         }
 
+        window.addEventListener("load", initializePage);
     </script>
 </body>
 

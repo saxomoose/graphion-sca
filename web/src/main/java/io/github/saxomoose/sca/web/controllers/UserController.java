@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,7 +82,9 @@ public class UserController {
     /**
      * TODO
      */
-    @PostMapping(value = "/users", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(
+        value = "/users",
+        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public RedirectView store(
         final UserToCreate rawSignatory,
         final RedirectAttributes redirectAttributes) throws Exception 

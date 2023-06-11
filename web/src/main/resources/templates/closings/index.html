@@ -14,9 +14,9 @@
                     <div class="row">
                         <div class="alert alert-danger" id="error-message" role="alert" style="display: none;"></div>
                         <nav class="d-flex flex-row-reverse">
-                            <a data-bs-placement="left" data-bs-title="Add closing" data-bs-toggle="tooltip"
-                                data-th-href="@{/closings/prepare}"><img data-th-src="@{/svg/plus-circle.svg}"
-                                    width="20" height="20"></a>
+                            <a class="trigger-tooltip" data-bs-placement="left" data-bs-title="Add closing"
+                                data-bs-toggle="tooltip" data-th-href="@{/closings/prepare}"><img
+                                    data-th-src="@{/svg/plus-circle.svg}" width="20" height="20"></a>
                         </nav>
                         <!-- Table -->
                         <table class="table table-hover" id="closing-table">
@@ -27,7 +27,7 @@
                                     <th scope="col">Closing timestamp</th>
                                     <th scope="col">Location</th>
                                     <th scope="col">Expiration timestamp</th>
-                                    <th scope="col">Invites sent</th>
+                                    <th class="text-center" scope="col">Invites sent</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
@@ -55,20 +55,6 @@
                                                 role="button" width="20" height="20">
                                         </td>
                                     </tr>
-                                    <!--Modal-->
-                                    <div class="modal fade" tabindex="-1">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-body d-flex align-items-center">
-                                                    <a class="btn btn-primary me-2">Send invites</a>
-                                                    <a class="btn btn-primary me-2">Edit</a>
-                                                    <a class="btn btn-danger me-2">Delete</a>
-                                                    <button class="ms-auto btn-close" data-bs-dismiss="modal"
-                                                        type="button"></button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </th-block>
                             </tbody>
                         </table>
@@ -107,18 +93,7 @@
                                                         role="button" width="20" height="20">
                                                 </td>
                                             </tr>
-                                            <!--Modal-->
-                                            <div class="modal fade" tabindex="-1">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-body d-flex align-items-center">
-                                                            <a class="btn btn-primary" data-th-href="@{/users}">View</a>
-                                                            <button class="ms-auto btn-close" data-bs-dismiss="modal"
-                                                                type="button"></button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+
                                         </th-block>
                                     </tbody>
                                 </table>
@@ -148,23 +123,6 @@
                                                             role="button" width="20" height="20">
                                                     </td>
                                                 </tr>
-                                                <!--Modal-->
-                                                <div class="modal fade"
-                                                    data-th-classappend="${#strings.concat('document-modal-', closing.getKey(), '-',  user.getKey().id())}"
-                                                    tabindex="-1">
-                                                    <div class="modal-dialog modal-dialog-centered">
-                                                        <div class="modal-content">
-                                                            <div class="modal-body d-flex align-items-center">
-                                                                <a class="btn btn-primary me-2"
-                                                                    data-th-href="@{/documents}">View</a>
-                                                                <button class="btn btn-primary signature-button"
-                                                                    data-th-id="${document.fileUUID()}">Sign</button>
-                                                                <button class="ms-auto btn-close"
-                                                                    data-bs-dismiss="modal" type="button"></button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </th-block>
                                         </tbody>
                                     </table>
@@ -172,6 +130,58 @@
                             </th-block>
                         </div>
                     </div>
+                    <!-- Modals -->
+                    <th-block data-th-each="closing,closingIterStat : ${closingToIndex.closingPage()}">
+                        <div class="modal fade" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body d-flex align-items-center">
+                                        <a class="btn btn-primary me-2">Send invites</a>
+                                        <a class="btn btn-primary me-2">Edit</a>
+                                        <a class="btn btn-danger me-2">Delete</a>
+                                        <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                            type="button"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th-block>
+                    <th-block data-th-each="closing : ${closingToIndex.users()}">
+                        <th-block data-th-each="user,userIterStat : ${closing.getValue()}">
+                            <div class="modal fade" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body d-flex align-items-center">
+                                            <a class="btn btn-primary" data-th-href="@{/users}">View</a>
+                                            <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                                type="button"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </th-block>
+                    </th-block>
+                    <th-block data-th-each="closing : ${closingToIndex.documents()}">
+                        <th-block data-th-each="user : ${closing.getValue()}">
+                            <th-block data-th-each="document : ${user.getValue()}">
+                                <div class="modal fade"
+                                    data-th-classappend="${#strings.concat('document-modal-', closing.getKey(), '-',  user.getKey().id())}"
+                                    tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-body d-flex align-items-center">
+                                                <a class="btn btn-primary me-2" data-th-href="@{/documents}">View</a>
+                                                <button class="btn btn-primary signature-button"
+                                                    data-th-id="${document.fileUUID()}">Sign</button>
+                                                <button class="ms-auto btn-close" data-bs-dismiss="modal"
+                                                    type="button"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th-block>
+                        </th-block>
+                    </th-block>
                 </main>
             </div>
         </div>
@@ -187,83 +197,87 @@
     <script data-th-replace="~{fragments/tooltip-script}"></script>
 
     <script type="text/javascript">
-        const triggerCollapseElList = document.querySelectorAll(".trigger-collapse");
-        const activableRowList = document.querySelectorAll(".activable-row");
-        const activeRowElArray = new Array();
-        const userRowElList = document.querySelectorAll(".user-row");
-        const collapseElList = document.querySelectorAll(".collapse");
-        const triggerCollapseAllElList = document.querySelectorAll(".trigger-collapse-all");
+        "use strict";
+        function initializePage() {
+            const triggerCollapseElList = document.querySelectorAll(".trigger-collapse");
+            triggerCollapseElList.forEach(triggerCollapseEl => triggerCollapseEl.checked = false);
+            const activableRowList = document.querySelectorAll(".activable-row");
+            const activeRowElArray = new Array();
+            const userRowElList = document.querySelectorAll(".user-row");
+            const collapseElList = document.querySelectorAll(".collapse");
+            const triggerCollapseAllElList = document.querySelectorAll(".trigger-collapse-all");
+            const collapseList = [...collapseElList].map(
+                collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
 
-        const collapseList = [...collapseElList].map(
-            collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
-        console.log(collapseList);
-
-        triggerCollapseElList.forEach(
-            (triggerEl, index) => triggerEl.addEventListener(
-                "change",
-                (event) => {
-                    if (event.target.checked) {
-                        if (event.target.classList.contains("trigger-root")) {
-                            triggerCollapseElList.forEach(triggerCollapseEl => {
-                                if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
-                                    triggerCollapseEl.setAttribute("disabled", "");
-                                }
-                            });
-                        }
-                        activableRowList.forEach(activableRowEl => {
-                            activeRowElArray.push(activableRowList[index]);
-                            activeRowElArray.forEach(activeRowEl => activeRowEl.classList.add("table-active"));
-                        });
-                    } else if (!event.target.checked) {
-                        if (event.target.classList.contains("trigger-root")) {
-                            triggerCollapseAllElList.forEach(triggerCollapseAllEl => triggerCollapseAllEl.checked = false);
-                            triggerCollapseElList.forEach(triggerCollapseEl => triggerCollapseEl.checked = false);
-                            collapseList.forEach(collapse => collapse.hide());
-                            triggerCollapseElList.forEach(triggerCollapseEl => {
-                                if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
-                                    triggerCollapseEl.removeAttribute("disabled", "");
-                                }
-                            });
-                            activeRowElArray.forEach(activeRowEl => {
-                                activeRowEl.classList.remove("table-active");
-                            });
-                            activeRowElArray.length = 0;
-                        } else if (event.target.classList.contains("trigger-collapse-user")) {
-                            const table = event.target.closest("table");
-                            const triggerCollapseAllEl = table.querySelectorAll('.trigger-collapse-all')[0];
-                            if (triggerCollapseAllEl.checked) {
-                                triggerCollapseAllEl.indeterminate = true;
+            triggerCollapseElList.forEach(
+                (triggerEl, index) => triggerEl.addEventListener(
+                    "change",
+                    (event) => {
+                        if (event.target.checked) {
+                            if (event.target.classList.contains("trigger-root")) {
+                                triggerCollapseElList.forEach(triggerCollapseEl => {
+                                    if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
+                                        triggerCollapseEl.setAttribute("disabled", "");
+                                    }
+                                });
                             }
+                            activableRowList.forEach(activableRowEl => {
+                                activeRowElArray.push(activableRowList[index]);
+                                activeRowElArray.forEach(activeRowEl => activeRowEl.classList.add("table-active"));
+                            });
+                        } else if (!event.target.checked) {
+                            if (event.target.classList.contains("trigger-root")) {
+                                triggerCollapseAllElList.forEach(triggerCollapseAllEl => triggerCollapseAllEl.checked = false);
+                                triggerCollapseElList.forEach(triggerCollapseEl => triggerCollapseEl.checked = false);
+                                collapseList.forEach(collapse => collapse.hide());
+                                triggerCollapseElList.forEach(triggerCollapseEl => {
+                                    if (triggerCollapseEl.classList.contains("trigger-root") && triggerCollapseEl !== event.target) {
+                                        triggerCollapseEl.removeAttribute("disabled", "");
+                                    }
+                                });
+                                activeRowElArray.forEach(activeRowEl => {
+                                    activeRowEl.classList.remove("table-active");
+                                });
+                                activeRowElArray.length = 0;
+                            } else if (event.target.classList.contains("trigger-collapse-user")) {
+                                const table = event.target.closest("table");
+                                const triggerCollapseAllEl = table.querySelectorAll('.trigger-collapse-all')[0];
+                                if (triggerCollapseAllEl.checked) {
+                                    triggerCollapseAllEl.indeterminate = true;
+                                }
+                            }
+                            activableRowList.forEach(closingRowEl => {
+                                const targetIndex = activeRowElArray.findIndex(activeRowEl => activeRowEl === activableRowList[index]);
+                                activeRowElArray[targetIndex].classList.remove("table-active");
+                                delete activeRowElArray[targetIndex];
+                            });
                         }
-                        activableRowList.forEach(closingRowEl => {
-                            const targetIndex = activeRowElArray.findIndex(activeRowEl => activeRowEl === activableRowList[index]);
-                            activeRowElArray[targetIndex].classList.remove("table-active");
-                            delete activeRowElArray[targetIndex];
-                        });
-                    }
-                    collapseList[index].toggle();
-                }));
+                        collapseList[index].toggle();
+                    }));
 
-        triggerCollapseAllElList.forEach(
-            (triggerEl, i) => triggerEl.addEventListener(
-                "change",
-                (event) => {
-                    const table = event.target.closest('table');
-                    const targetTriggerCollapseElList = table.querySelectorAll('.trigger-collapse');
-                    if (event.target.checked) {
-                        targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
-                            if (!targetTriggerCollapseEl.checked) {
-                                targetTriggerCollapseEl.checked = true;
+            triggerCollapseAllElList.forEach(
+                (triggerEl, i) => triggerEl.addEventListener(
+                    "change",
+                    (event) => {
+                        const table = event.target.closest('table');
+                        const targetTriggerCollapseElList = table.querySelectorAll('.trigger-collapse');
+                        if (event.target.checked) {
+                            targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
+                                if (!targetTriggerCollapseEl.checked) {
+                                    targetTriggerCollapseEl.checked = true;
+                                    targetTriggerCollapseEl.dispatchEvent(new Event("change"));
+                                }
+                            });
+                        } else {
+                            targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
+                                targetTriggerCollapseEl.checked = false;
                                 targetTriggerCollapseEl.dispatchEvent(new Event("change"));
-                            }
-                        });
-                    } else {
-                        targetTriggerCollapseElList.forEach((targetTriggerCollapseEl) => {
-                            targetTriggerCollapseEl.checked = false;
-                            targetTriggerCollapseEl.dispatchEvent(new Event("change"));
-                        });
-                    }
-                }));
+                            });
+                        }
+                    }));
+        }
+
+        window.addEventListener("load", initializePage);
     </script>
 </body>
 

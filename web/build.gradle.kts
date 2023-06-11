@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.dss.utils.apache.commons)
     // implementation(libs.jaxb.core)
     // Runtime only?
+    implementation(libs.mailgun)
     implementation(libs.minio)
     implementation(libs.webeid)
     implementation(libs.xmlbind)

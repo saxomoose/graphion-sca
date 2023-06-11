@@ -11,11 +11,11 @@ public class UserRowMapper implements RowMapper<User> {
     {
         return new User(
             rs.getLong("id"),
-            rs.getBoolean("enabled"),
+            rs.getString("username"),
             rs.getString("first_name"),
             rs.getString("last_name"),
-            rs.getString("username"),
             rs.getDate("date_of_birth").toLocalDate(),
-            rs.getBoolean("electronic_signature_consent"));
+            rs.getBoolean("electronic_signature_consent"),
+            rs.getBoolean("enabled"));
     }
 }

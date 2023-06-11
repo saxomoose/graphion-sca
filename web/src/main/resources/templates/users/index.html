@@ -12,8 +12,9 @@
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=2)}"></aside>
                 <main class="col-md-10">
                     <nav class="d-flex flex-row-reverse">
-                        <a data-th-href="@{/users/create}"><img data-th-src="@{/svg/plus-circle.svg}" width="20"
-                                height="20"></a>
+                        <a class="trigger-tooltip" data-bs-placement="left" data-bs-title="Add user"
+                            data-bs-toggle="tooltip" data-th-href="@{/users/create}"><img
+                                data-th-src="@{/svg/plus-circle.svg}" width="20" height="20"></a>
                     </nav>
                     <!-- Table -->
                     <table class="table table-hover" id="user-table">
@@ -23,21 +24,22 @@
                                 <th scope="col">Last name</th>
                                 <th scope="col">First name</th>
                                 <th scope="col">Email</th>
-                                <th scope="col">Electronic signature consent</th>
+                                <th class="text-center" scope="col">Electronic signature consent</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
                             <th-block data-th-each="user,userIterStat : ${userPage}">
                                 <tr data-th-id="${user.id()}">
-                                    <th scope="row"
-                                        data-th-text="${userPage.getNumber() * 10 + userIterStat.getIndex() + 1}">
+                                    <th data-th-text="${userPage.getNumber() * 10 + userIterStat.getIndex() + 1}"
+                                        scope="row">
                                     </th>
                                     <td data-th-text=" ${user.lastName()}">
                                     </td>
                                     <td data-th-text="${user.firstName()}"></td>
                                     <td data-th-text="${user.email()}"></td>
-                                    <td data-th-text="${user.electronicSignatureConsent()}"></td>
+                                    <td class="text-center"><img data-th-if="${user.electronicSignatureConsent()}"
+                                            data-th-src="@{/svg/check-lg.svg}" width="20" height="20"></td>
                                     <td class="text-end"><img class="trigger-modal" data-th-src="@{/svg/three-dots.svg}"
                                             role="button" width="20" height="20"></td>
                                 </tr>

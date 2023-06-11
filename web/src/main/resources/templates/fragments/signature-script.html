@@ -1,53 +1,55 @@
 <script data-th-inline="javascript" type="text/javascript">
     "use strict";
+    function initializeSignatureScript() {
+        const lang = new URLSearchParams(window.location.search).get("lang") || "en";
 
-    const lang = new URLSearchParams(window.location.search).get("lang") || "en";
+        const signatureButtonElList = document.querySelectorAll(".signature-button");
+        signatureButtonElList.forEach((signatureButtonEl) => {
+            const fileUUID = signatureButtonEl.id;
+            const closingId = signatureButtonEl.closest(".modal").classList.item(2).split("-")[2];
 
-    const signatureButtonElList = document.querySelectorAll(".signature-button");
-    signatureButtonElList.forEach((signatureButtonEl) => {
-        const fileUUID = signatureButtonEl.id;
-        const closingId = signatureButtonEl.closest(".modal").classList.item(2).split("-")[2];
+            signatureButtonEl.addEventListener("click", async () => {
+                webeiderrors.hideErrorMessage();
+                signatureButtonEl.disabled = true;
 
-        signatureButtonEl.addEventListener("click", async () => {
-            webeiderrors.hideErrorMessage();
-            signatureButtonEl.disabled = true;
+                try {
+                    const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
+                    const prepareSigningResponse = await fetch(`/pki/sign/dtbsr/${closingId}/${fileUUID}`, {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: JSON.stringify({ certificate, supportedSignatureAlgorithms }),
+                    });
+                    await webeiderrors.checkHttpError(prepareSigningResponse);
+                    const { hash, hashFunction } = await prepareSigningResponse.json();
 
-            try {
-                const { certificate, supportedSignatureAlgorithms } = await webeid.getSigningCertificate({ lang });
-                const prepareSigningResponse = await fetch(`/pki/sign/dtbsr/${closingId}/${fileUUID}`, {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json",
-                        "X-CSRF-Token": [[${ _csrf.getToken() }]],
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify({ certificate, supportedSignatureAlgorithms }),
-                });
-                await webeiderrors.checkHttpError(prepareSigningResponse);
-                const { hash, hashFunction } = await prepareSigningResponse.json();
+                    const { signature, signatureAlgorithm } = await webeid.sign(certificate, hash, hashFunction, { lang });
 
-                const { signature, signatureAlgorithm } = await webeid.sign(certificate, hash, hashFunction, { lang });
-
-                const finalizeSigningResponse = await fetch(`/pki/sign/apply/${closingId}/${fileUUID}`, {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json",
-                        "X-CSRF-Token": [[${ _csrf.getToken() }]],
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify({ signature, signatureAlgorithm }),
-                });
-                await webeiderrors.checkHttpError(finalizeSigningResponse);
-                window.location.href = "/closings";
-            } catch (error) {
-                webeiderrors.showErrorMessage(error);
-                throw error;
-            } finally {
-                signatureButtonEl.disabled = false;
-            }
+                    const finalizeSigningResponse = await fetch(`/pki/sign/apply/${closingId}/${fileUUID}`, {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: JSON.stringify({ signature, signatureAlgorithm }),
+                    });
+                    await webeiderrors.checkHttpError(finalizeSigningResponse);
+                    window.location.href = "/closings";
+                } catch (error) {
+                    webeiderrors.showErrorMessage(error);
+                    throw error;
+                } finally {
+                    signatureButtonEl.disabled = false;
+                }
+            });
         });
-    });
+    }
 
+    window.addEventListener("load", initializeSignatureScript);
 </script>
