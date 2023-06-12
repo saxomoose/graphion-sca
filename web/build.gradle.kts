@@ -45,8 +45,6 @@ dependencies {
     implementation(libs.dss.token)
     implementation(libs.dss.tsl.validation)
     implementation(libs.dss.utils.apache.commons)
-    // implementation(libs.jaxb.core)
-    // Runtime only?
     implementation(libs.mailgun)
     implementation(libs.minio)
     implementation(libs.webeid)

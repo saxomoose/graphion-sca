@@ -120,14 +120,17 @@ public class TenantService {
         );
 
         try {
-            return namedParameterJdbcOperations.queryForObject(sql, params, (rs, rowNum) -> {
-            return Tuple.of(
-                new Tenant(
-                    rs.getLong("id"),
-                    rs.getString("name"),
-                    rs.getString("bucket")),
-                List.of(new SimpleGrantedAuthority(rs.getString("role"))));
-            });
+            return namedParameterJdbcOperations.queryForObject(
+                sql, 
+                params, 
+                (rs, rowNum) -> {
+                    return new Tuple<Tenant, List<GrantedAuthority>>(
+                        new Tenant(
+                            rs.getLong("id"),
+                            rs.getString("name"),
+                            rs.getString("bucket")),
+                        List.of(new SimpleGrantedAuthority(rs.getString("role"))));
+                    });
         } catch(EmptyResultDataAccessException exception) {
             return null;
         }

@@ -15,7 +15,6 @@ import org.springframework.data.redis.connection.stream.ByteRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +31,6 @@ public class RedisService {
     private final HttpSession httpSession;
     private final ObjectMapper objectMapper;
     private final RedisConnection redisConnection;
-    private final RedisScript<String> script;
     private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
@@ -40,13 +38,11 @@ public class RedisService {
         HttpSession httpSession, 
         ObjectMapper objectMapper, 
         RedisConnection redisConnection,
-        RedisScript<String> script,
         StringRedisTemplate stringRedisTemplate)
     {
         this.httpSession = httpSession;
         this.objectMapper = objectMapper;
         this.redisConnection = redisConnection;
-        this.script = script;
         this.stringRedisTemplate = stringRedisTemplate;
     }
 

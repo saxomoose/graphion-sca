@@ -61,9 +61,9 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
             final String nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
             final X509Certificate userCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
             final User user = userFromCertificate(authenticationPayload.username(), userCertificate);
-            final Tuple<Tenant, List<GrantedAuthority>> defaultTenant = defaultTenant(user);
-            if (defaultTenant != null) {
-                return PkiAuthentication.of(user, defaultTenant.first(), defaultTenant.second());
+            final Tuple<Tenant, List<GrantedAuthority>> tuple = defaultTenant(user);
+            if (tuple != null) {
+                return PkiAuthentication.of(user, (Tenant) tuple.first(), (List<GrantedAuthority>) tuple.second());
             } else {
                 return PkiAuthentication.of(user, List.of(new SimpleGrantedAuthority(RoleEnum.ROLE_NULL.toString())));
             }

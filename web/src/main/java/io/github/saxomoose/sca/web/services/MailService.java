@@ -1,7 +1,7 @@
 package io.github.saxomoose.sca.web.services;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -9,7 +9,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import com.mailgun.api.v3.MailgunMessagesApi;
 import com.mailgun.model.message.Message;
-import com.mailgun.model.message.MessageResponse;
+import io.github.saxomoose.sca.web.models.Closing;
+import io.github.saxomoose.sca.web.models.User;
+import io.github.saxomoose.sca.web.utils.Mail;
 
 @Service
 public class MailService {
@@ -30,26 +32,41 @@ public class MailService {
         this.templateEngine = templateEngine;
     }
 
-    public void sendMail()
+    public void sendClosingInvites(final Closing closing, final User closingOrganizer, final List<User> recipients)
     {
-        final Message message = Message.builder()
-                .from(from)
-                .to("mathieu.tulpinck@gmail.com")
-                .subject("test-subject")
-                .html(mailBody())
-                .build();
-
-        final MessageResponse messageResponse = mailgunMessagesApi.sendMessage(domain, message);
+        final String body = mailBody(
+                Map.of(
+                    "closingOrganizer", closingOrganizer,
+                    "closing", closing
+                )
+        );
+        final Mail mail = new Mail(
+            String.format("%s - %s", "Closing invitation", closing.name()),
+            body);
+        for (final User user : recipients) {
+            sendMails(Map.of(user, mail));
+        }
     }
 
-    public String mailBody()
+    public void sendMails(Map<User, Mail> userMails) {
+        List<Message> messages = userMails.entrySet().stream()
+            .map(userMail -> Message.builder()
+                .from(from)
+                .to(userMail.getKey().email())
+                .subject(userMail.getValue().subject())
+                .html(userMail.getValue().body())
+                .build())
+            .toList();
+
+        messages.forEach(message -> mailgunMessagesApi.sendMessage(domain, message));
+    }
+
+    public String mailBody(final Map<String, Object> arguments)
     {
         // Prepare the evaluation Context
         final Context thymeleafContext = new Context();
-        thymeleafContext.setVariable("name", "Test name");
-        thymeleafContext.setVariable("subscriptionDate", new Date());
-        thymeleafContext.setVariable("hobbies", Arrays.asList("Cinema", "Sports", "Music"));
-        return templateEngine.process("mail/email-simple", thymeleafContext);
+        thymeleafContext.setVariables(arguments);
+        return templateEngine.process("mail/closing-invite", thymeleafContext);
 
     }
 }

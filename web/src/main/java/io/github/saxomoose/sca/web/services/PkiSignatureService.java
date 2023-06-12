@@ -88,7 +88,9 @@ public class PkiSignatureService {
             DSSUtils.digest(DigestAlgorithm.SHA256, toBeSigned.getBytes()));
         final String base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
 
-        return Tuple.of(new DigestPayload(base64Digest, DigestAlgorithm.SHA256.getJavaName()), parameters);
+        return new Tuple<DigestPayload, PAdESSignatureParameters>(
+            new DigestPayload(base64Digest,
+            DigestAlgorithm.SHA256.getJavaName()), parameters);
     }
 
     public DSSDocument applySignature(

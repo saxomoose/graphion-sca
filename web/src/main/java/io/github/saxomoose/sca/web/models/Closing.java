@@ -1,11 +1,11 @@
 package io.github.saxomoose.sca.web.models;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class Closing {
     private final Long tenantId;
@@ -15,27 +15,13 @@ public class Closing {
     private final LocalDateTime timestamp;
     private final ZoneId zoneId;
     private final String location;
-    private final Boolean invitesSent;
     private LocalDateTime expirationTimestamp;
+    private final Boolean invitesSent;
 
     private Long createdBy;
     private Long lastUpdatedBy;
     private LocalDateTime createdTimestamp;
     private LocalDateTime lastUpdatedTimestamp;
-
-    private Set<User> users;
-
-    public static Closing withId(
-        Long id, 
-        String name, 
-        LocalDateTime timestamp, 
-        ZoneId zoneId, 
-        String location,
-        LocalDateTime expirationTimestamp,
-        Boolean invitesSent)
-    {
-        return new Closing(null, id, name, timestamp, zoneId, location, expirationTimestamp, invitesSent);
-    }
 
     public static Closing of(
         Long tenantId, 
@@ -118,11 +104,6 @@ public class Closing {
         return invitesSent;
     }
 
-    public Set<User> users()
-    {
-        return users;
-    }
-
     public void setExpirationTimestamp(LocalDateTime expirationTimestamp)
     {
         this.expirationTimestamp = expirationTimestamp;
@@ -145,15 +126,6 @@ public class Closing {
         return Objects.hash(id);
     }
 
-    public Closing addUser (User user)
-    {
-        if (users == null) {
-            users = new HashSet<User>();
-        }
-        users.add(user);
-        return this;
-    }
-
     public ZonedDateTime zonedTimestamp()
     {
         return ZonedDateTime.of(timestamp(), zoneId());
@@ -162,6 +134,17 @@ public class Closing {
     public ZonedDateTime zonedExpirationTimestamp()
     {
         return ZonedDateTime.of(expirationTimestamp(), zoneId());
+    }
+
+    public Duration expirationInterval() {
+        return Duration.between(ZonedDateTime.now(zoneId()), zonedExpirationTimestamp());
+    }
+
+    public Map<String, Long> expirationIntervalInChronoUnit() {
+        return Map.of(
+            "days", expirationInterval().toDays(),
+            "hours", expirationInterval().toHours() % 24,
+            "minutes", expirationInterval().toMinutes() % 60);
     }
 
     public Boolean isExpired()

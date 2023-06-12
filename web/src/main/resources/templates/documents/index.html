@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html class="h-100" lang="en">
 
-<head data-th-replace="~{fragments/head :: frag(~{title = 'Documents'})}"></head>
+<head data-th-replace="~{fragments/web/head :: frag(~{title = 'Documents'})}"></head>
 
 <body class="d-flex flex-column h-100">
-    <header data-th-replace="~{fragments/header}"></header>
-    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+    <header data-th-replace="~{fragments/web/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/web/notifications :: frag(${notifications})} : _"></div>
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
-                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=3)}"></aside>
+                <aside data-th-replace="~{fragments/web/sidebar :: frag(activeNavLink=3)}"></aside>
                 <main class="col-md-10">
 
                     <nav class="d-flex flex-row-reverse">
@@ -39,7 +39,8 @@
                             </th-block>
                         </tbody>
                     </table>
-                    <nav data-th-replace="~{fragments/pagination :: frag(route = 'documents', page = ${documentPage})}">
+                    <nav
+                        data-th-replace="~{fragments/web/pagination :: frag(route = 'documents', page = ${documentPage})}">
                     </nav>
                     <!-- Modal -->
                     <div class="modal fade" data-th-each="document: ${documentPage}" tabindex="-1">
@@ -61,11 +62,11 @@
             </div>
         </div>
     </div>
-    <footer data-th-replace="~{fragments/footer}"></footer>
-    <script data-th-replace="~{fragments/bootstrap-script}"></script>
-    <script data-th-replace="~{fragments/modal-script}"></script>
-    <script data-th-replace="~{fragments/toast-script}"></script>
-    <script data-th-replace="~{fragments/tooltip-script}"></script>
+    <footer data-th-replace="~{fragments/web/footer}"></footer>
+    <script data-th-replace="~{fragments/web/bootstrap-script}"></script>
+    <script data-th-replace="~{fragments/web/modal-script}"></script>
+    <script data-th-replace="~{fragments/web/toast-script}"></script>
+    <script data-th-replace="~{fragments/web/tooltip-script}"></script>
 </body>
 
 </html>

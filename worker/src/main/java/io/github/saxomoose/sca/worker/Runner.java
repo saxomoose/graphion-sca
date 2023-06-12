@@ -1,25 +1,29 @@
 package io.github.saxomoose.sca.worker;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.lib.enums.Redis;
-import io.github.saxomoose.sca.lib.utils.Job;
-import io.github.saxomoose.sca.worker.services.ExceptionHandlerService;
-import io.lettuce.core.RedisBusyException;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.batch.BatchProperties.Job;
+import org.springframework.boot.autoconfigure.cache.CacheProperties.Redis;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.stream.*;
+import org.springframework.data.redis.connection.stream.Consumer;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.RecordId;
+import org.springframework.data.redis.connection.stream.StreamOffset;
+import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.saxomoose.sca.worker.services.ExceptionHandlerService;
+import io.lettuce.core.RedisBusyException;
 
 @Component
 public class Runner implements DisposableBean {
@@ -97,7 +101,6 @@ public class Runner implements DisposableBean {
      */
     private MapRecord<String, String, String> readMessageFromQueue() {
         final var consumerName = String.format("%s-%s", environment.getProperty("spring.application.name"), 1);
-        @SuppressWarnings("unchecked")
         final var records = redisConnection.streamCommands().xReadGroup(
                     Consumer.from(Redis.Queue.STANDARD_CONSUMER_GROUP.toString(), consumerName),
                     StreamReadOptions.empty().count(1).block(Duration.ZERO),

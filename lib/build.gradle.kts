@@ -1,8 +1,6 @@
 plugins {
     id("java")
-    @Suppress("DSL_SCOPE_VIOLATION")
     alias(libs.plugins.springboot).apply(false)
-    @Suppress("DSL_SCOPE_VIOLATION")
     alias(libs.plugins.springdependencymanagement)
 }
 

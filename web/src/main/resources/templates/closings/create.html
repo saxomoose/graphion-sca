@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html class="h-100" lang="en">
 
-<head data-th-replace="~{fragments/head :: frag(~{title = 'Create closing'})}"></head>
+<head data-th-replace="~{fragments/web/head :: frag(~{title = 'Create closing'})}"></head>
 
 <body class="d-flex flex-column h-100">
-    <header data-th-replace="~{fragments/header}"></header>
-    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
+    <header data-th-replace="~{fragments/web/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/web/notifications :: frag(${notifications})} : _"></div>
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
-                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = 1)}"></aside>
+                <aside data-th-replace="~{fragments/web/sidebar :: frag(activeNavLink = 1)}"></aside>
                 <main class="col-md-10">
                     <form id="closing-form" data-th-action="@{/closings}" method="post">
                         <div class="row">
@@ -49,9 +49,9 @@
         </div>
     </div>
 
-    <footer data-th-replace="~{fragments/footer}"></footer>
-    <script data-th-replace="~{fragments/bootstrap-script}"></script>
-    <script data-th-replace="~{fragments/toast-script}"></script>
+    <footer data-th-replace="~{fragments/web/footer}"></footer>
+    <script data-th-replace="~{fragments/web/bootstrap-script}"></script>
+    <script data-th-replace="~{fragments/web/toast-script}"></script>
     <script>
         "use strict";
         function initializePage() {

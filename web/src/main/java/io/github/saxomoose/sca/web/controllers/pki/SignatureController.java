@@ -76,9 +76,10 @@ public class SignatureController {
             pkiSignatureService.dataToSign(bucket, fileUUID, signatureCertificate);
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         final FlashMap flashMap = new FlashMap();
-        flashMap.put("parameters", tuple.second());
+        flashMap.put("parameters", (PAdESSignatureParameters) tuple.second());
         flashMapManager.saveOutputFlashMap(flashMap, request, response);
-        return ResponseEntity.ok().body(tuple.first());
+        return ResponseEntity.ok()
+            .body((DigestPayload) tuple.first());
     }
 
     @PostMapping(

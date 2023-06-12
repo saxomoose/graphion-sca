@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="h-100" lang="en">
 
-<head data-th-replace="~{fragments/head :: frag(~{title = '500'})}"></head>
+<head data-th-replace="~{fragments/web/head :: frag(~{title = '500'})}"></head>
 
 <body class="d-flex flex-column h-100">
-  <header data-th-replace="~{fragments/header}"></header>
+  <header data-th-replace="~{fragments/web/header}"></header>
   <div class="flex-shrink-0 mt-auto">
     <div class="d-flex flex-row justify-content-center">
       <main>
@@ -12,8 +12,8 @@
       </main>
     </div>
   </div>
-  <footer data-th-replace="~{fragments/footer}"></footer>
-  <script data-th-replace="~{fragments/bootstrap-script}"></script>
+  <footer data-th-replace="~{fragments/web/footer}"></footer>
+  <script data-th-replace="~{fragments/web/bootstrap-script}"></script>
 </body>
 
 </html>

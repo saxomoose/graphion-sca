@@ -68,7 +68,7 @@ public class DocumentControllerTest {
 
     private byte[] file() throws IOException 
     {
-        return new ClassPathResource("minio/20230308-test-document.pdf").getInputStream()
+        return new ClassPathResource("objectstorage/20230308-test-document.pdf").getInputStream()
                 .readAllBytes();
     }
 
