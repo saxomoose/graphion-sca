@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,9 @@ import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
-import io.github.saxomoose.sca.web.models.projections.ClosingsToIndex;
+import io.github.saxomoose.sca.web.models.projections.ClosingPageToIndex;
+import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
+import io.github.saxomoose.sca.web.models.projections.UserToIndex;
 import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
@@ -94,7 +95,7 @@ public class ClosingService {
         return namedParameterJdbcOperations.queryForObject(sql, params, closingRowMapper);
     }
 
-    public ClosingsToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
+    public ClosingPageToIndex closingsByTenant(final Long tenantId, final Pageable pageable)
     {
         final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
         final String sql = """
@@ -117,11 +118,11 @@ public class ClosingService {
                     "pageSize", pageable.getPageSize(),
                     "offset", offset,
                     "sort_order", pageable.getSort().stream().findFirst().get().getProperty()));
-        final List<Closing> tenantClosings = namedParameterJdbcOperations.query(sql, params, (rs) -> {
-            final Map<Long, Closing> closingsMap = new HashMap<Long, Closing>();
-            final Map<Long, User> usersMap = new HashMap<Long, User>();
+        final List<ClosingToIndex> tenantClosings = namedParameterJdbcOperations.query(sql, params, (rs) -> {
+            final Map<Long, ClosingToIndex> closingsMap = new HashMap<Long, ClosingToIndex>();
+            final Map<Long, UserToIndex> usersMap = new HashMap<Long, UserToIndex>();
             while (rs.next()) {
-                final Closing closing = Closing.withId(
+                final ClosingToIndex closing = new ClosingToIndex(
                     rs.getLong("closing_id"),
                     rs.getString("closing_name"),
                     rs.getTimestamp("timestamp").toLocalDateTime(),
@@ -133,7 +134,7 @@ public class ClosingService {
                     usersMap.clear();
                     closingsMap.put(closing.id(), closing);
                 }
-                final User user = User.withId(
+                final UserToIndex user = new UserToIndex(
                     rs.getLong("user_id"),
                     rs.getString("username"),
                     rs.getString("first_name"),
@@ -153,21 +154,21 @@ public class ClosingService {
                 closingsMap.get(closing.id()).addUser(user);    
             }
             
-            return new ArrayList<Closing>(closingsMap.values());
+            return closingsMap.values().stream().toList();
         });
         
-        final Page<Closing> closingPage = 
+        final Page<ClosingToIndex> closingPage = 
             PageableExecutionUtils.getPage(tenantClosings, pageable, () -> countClosingsByTenant(tenantId));
-        final Map<Closing, Set<User>> users = 
-            tenantClosings.stream().collect(Collectors.toMap(closing -> closing, Closing::users));
-        final Map<Long, Map<User, Set<Document>>> documents = 
+        final Map<ClosingToIndex, Set<UserToIndex>> users = 
+            tenantClosings.stream().collect(Collectors.toMap(closing -> closing, ClosingToIndex::users));
+        final Map<Long, Map<UserToIndex, Set<Document>>> documents = 
             tenantClosings.stream()
                 .collect(
                     Collectors.toMap(
                         Closing::id, 
                         closing -> closing.users().stream().collect(Collectors.toMap(user -> user, user -> user.documents()))));
 
-        return new ClosingsToIndex(closingPage, users, documents);
+        return new ClosingPageToIndex(closingPage, users, documents);
 
     }
 
@@ -233,16 +234,18 @@ public class ClosingService {
             INSERT INTO sca.closing_signatory (closing, signatory, document)
             VALUES (:closingId, :signatoryId, :documentId);
         """;
-        final List<MapSqlParameterSource> batchParams = new ArrayList<>();
-        for (final ClosingSignatory closingSignatory : closingSignatories) {
-            batchParams.add(
-                new MapSqlParameterSource(
-                    Map.of(
-                        "closingId", closingSignatory.closingId(),
-                        "signatoryId", closingSignatory.signatoryId(),
-                        "documentId", closingSignatory.documentId())));
-        }
-        namedParameterJdbcOperations.batchUpdate(sql, batchParams.toArray(new MapSqlParameterSource[0]));
+        final MapSqlParameterSource[] batchParams = 
+            closingSignatories.stream()
+                .map((ClosingSignatory closingSignatory) -> {
+                    return new MapSqlParameterSource(
+                        Map.of(
+                            "closingId", closingSignatory.closingId(),
+                            "signatoryId", closingSignatory.signatoryId(),
+                            "documentId", closingSignatory.documentId()
+                        )
+                    );})
+                .toArray(MapSqlParameterSource[]::new);
+        namedParameterJdbcOperations.batchUpdate(sql, batchParams);
     }
 
     public void insertLegalPersonSignatory(final Long closingId, final Long legalPersonId)
@@ -314,12 +317,13 @@ public class ClosingService {
     }
 
     @Transactional
-    public void create(final Closing closingToCreate, final Long principalId, final List<ClosingSignatory> closingSignatories) {
+    public Closing create(final Closing closingToCreate, final Long principalId, final List<ClosingSignatory> closingSignatories) {
         final Closing createdClosing = insert(closingToCreate, principalId);
         for (final ClosingSignatory closingSignatory : closingSignatories) {
             closingSignatory.setClosingId(createdClosing.id());
         }
         insertNaturalPersonSignatories(closingSignatories);
+        return createdClosing;
     }
 
     public void sendInvites(final List<User> recipients)

@@ -1,4 +1,4 @@
-package io.github.saxomoose.sca.web.config.minio;
+package io.github.saxomoose.sca.web.config.objectstorage;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

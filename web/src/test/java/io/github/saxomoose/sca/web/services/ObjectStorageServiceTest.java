@@ -37,7 +37,7 @@ public class ObjectStorageServiceTest {
     {
         final var name = UUID.nameUUIDFromBytes("20230308-test-document".getBytes());
         final var path = String.format("/files/%s", name);
-        final var inputStream = new FileInputStream(new ClassPathResource("minio/20230308-test-document.pdf").getFile());
+        final var inputStream = new FileInputStream(new ClassPathResource("objectstorage/20230308-test-document.pdf").getFile());
         final var clientSideFileSize = (long) inputStream.available();
         objectStorageService.storeObject(bucket, path, inputStream);
     }

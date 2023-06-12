@@ -26,8 +26,8 @@ import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.User;
+import io.github.saxomoose.sca.web.models.projections.ClosingPageToIndex;
 import io.github.saxomoose.sca.web.models.projections.ClosingToCreate;
-import io.github.saxomoose.sca.web.models.projections.ClosingsToIndex;
 import io.github.saxomoose.sca.web.services.ClosingService;
 import io.github.saxomoose.sca.web.services.DocumentService;
 import io.github.saxomoose.sca.web.services.MailService;
@@ -67,7 +67,7 @@ public class ClosingController {
     {
         // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
         final var tenantId = 1L;
-        final ClosingsToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
+        final ClosingPageToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
         if (closingToIndex.closingPage().isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
@@ -150,7 +150,6 @@ public class ClosingController {
         @RequestParam final MultiValueMap<String, String> formData,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        mailService.sendMail();
         // Validation
         List<ClosingSignatory> closingSignatories = new ArrayList<>();
         Boolean sendInvites = Boolean.FALSE;
@@ -161,7 +160,10 @@ public class ClosingController {
                 if (entry.getValue().get(0).equals("on")) {
                     sendInvites = Boolean.TRUE;
                 }
-            } else {
+                continue;
+            } 
+            // key == user.id().
+            else {
                 final Long userId = Long.parseLong(entry.getKey());
                 for (final String documentId : entry.getValue()) {
                 closingSignatories.add(ClosingSignatory.of(userId, Long.parseLong(documentId)));
@@ -174,7 +176,6 @@ public class ClosingController {
         final Long tenantId = 1L;
         final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
         httpSession.removeAttribute(SessionEnum.CLOSING.toString());
-   
         final Closing closing = Closing.of(
             tenantId,
             rawClosing.name(),
@@ -183,7 +184,13 @@ public class ClosingController {
             rawClosing.location(),
             rawClosing.expirationTimestamp()
         );
-        closingService.create(closing, principalId, closingSignatories);
+        final Closing createdClosing = closingService.create(closing, principalId, closingSignatories);
+        final User closingOrganizer = userService.userById(principalId);
+        final List<User> signatories = userService.usersByIds(closingSignatories.stream().map(ClosingSignatory::signatoryId).toList());
+        if (sendInvites) {
+            mailService.sendClosingInvites(createdClosing, closingOrganizer, signatories);
+        }
+
         redirectAttributes.addFlashAttribute(
             "notifications", 
             List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "users.create.success")));

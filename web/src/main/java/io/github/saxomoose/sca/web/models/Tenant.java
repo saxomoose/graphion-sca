@@ -15,7 +15,6 @@ public class Tenant implements Serializable {
     private final String bucket;
     // OIDC parameters to connect to Tenant endpoint.
     
-    
     private Long createdBy;
     private Long lastUpdatedBy;
     private LocalDateTime createdTimestamp;

@@ -134,9 +134,11 @@ public class DocumentController {
             if (part.getName().equals("fileSize")) {
                 final byte[] bytes = part.getInputStream().readAllBytes();
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
+                continue;
             } else if (part.getName().equals("filename")) {
                 rawFilename =
                         new String(part.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+                continue;
             } else if (part.getName().equals("file")) {
                 validationService.documentFileFormat(part.getContentType());
                 validationService.documentFileSize(part.getSize(), clientSideFileSize);

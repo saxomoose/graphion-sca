@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 
-<head data-th-replace="~{fragments/head :: frag(~{::title})}">
+<head data-th-replace="~{fragments/web/head :: frag(~{::title})}">
     <title>Closings</title>
 </head>
 
 <body class="d-flex flex-column h-100">
-    <header data-th-replace="~{fragments/header}"></header>
+    <header data-th-replace="~{fragments/web/header}"></header>
     <div class="flex-shrink-0">
         <div class="container-fluid">
             <div class="row mt-3">
-                <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink=1)}"></aside>
+                <aside data-th-replace="~{fragments/web/sidebar :: frag(activeNavLink=1)}"></aside>
                 <main class="col-md-10">
                     <table class="table table-striped">
                         <thead>
@@ -74,8 +74,8 @@
             </div>
         </div>
     </div>
-    <footer data-th-replace="~{fragments/footer}"></footer>
-    <script data-th-replace="~{fragments/bootstrap-script}"></script>
+    <footer data-th-replace="~{fragments/web/footer}"></footer>
+    <script data-th-replace="~{fragments/web/bootstrap-script}"></script>
 </body>
 
 </html>

@@ -3,9 +3,7 @@ package io.github.saxomoose.sca.web.models;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 public class User implements Serializable {
     
@@ -18,13 +16,10 @@ public class User implements Serializable {
     private Boolean electronicSignatureConsent;
     private Boolean enabled;
 
-
     private Long createdBy;
     private Long lastUpdatedBy;
     private LocalDateTime createdTimestamp;
     private LocalDateTime lastUpdatedTimestamp;
-
-    private Set<Document> documents;
 
     public static User withId(Long id, String username, String firstName, String lastName)
     {
@@ -132,19 +127,4 @@ public class User implements Serializable {
     {
         return username();
     }
-
-    public Set<Document> documents()
-    {
-        return documents;
-    }
-
-    public void addDocument (Document document)
-    {
-        if (documents == null) {
-            documents = new HashSet<Document>();
-        }
-        documents.add(document);
-    }
-
-
 }
