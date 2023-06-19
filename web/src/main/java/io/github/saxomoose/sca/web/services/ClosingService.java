@@ -28,7 +28,6 @@ import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingPageToIndex;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
 import io.github.saxomoose.sca.web.models.projections.UserToIndex;
@@ -86,11 +85,6 @@ public class ClosingService {
         }
         insertNaturalPersonSignatories(closingSignatories);
         return createdClosing;
-    }
-
-    public void sendInvites(final List<User> recipients)
-    {
-        
     }
 
     // Data
