@@ -9,7 +9,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import io.github.saxomoose.sca.web.enums.SessionEnum;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Tenant;
 import jakarta.servlet.http.HttpSession;
 
@@ -39,11 +39,11 @@ public class RedisServiceTest {
     // }
 
     @Test
-    public void lockSameFileTwiceReturnsFalse() throws BusinessLogicException
+    public void lockSameFileTwiceReturnsFalse() throws LogicException
     {
         redisService.lockFile(UUID.fromString("8d4c8242-a99a-4843-8331-c97a2a41b722"));
         assertThrows(
-            BusinessLogicException.class,
+            LogicException.class,
             () -> redisService.lockFile(UUID.fromString("8d4c8242-a99a-4843-8331-c97a2a41b722")));
     }
 

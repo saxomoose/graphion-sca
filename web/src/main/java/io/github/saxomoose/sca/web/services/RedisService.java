@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.enums.RedisEnum;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.utils.Job;
 import io.github.saxomoose.sca.web.utils.Notification;
 import jakarta.servlet.http.HttpSession;
@@ -92,7 +92,7 @@ public class RedisService {
         // serializedJob.getBytes());
     }
 
-    public void lockFile(final UUID fileUUID) throws BusinessLogicException
+    public void lockFile(final UUID fileUUID) throws LogicException
     {
         try {
             final Boolean result = 
@@ -102,9 +102,9 @@ public class RedisService {
                         String.valueOf(1),
                         Duration.ofMinutes(1));
             if (!result) {
-                throw new BusinessLogicException(new Notification(Notification.Type.INFORMATION, "signature", "signature.file.locked"));
+                throw new LogicException(new Notification(Notification.Type.INFORMATION, "signature", "signature.file.locked"));
             }
-        } catch (BusinessLogicException exception) {
+        } catch (LogicException exception) {
             logger.error("File {}: file is locked.", fileUUID);
             throw exception;
         } catch (Exception exception) {

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100">
 
-<head data-th-replace="~{fragments/web/head :: frag(~{title = 'Login'})}"></head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Login'})}"></head>
 
 <body class="d-flex flex-column h-100">
-    <header data-th-replace="~{fragments/web/header}"></header>
-    <div data-th-replace="${notifications} ? ~{fragments/web/notifications :: frag(${notifications})} : _"></div>
+    <header data-th-replace="~{fragments/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
     <div class="flex-shrink-0 mt-auto">
         <div class="container-fluid">
             <div class="row d-flex justify-content-center align-items-center">
@@ -26,9 +26,9 @@
             </div>
         </div>
     </div>
-    <footer data-th-replace="~{fragments/web/footer}"></footer>
-    <script data-th-replace="~{fragments/web/bootstrap-script}"></script>
-    <script data-th-replace="~{fragments/web/toast-script}"></script>
+    <footer data-th-replace="~{fragments/footer}"></footer>
+    <script data-th-replace="~{fragments/bootstrap-script}"></script>
+    <script data-th-replace="~{fragments/toast-script}"></script>
 </body>
 
 </html>

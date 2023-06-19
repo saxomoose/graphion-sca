@@ -14,7 +14,7 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.SignedDocumentValidator;
 import eu.europa.esig.dss.validation.executor.ValidationLevel;
 import eu.europa.esig.dss.validation.reports.Reports;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
@@ -32,7 +32,7 @@ public class PkiValidationService {
     public Instant validateSignature(
         final UUID fileUUID,
         final PAdESSignatureParameters parameters, 
-        final DSSDocument signedDocument) throws BusinessLogicException
+        final DSSDocument signedDocument) throws LogicException
     {
         final var documentValidator = SignedDocumentValidator.fromDocument(signedDocument);
         documentValidator.setCertificateVerifier(certificateVerifier);
@@ -44,7 +44,7 @@ public class PkiValidationService {
         final Reports reports = documentValidator.validateDocument();
         if (!(reports.getSimpleReport().getSignaturesCount() == reports.getSimpleReport().getValidSignaturesCount())) {
             logger.error("File {}: signature validation failed; report {}", fileUUID, reports.getXmlSimpleReport());
-            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         }
         final List<String> signatureIds = reports.getSimpleReport().getSignatureIdList();
         return reports.getSimpleReport().getBestSignatureTime(signatureIds.get(signatureIds.size() - 1)).toInstant();

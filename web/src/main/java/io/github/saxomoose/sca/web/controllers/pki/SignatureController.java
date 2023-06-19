@@ -20,7 +20,7 @@ import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import io.github.saxomoose.sca.web.config.security.PkiAuthentication;
 import io.github.saxomoose.sca.web.enums.SessionEnum;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
@@ -65,7 +65,7 @@ public class SignatureController {
         @PathVariable final Long rawClosingId,
         @PathVariable final String rawFileUUID,
         @RequestBody final SignatureCertificatePayload signatureCertificate
-    ) throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException
+    ) throws CertificateException, NoSuchAlgorithmException, IOException, LogicException
     {
         final Long userId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
@@ -91,7 +91,7 @@ public class SignatureController {
         @PathVariable final Long rawClosingId,
         @PathVariable final String rawFileUUID,
         @RequestBody final SignaturePayload signature
-    ) throws CertificateException, IOException, BusinessLogicException
+    ) throws CertificateException, IOException, LogicException
     {
         final Long userId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
         final String bucket = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).bucket();
