@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.context.SecurityContextRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.services.ValidationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,7 +63,7 @@ public class PkiAuthenticationProcessingFilter extends AbstractAuthenticationPro
         // TODO: validation should happen sooner
         try {
             validationService.authentication(authenticationPayload);
-        } catch (BusinessLogicException exception) {
+        } catch (LogicException exception) {
             throw new RuntimeException(exception);
         }
         return getAuthenticationManager().authenticate(token);

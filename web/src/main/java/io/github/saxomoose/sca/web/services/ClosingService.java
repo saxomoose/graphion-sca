@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.europa.esig.dss.model.DSSDocument;
 import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.enums.PathEnum;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
@@ -296,23 +296,23 @@ public class ClosingService {
     }
 
     // Service
-    public void closingIsExpired(final Long closingId) throws BusinessLogicException
+    public void closingIsExpired(final Long closingId) throws LogicException
     {
         if (closingById(closingId).isExpired()) {
-            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         }
     }
 
-    public void userStatusOnClosing(Long closingId, Long userId, UUID fileUUID) throws BusinessLogicException
+    public void userStatusOnClosing(Long closingId, Long userId, UUID fileUUID) throws LogicException
     {
         ClosingSignatory closingSignatory;
         try {
             closingSignatory = closingSignatory(closingId, userId, fileUUID);
         } catch (EmptyResultDataAccessException exception) {
-            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         }
         if (closingSignatory.signatureTimestamp() != null) {
-            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         }
     }
 

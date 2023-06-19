@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html class="h-100" lang="en">
+<html class="h-100" xmlns:th="http://www.thymeleaf.org" lang="en">
 
-<head data-th-replace="~{fragments/web/head :: frag(~{title = 'Sign'})}"></head>
+<head data-th-replace="~{fragments/head :: frag(~{title = 'Sign'})}"></head>
 
 <body class="d-flex flex-column h-100">
-    <header data-th-replace="~{fragments/web/header}"></header>
-    <div data-th-replace="${notifications} ? ~{fragments/web/notifications :: frag(${notifications})} : _"></div>
+    <header data-th-replace="~{fragments/header}"></header>
+    <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
     <button class="btn btn-info" id="webeid-sign-button">Sign document</button>
     <div class="alert alert-danger" id="error-message" role="alert" style="display: none;">
         <div class="message"></div>
         <pre class="details"></pre>
     </div>
-    <footer data-th-replace="~{fragments/web/footer}"></footer>
-    <script data-th-replace="~{fragments/web/bootstrap-script}"></script>
-    <script data-th-replace="~{fragments/web/toast-script}"></script>
+    <footer data-th-replace="~{fragments/footer}"></footer>
+    <script data-th-replace="~{fragments/bootstrap-script}"></script>
+    <script data-th-replace="~{fragments/toast-script}"></script>
     <script data-th-inline="javascript">
         "use strict";
         const signButton = document.querySelector("#webeid-sign-button");

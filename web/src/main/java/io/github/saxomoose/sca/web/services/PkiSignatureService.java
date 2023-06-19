@@ -31,7 +31,7 @@ import io.github.saxomoose.sca.web.controllers.pki.DigestPayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
 import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.PathEnum;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.utils.Tuple;
 
@@ -64,7 +64,7 @@ public class PkiSignatureService {
         final String bucket,
         final UUID fileUUID,
         final SignatureCertificatePayload signatureCertificate) 
-    throws CertificateException, NoSuchAlgorithmException, IOException, BusinessLogicException 
+    throws CertificateException, NoSuchAlgorithmException, IOException, LogicException 
     {
         redisService.lockFile(fileUUID);
         final InputStream inputStream = objectStorageService.objectAsStream(
@@ -97,7 +97,7 @@ public class PkiSignatureService {
         final String bucket,
         final UUID fileUUID, 
         final PAdESSignatureParameters parameters,
-        final SignaturePayload signature) throws CertificateException, IOException, BusinessLogicException
+        final SignaturePayload signature) throws CertificateException, IOException, LogicException
     {    
         final File workbenchFile = workbenchFile(bucket, fileUUID);
 
@@ -107,7 +107,7 @@ public class PkiSignatureService {
         final SignatureValue signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
         if(!padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate())) {
             logger.error("File {}: the signature value computed client-side is invalid.", fileUUID);
-            throw new BusinessLogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         } 
         final FileDocument signedDocument = (FileDocument) padesService.signDocument(toSignDocument, parameters, signatureValue);
         // parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LT);

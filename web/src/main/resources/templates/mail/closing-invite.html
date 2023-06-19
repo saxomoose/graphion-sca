@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,27 +58,27 @@
                                                     organiser:</span>
                                                 <span
                                                     data-th-text="${#strings.concat(closingOrganizer.firstName(), ' ', closingOrganizer.lastName())}"
-                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">test</span>
+                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">placeholder</span>
                                             </li>
                                             <li>
                                                 <span
                                                     style="display: inline-block;width: 170px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">Closing
                                                     name:</span>
                                                 <span data-th-text="${closing.name()}"
-                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">test</span>
+                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">placeholder</span>
                                             </li>
                                             <li>
                                                 <span
                                                     style="display: inline-block;width: 170px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">Time:</span>
                                                 <span
                                                     data-th-text="${#temporals.format(closing.zonedTimestamp(), 'dd/MM/yyyy HH:mm XXX')}"
-                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">test</span>
+                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">placeholder</span>
                                             </li>
                                             <li>
                                                 <span
                                                     style="display: inline-block;width: 170px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">Location:</span>
                                                 <span data-th-text="${closing.location()}"
-                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">test</span>
+                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left;">placeholder</span>
                                             </li>
                                             <li>
                                                 <span
@@ -87,7 +87,7 @@
                                                     in:</span>
                                                 <span
                                                     data-th-text="${#strings.concat(closing.expirationIntervalInChronoUnit().get('days'), ' days, ', closing.expirationIntervalInChronoUnit().get('hours'), ' hours, ', closing.expirationIntervalInChronoUnit().get('minutes'), ' minutes')}"
-                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: left;">test</span>
+                                                    style="padding-left: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: left;">placeholder</span>
                                             </li>
                                         </ul>
                                         <p
@@ -105,7 +105,7 @@
                                         <p
                                             style="box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; text-align: left; font-style: italic;">
                                             The identity of the closing organiser was verified through a qualified
-                                            authentication process.</p>
+                                            identification process.</p>
                                         <p
                                             style="box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; font-size: 16px; line-height: 1.5em; margin-top: 0; text-align: left; font-style: italic;">
                                             After all closing documents are signed, all parties will be notified.
@@ -130,7 +130,6 @@
                                         <p
                                             style="box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; line-height: 1.5em; margin-top: 0; color: #b0adc5; font-size: 12px; text-align: center;">
                                             © 2022 Graphion</p>
-
                                     </td>
                                 </tr>
                             </table>

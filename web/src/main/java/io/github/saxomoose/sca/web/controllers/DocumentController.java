@@ -30,7 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 import io.github.saxomoose.sca.web.enums.SessionEnum;
-import io.github.saxomoose.sca.web.exceptions.BusinessLogicException;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Document;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
@@ -159,9 +159,9 @@ public class DocumentController {
     }
 
     // Exception handling
-    @ExceptionHandler(value = {BusinessLogicException.class,})
+    @ExceptionHandler(value = {LogicException.class,})
     public RedirectView handle(
-        final BusinessLogicException businessLogicException,
+        final LogicException businessLogicException,
         final HttpServletRequest request,
         final RedirectAttributes redirectAttributes) 
     {
