@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -23,12 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.europa.esig.dss.model.DSSDocument;
 import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.enums.PathEnum;
+import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
+import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingPageToIndex;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
 import io.github.saxomoose.sca.web.models.projections.UserToIndex;
+import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
 public class ClosingService {
