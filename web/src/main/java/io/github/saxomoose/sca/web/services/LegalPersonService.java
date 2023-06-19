@@ -18,8 +18,8 @@ public class LegalPersonService {
         this.rowMappers = rowMappers;
     }
 
+    // Data
     // Read
-
     public LegalPerson firstLegalPerson() {
         final String sql = """
         SELECT * FROM sca.legal_person LIMIT 1;    

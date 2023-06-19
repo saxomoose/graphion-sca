@@ -24,7 +24,7 @@ public class PkiAuthenticationProcessingFilter extends AbstractAuthenticationPro
     private final ValidationService validationService;
 
     /**
-     * TODO: error handling? How to report back to user.
+     * TODO: error handling? How to report back to user?
      */
     public PkiAuthenticationProcessingFilter(
         final AuthenticationManager authenticationManager,
@@ -46,8 +46,8 @@ public class PkiAuthenticationProcessingFilter extends AbstractAuthenticationPro
 
     @Override
     public Authentication attemptAuthentication(
-        HttpServletRequest request,
-        HttpServletResponse response) throws AuthenticationException, IOException, ServletException
+        final HttpServletRequest request,
+        final HttpServletResponse response) throws AuthenticationException, IOException, ServletException
     {
         if (HttpMethod.valueOf(request.getMethod()) != HttpMethod.POST) {
             logger.error("HTTP method not supported: %s", request.getMethod());
@@ -60,9 +60,9 @@ public class PkiAuthenticationProcessingFilter extends AbstractAuthenticationPro
         }
         final AuthenticationPayload authenticationPayload = objectMapper.readValue(request.getReader(), AuthenticationPayload.class);
         final PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(null, authenticationPayload);
-        // TODO: validation should happen sooner
+        // TODO: validation should happen sooner.
         try {
-            validationService.authentication(authenticationPayload);
+            validationService.authenticationPayload(authenticationPayload);
         } catch (LogicException exception) {
             throw new RuntimeException(exception);
         }

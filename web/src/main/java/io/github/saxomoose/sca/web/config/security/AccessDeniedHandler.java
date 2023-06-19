@@ -22,6 +22,9 @@ public class AccessDeniedHandler implements org.springframework.security.web.acc
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * If request is AJAX, the handler sets response status on 403.
+     */
     @Override
     public void handle(
         HttpServletRequest request,
@@ -40,5 +43,4 @@ public class AccessDeniedHandler implements org.springframework.security.web.acc
             response.sendRedirect("/");
         }
     }
-    
 }

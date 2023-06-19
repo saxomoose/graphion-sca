@@ -30,6 +30,7 @@ public class TenantService {
 
     }
 
+    // Data
     // Aggregate
     public Long count() {
         final String sql = """
@@ -168,7 +169,6 @@ public class TenantService {
         namedParameterJdbcOperations.update(sql, params);
     }
 
-    // Update
     public void setDefaultConnection(final Long tenantId, final Long userId) 
     {
         final String sql = """

@@ -56,7 +56,7 @@ public class ValidationService {
         return UUID.fromString(uuid);
     }
 
-    public void authentication(final AuthenticationPayload auth) throws LogicException 
+    public void authenticationPayload(final AuthenticationPayload auth) throws LogicException 
     {
         try {
             // TODO: validate incoming JSON and email

@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import io.github.saxomoose.sca.web.models.LegalPerson;
 
 public class LegalPersonRowMapper implements RowMapper<LegalPerson> {
-
     @Override
     public LegalPerson mapRow(ResultSet rs, int rowNum) throws SQLException 
     {

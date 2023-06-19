@@ -23,14 +23,13 @@ public class RedisSubService implements MessageListener, SubscriptionListener {
 
     @Override
     public void onChannelSubscribed(byte[] channel, long count) {
-        logger.info(String.format("RedisSubService subscribed to channel %s",
-                new String(channel, StandardCharsets.UTF_8)));
+        logger.info(String.format("RedisSubService subscribed to channel %s",new String(channel, StandardCharsets.UTF_8)));
     }
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         final var channel = new String(message.getChannel(), StandardCharsets.UTF_8);
-        Job job;
+        Job job = null;
         try {
             job = objectMapper.readValue(message.toString(), Job.class);
         } catch (JsonProcessingException exception) {

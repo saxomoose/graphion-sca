@@ -17,7 +17,4 @@ public class ObjectStorageConfiguration {
             .endpoint(environment.getProperty("objectstorage.endpoint"))
             .build();
     }
-
-    
-
 }
