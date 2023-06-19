@@ -196,6 +196,4 @@ public class ClosingController {
             List.of(new Notification(Notification.Type.SUCCESS, "notification.success", "users.create.success")));
         return new RedirectView("/closings");
     }
-
-
 }
