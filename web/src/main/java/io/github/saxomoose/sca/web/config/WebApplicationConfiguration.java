@@ -16,7 +16,6 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
     {
         final SessionLocaleResolver sessionLocaleResolver = new SessionLocaleResolver();
         sessionLocaleResolver.setDefaultLocale(Locale.US);
-        // sessionLocaleResolver.setLocaleAttributeName("session.current.locale");
         return sessionLocaleResolver;
     }
 
@@ -27,17 +26,4 @@ public class WebApplicationConfiguration implements WebMvcConfigurer {
         serializer.setSameSite("Strict");
 		return serializer;
 	}
-
-    // @Bean
-    // public LocaleChangeInterceptor localeChangeInterceptor() {
-    // LocaleChangeInterceptor localeChangeInterceptor = new
-    // LocaleChangeInterceptor();
-    // localeChangeInterceptor.setParamName("language");
-    // return localeChangeInterceptor;
-    // }
-    //
-    // @Override
-    // public void addInterceptors(InterceptorRegistry registry) {
-    // registry.addInterceptor(localeChangeInterceptor());
-    // }
 }

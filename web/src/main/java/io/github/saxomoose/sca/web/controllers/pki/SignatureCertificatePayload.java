@@ -43,8 +43,7 @@ public class SignatureCertificatePayload {
 
     public List<String> supportedAlgorithmNames() 
     {
-        return supportedSignatureAlgorithms
-            .stream()
+        return supportedSignatureAlgorithms.stream()
             .map(SignatureAlgorithm::hashAlgorithm)
             .toList();
     }

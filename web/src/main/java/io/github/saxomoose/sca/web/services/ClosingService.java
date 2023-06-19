@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -24,15 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.europa.esig.dss.model.DSSDocument;
 import io.github.saxomoose.sca.web.config.db.RowMapperCollection;
 import io.github.saxomoose.sca.web.enums.PathEnum;
-import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.models.User;
 import io.github.saxomoose.sca.web.models.projections.ClosingPageToIndex;
 import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
 import io.github.saxomoose.sca.web.models.projections.UserToIndex;
-import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
 public class ClosingService {
@@ -55,6 +51,42 @@ public class ClosingService {
         this.closingRowMapper = (RowMapper<Closing>) rowMappers.getRowMapper(Closing.class);
         this.closingSignatoryRowMapper = (RowMapper<ClosingSignatory>) rowMappers.getRowMapper(ClosingSignatory.class);
 
+    }
+
+    // Service
+    public void closingIsExpired(final Long closingId) throws LogicException
+    {
+        if (closingById(closingId).isExpired()) {
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+    }
+
+    public void userStatusOnClosing(Long closingId, Long userId, UUID fileUUID) throws LogicException
+    {
+        ClosingSignatory closingSignatory;
+        try {
+            closingSignatory = closingSignatory(closingId, userId, fileUUID);
+        } catch (EmptyResultDataAccessException exception) {
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+        if (closingSignatory.signatureTimestamp() != null) {
+            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
+        }
+    }
+
+    @Transactional
+    public Closing create(final Closing closingToCreate, final Long principalId, final List<ClosingSignatory> closingSignatories) {
+        final Closing createdClosing = insert(closingToCreate, principalId);
+        for (final ClosingSignatory closingSignatory : closingSignatories) {
+            closingSignatory.setClosingId(createdClosing.id());
+        }
+        insertNaturalPersonSignatories(closingSignatories);
+        return createdClosing;
+    }
+
+    public void sendInvites(final List<User> recipients)
+    {
+        
     }
 
     // Data
@@ -293,41 +325,5 @@ public class ClosingService {
                 "userId", userId,
                 "fileUUID", fileUUID));
         namedParameterJdbcOperations.update(sql, params);
-    }
-
-    // Service
-    public void closingIsExpired(final Long closingId) throws LogicException
-    {
-        if (closingById(closingId).isExpired()) {
-            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
-        }
-    }
-
-    public void userStatusOnClosing(Long closingId, Long userId, UUID fileUUID) throws LogicException
-    {
-        ClosingSignatory closingSignatory;
-        try {
-            closingSignatory = closingSignatory(closingId, userId, fileUUID);
-        } catch (EmptyResultDataAccessException exception) {
-            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
-        }
-        if (closingSignatory.signatureTimestamp() != null) {
-            throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
-        }
-    }
-
-    @Transactional
-    public Closing create(final Closing closingToCreate, final Long principalId, final List<ClosingSignatory> closingSignatories) {
-        final Closing createdClosing = insert(closingToCreate, principalId);
-        for (final ClosingSignatory closingSignatory : closingSignatories) {
-            closingSignatory.setClosingId(createdClosing.id());
-        }
-        insertNaturalPersonSignatories(closingSignatories);
-        return createdClosing;
-    }
-
-    public void sendInvites(final List<User> recipients)
-    {
-        
     }
 }

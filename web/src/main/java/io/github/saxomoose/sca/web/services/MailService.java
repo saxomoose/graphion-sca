@@ -40,9 +40,7 @@ public class MailService {
                     "closing", closing
                 )
         );
-        final Mail mail = new Mail(
-            String.format("%s - %s", "Closing invitation", closing.name()),
-            body);
+        final Mail mail = new Mail(String.format("%s - %s", "Closing invitation", closing.name()), body);
         for (final User user : recipients) {
             sendMails(Map.of(user, mail));
         }

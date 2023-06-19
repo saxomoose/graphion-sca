@@ -33,5 +33,4 @@ public class ClosingToIndex extends Closing {
         users.add(user);
         return this;
     }
-    
 }

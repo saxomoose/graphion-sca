@@ -52,7 +52,7 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(Authentication auth) throws AuthenticationException 
+    public Authentication authenticate(final Authentication auth) throws AuthenticationException 
     {
         logger.info(String.format("authenticate(): %s", auth));
         final PreAuthenticatedAuthenticationToken authentication = (PreAuthenticatedAuthenticationToken) auth;
@@ -74,7 +74,7 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public boolean supports(Class<?> authentication) 
+    public boolean supports(final Class<?> authentication) 
     {
         return PreAuthenticatedAuthenticationToken.class.equals(authentication);
     }
@@ -96,26 +96,14 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
              : rawFirstName;
         final String lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
         final String nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
-        final Integer rawBirthYear = Integer.parseInt(nrn.substring(0, 2));
+        final Integer birthYear = Integer.parseInt(nrn.substring(0, 2));
         final Integer birthMonth = Integer.parseInt(nrn.substring(2, 4));
         final Integer birthDay = Integer.parseInt(nrn.substring(4, 6));
-        final Long numberToCheck = Long.parseLong(String.format(
-            "%d%s", 
-            2, 
-            nrn.substring(0, 9)));
-        final Integer controlNumber = Integer.parseInt(nrn.substring(9, 11));
-        final Boolean bornAfter2000 = (97 - (numberToCheck % 97)) == controlNumber;
         LocalDate dateOfBirth = null;
-        if(bornAfter2000) {
-            dateOfBirth = LocalDate.of(
-                Integer.parseInt(String.format("%d%d", 20, rawBirthYear)),
-                birthMonth,
-                birthDay);
+        if(bornAfter2000(nrn)) {
+            dateOfBirth = LocalDate.of(Integer.parseInt(String.format("%d%d", 20, birthYear)), birthMonth, birthDay);
         } else {
-            dateOfBirth = LocalDate.of(
-                Integer.parseInt(String.format("%d%d", 19, rawBirthYear)),
-                birthMonth,
-                birthDay);
+            dateOfBirth = LocalDate.of(Integer.parseInt(String.format("%d%d", 19, birthYear)), birthMonth, birthDay);
         }
         if (issuerCountryCode.equals("BE")
             && firstName.equals(user.firstName())
@@ -128,12 +116,12 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(User user)
+    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(final User user)
     {
         return tenantService.tenantWithUserAuthority(user.id(), Boolean.TRUE);
     }
 
-    private String issuerCountryCode(X509Certificate userCertificate)
+    private String issuerCountryCode(final X509Certificate userCertificate)
     {
         final String issuerName = userCertificate.getIssuerX500Principal().getName();
         String countryCode = null;
@@ -146,4 +134,12 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
         }
         return countryCode;
     }
+
+    private Boolean bornAfter2000(final String nrn)
+    {
+         final Long numberToCheck = Long.parseLong(String.format("%d%s", 2, nrn.substring(0, 9)));
+        final Integer controlNumber = Integer.parseInt(nrn.substring(9, 11));
+        return (97 - (numberToCheck % 97)) == controlNumber;
+    }
+
 }

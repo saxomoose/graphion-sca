@@ -39,6 +39,7 @@ public class DocumentService {
         this.rowMapper = (RowMapper<Document>) rowMappers.getRowMapper(Document.class);
     }
 
+    // Data
     // Aggregate
     public Long countDocumentsByTenant(final Long tenantId) {
         final String sql = """

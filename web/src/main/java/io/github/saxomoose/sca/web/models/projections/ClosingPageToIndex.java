@@ -34,8 +34,4 @@ public class ClosingPageToIndex {
     {
         return documents;
     }
-
-    
-
-
 }

@@ -78,7 +78,8 @@ public class SignatureController {
         final FlashMap flashMap = new FlashMap();
         flashMap.put("parameters", (PAdESSignatureParameters) tuple.second());
         flashMapManager.saveOutputFlashMap(flashMap, request, response);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .body((DigestPayload) tuple.first());
     }
 

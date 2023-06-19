@@ -96,14 +96,16 @@ public class DocumentController {
         // TODO validate tenantId (uuid)
         final String filename = documentService.documentByTenantAndFileUUID(tenant.id(), fileUUID).filename();
         final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
-        return ResponseEntity.ok().headers(httpHeaders -> {
-            httpHeaders.setContentType(MediaType.APPLICATION_PDF);
-            if (download) {
-                httpHeaders
-                    .setContentDisposition(ContentDisposition.attachment()
-                    .filename(String.format("%s.pdf", filename)).build());
-            }
-        }).body(inputStreamResource);
+        return ResponseEntity
+            .ok().headers(httpHeaders -> {
+                httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+                if (download) {
+                    httpHeaders
+                        .setContentDisposition(ContentDisposition.attachment()
+                        .filename(String.format("%s.pdf", filename)).build());
+                }
+            })
+            .body(inputStreamResource);
     }
 
     // Create

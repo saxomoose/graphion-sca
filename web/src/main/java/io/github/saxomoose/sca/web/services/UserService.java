@@ -29,6 +29,7 @@ public class UserService {
         this.rowMapper = (RowMapper<User>) rowMappers.getRowMapper(User.class);
     }
 
+    // Data
     // Aggregate
     public Long countUsersByTenant(final Long tenantId) {
         final String sql = """

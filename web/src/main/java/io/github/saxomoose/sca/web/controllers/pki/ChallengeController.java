@@ -28,6 +28,8 @@ public class ChallengeController {
     {
         final ChallengePayload challenge = new ChallengePayload();
         challenge.setNonce(challengeNonceGenerator.generateAndStoreNonce().getBase64EncodedNonce());
-        return ResponseEntity.ok().body(challenge);
+        return ResponseEntity
+            .ok()
+            .body(challenge);
     }
 }

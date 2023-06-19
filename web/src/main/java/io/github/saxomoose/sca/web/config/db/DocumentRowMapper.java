@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import io.github.saxomoose.sca.web.models.Document;
 
 public class DocumentRowMapper implements RowMapper<Document> {
-
     @Override
     public Document mapRow(ResultSet rs, int rowNum) throws SQLException 
     {
