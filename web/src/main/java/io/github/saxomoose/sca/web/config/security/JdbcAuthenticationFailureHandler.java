@@ -25,9 +25,9 @@ public class JdbcAuthenticationFailureHandler
         final FlashMap flashMap = new FlashMap();
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
         if (exception instanceof BadCredentialsException) {
-            final List<Notification> notifications = 
-                List.of(new Notification(Notification.Type.ERROR, "notification.error.authentication", "login.error.bad_credentials"));
-            flashMap.put("notifications", notifications);
+            flashMap.put(
+                "notifications", 
+                List.of(new Notification(Notification.Type.ERROR, "notification.error.authentication", "login.error.bad_credentials")));
             flashMapManager.saveOutputFlashMap(flashMap, request, response);
         }
         response.sendRedirect("/");

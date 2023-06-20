@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import io.github.saxomoose.sca.web.config.security.AuthenticationPayload;
 import io.github.saxomoose.sca.web.exceptions.LogicException;
+import io.github.saxomoose.sca.web.models.transfer.pki.AuthenticationPayload;
 import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service
@@ -44,9 +44,9 @@ public class ValidationService {
     }
 
     public void documentFileSize(final Long fileSize, final Long clientSideFileSize) throws LogicException {
-        if (fileSize == 0) {
+        if (fileSize.equals(0L)) {
             throw new LogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.empty"));
-        } else if (fileSize != clientSideFileSize) {
+        } else if (!fileSize.equals(clientSideFileSize)) {
             throw new LogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.size_mismatch"));
         }
     }

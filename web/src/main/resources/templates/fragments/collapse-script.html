@@ -5,8 +5,9 @@
         const collapseElList = document.querySelectorAll(".collapse");
 
         if (triggerCollapseElList !== 0) {
-            const collapseList = [...collapseElList].map(
-                collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
+            const collapseList =
+                [...collapseElList].map(
+                    collapseEl => new bootstrap.Collapse(collapseEl, { toggle: false }));
             console.log(collapseList);
             triggerCollapseElList.forEach(
                 (triggerEl, index) => triggerEl.addEventListener(

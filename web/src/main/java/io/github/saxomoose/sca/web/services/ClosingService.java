@@ -28,9 +28,9 @@ import io.github.saxomoose.sca.web.exceptions.LogicException;
 import io.github.saxomoose.sca.web.models.Closing;
 import io.github.saxomoose.sca.web.models.ClosingSignatory;
 import io.github.saxomoose.sca.web.models.Document;
-import io.github.saxomoose.sca.web.models.projections.ClosingPageToIndex;
-import io.github.saxomoose.sca.web.models.projections.ClosingToIndex;
-import io.github.saxomoose.sca.web.models.projections.UserToIndex;
+import io.github.saxomoose.sca.web.models.transfer.ClosingPageToIndex;
+import io.github.saxomoose.sca.web.models.transfer.ClosingToIndex;
+import io.github.saxomoose.sca.web.models.transfer.UserToIndex;
 import io.github.saxomoose.sca.web.utils.Notification;
 
 @Service

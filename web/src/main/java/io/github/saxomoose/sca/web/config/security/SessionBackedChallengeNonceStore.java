@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import eu.webeid.security.challenge.ChallengeNonce;
 import eu.webeid.security.challenge.ChallengeNonceStore;
+import io.github.saxomoose.sca.web.enums.SessionEnum;
+import io.github.saxomoose.sca.web.models.transfer.pki.SerializableChallengeNonce;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -12,8 +14,6 @@ import jakarta.servlet.http.HttpSession;
  */
 @Component
 public class SessionBackedChallengeNonceStore implements ChallengeNonceStore {
-    private static final String CHALLENGE_NONCE_KEY = "challenge-nonce";
-
     private final ObjectFactory<HttpSession> httpSessionFactory;
 
     @Autowired
@@ -26,14 +26,14 @@ public class SessionBackedChallengeNonceStore implements ChallengeNonceStore {
     public void put(ChallengeNonce challengeNonce) 
     {
         final var serializableChallengeNonce = new SerializableChallengeNonce(challengeNonce);
-        currentSession().setAttribute(CHALLENGE_NONCE_KEY, serializableChallengeNonce);
+        currentSession().setAttribute(SessionEnum.CHALLENGE_NONCE.toString(), serializableChallengeNonce);
     }
 
     @Override
     public ChallengeNonce getAndRemoveImpl() 
     {
-        final ChallengeNonce challengeNonce = ((SerializableChallengeNonce) currentSession().getAttribute(CHALLENGE_NONCE_KEY)).getchallengeNonce();
-        currentSession().removeAttribute(CHALLENGE_NONCE_KEY);
+        final ChallengeNonce challengeNonce = ((SerializableChallengeNonce) currentSession().getAttribute(SessionEnum.CHALLENGE_NONCE.toString())).getchallengeNonce();
+        currentSession().removeAttribute(SessionEnum.CHALLENGE_NONCE.toString());
         return challengeNonce;
     }
 
