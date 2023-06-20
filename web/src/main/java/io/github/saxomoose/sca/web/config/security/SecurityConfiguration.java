@@ -12,9 +12,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver ;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.saxomoose.sca.web.config.security.authorization.PkiSignatureAuthorizationManager;
+import io.github.saxomoose.sca.web.http.pki.authentication.AuthenticationEntryPoint;
+import io.github.saxomoose.sca.web.http.pki.authentication.PkiAuthenticationFailureHandler;
+import io.github.saxomoose.sca.web.http.pki.authentication.PkiAuthenticationProcessingFilter;
+import io.github.saxomoose.sca.web.http.pki.authentication.PkiAuthenticationSuccessHandler;
 import io.github.saxomoose.sca.web.services.ValidationService;
 
 @Configuration 
@@ -36,6 +41,11 @@ public class SecurityConfiguration {
     public SecurityContextRepository securityContextRepository()
     {
        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver(){
+        return new AuthenticationPrincipalArgumentResolver();
     }
 
     @Bean

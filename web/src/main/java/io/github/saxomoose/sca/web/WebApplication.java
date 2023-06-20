@@ -22,7 +22,7 @@ import org.springframework.context.annotation.ComponentScan;
     basePackages = {
         "io.github.saxomoose.sca.lib.services",
         "io.github.saxomoose.sca.web.config",
-        "io.github.saxomoose.sca.web.controllers", 
+        "io.github.saxomoose.sca.web.http", 
         "io.github.saxomoose.sca.web.services" })
 // @ComponentScan(excludeFilters = @ComponentScan.Filter(
 // type = FilterType.ASSIGNABLE_TYPE,

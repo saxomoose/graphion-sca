@@ -33,9 +33,9 @@ public class AccessDeniedHandler implements org.springframework.security.web.acc
     {
         final FlashMap flashMap = new FlashMap();
         final FlashMapManager flashMapManager = new SessionFlashMapManager();
-        final List<Notification> notifications = 
-            List.of(new Notification(Notification.Type.ERROR, "notification.error.403", "http.403"));
-        flashMap.put("notifications", notifications);
+        flashMap.put(
+            "notifications", 
+             List.of(new Notification(Notification.Type.ERROR, "notification.error.403", "http.403")));
         flashMapManager.saveOutputFlashMap(flashMap, request, response);
         if (request.getHeader("X-Requested-With").equals("XMLHttpRequest")) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);

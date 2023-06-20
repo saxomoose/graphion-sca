@@ -13,7 +13,11 @@
                 <main class="col-md-10">
                     <div class="row">
                         <div class="col-md-4">
-                            <form id="upload-form" data-th-action="@{/documents}" enctype="multipart/form-data"
+                            <nav class="d-flex flex-row-reverse">
+                                <img class="trigger-collapse" data-th-src="@{/svg/info-circle.svg}" width="20"
+                                    height="20" role="button">
+                            </nav>
+                            <form id="document-form" data-th-action="@{/documents}" enctype="multipart/form-data"
                                 method="post">
                                 <input id="file-size" name="fileSize" type="hidden">
                                 <div class="mb-3">
@@ -24,8 +28,32 @@
                                     <input class="form-control" id="file" name="file" type="file"
                                         accept="application/pdf">
                                 </div>
-                                <button class="btn btn-primary" type="submit">Save</button>
+                                <div class="d-flex flex-row-reverse">
+                                    <button class="btn btn-primary me-2" type="submit">Save</button>
+                                </div>
                             </form>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class=" collapse col-md-7">
+                            <h1 class="h5 text-muted">Document creation form</h1>
+                            <p class="text-muted">With this form, users upload documents which will be signed during
+                                closings.</p>
+                            <div class="ms-4">
+                                <h2 class="h6 text-muted">Filename input field</h3>
+                                    <p class="mb-0 text-muted">The filename should:</p>
+                                    <ul>
+                                        <li class="text-muted">Be maximum 255 characters long.</li>
+                                        <li class="text-muted">Contain only alphanumeric characters.</li>
+                                        <li class="text-muted">Use underscores ("_") or hyphens ("-") instead of spaces
+                                            between words.</li>
+                                    </ul>
+                                    <h2 class="h6 text-muted">File input field</h2>
+                                    <p class="mb-0 text-muted">The file should:</p>
+                                    <ul>
+                                        <li class="text-muted">Be maximum 100 MB big.</li>
+                                        <li class="text-muted">Be in PDF format if meant to be signed using PAdES.</li>
+                                    </ul>
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -35,16 +63,41 @@
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
+    <script data-th-replace="~{fragments/collapse-script}"></script>
     <script data-th-inline="javascript">
         "use strict";
         function initializePage() {
-            const fileEl = document.getElementById("file");
-            const fileSizeEl = document.getElementById("file-size");
-            fileEl.addEventListener("change", () => {
-                const size = fileEl.files[0].size;
+            const documentFormEl = document.getElementById("document-form");
+            const filenameInputEl = document.getElementById("filename");
+            const fileInputEl = document.getElementById("file");
+            const fileSizeInputEl = document.getElementById("file-size");
+
+            fileInputEl.addEventListener("change", () => {
+                const size = fileInputEl.files[0].size;
                 console.log(size);
-                fileSizeEl.value = size;
-            }, false);
+                fileSizeInputEl.value = size;
+            });
+
+            documentFormEl.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const formData = new FormData();
+                formData.append("fileSize", fileSizeInputEl.value);
+                formData.append("filename", filenameInputEl.value);
+                formData.append("file", fileInputEl.files[0]);
+                const documentCreateResponse = await fetch("/documents", {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "X-CSRF-Token": [[${ _csrf.getToken() }]],
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: formData
+                });
+                const { redirectUrl } = await documentCreateResponse.json();
+                if (documentCreateResponse.status === 201) {
+                    window.location.href = redirectUrl;
+                }
+            });
         }
 
         window.addEventListener("load", initializePage);

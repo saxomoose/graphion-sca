@@ -31,9 +31,9 @@
                     body: `{"auth-token": ${JSON.stringify(authToken)}, "username": ${JSON.stringify(username)}}`
                 });
                 await webeiderrors.checkHttpError(authTokenResponse);
-                const { successURL } = await authTokenResponse.json();
+                const { redirectUrl } = await authTokenResponse.json();
                 if (authTokenResponse.status === 200) {
-                    window.location.href = successURL;
+                    window.location.href = redirectUrl;
                 } else {
                     window.location.reload();
                 }

@@ -27,11 +27,11 @@ import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.signature.resources.TempFileResourcesHandlerBuilder;
 import eu.europa.esig.dss.spi.DSSUtils;
-import io.github.saxomoose.sca.web.controllers.pki.DigestPayload;
-import io.github.saxomoose.sca.web.controllers.pki.SignatureCertificatePayload;
-import io.github.saxomoose.sca.web.controllers.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.enums.PathEnum;
 import io.github.saxomoose.sca.web.exceptions.LogicException;
+import io.github.saxomoose.sca.web.models.transfer.pki.DigestPayload;
+import io.github.saxomoose.sca.web.models.transfer.pki.SignatureCertificatePayload;
+import io.github.saxomoose.sca.web.models.transfer.pki.SignaturePayload;
 import io.github.saxomoose.sca.web.utils.Notification;
 import io.github.saxomoose.sca.web.utils.Tuple;
 

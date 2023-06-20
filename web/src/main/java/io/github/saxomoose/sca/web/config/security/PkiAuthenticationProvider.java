@@ -22,6 +22,7 @@ import eu.webeid.security.validator.AuthTokenValidator;
 import io.github.saxomoose.sca.web.enums.RoleEnum;
 import io.github.saxomoose.sca.web.models.Tenant;
 import io.github.saxomoose.sca.web.models.User;
+import io.github.saxomoose.sca.web.models.transfer.pki.AuthenticationPayload;
 import io.github.saxomoose.sca.web.services.TenantService;
 import io.github.saxomoose.sca.web.services.UserService;
 import io.github.saxomoose.sca.web.utils.Tuple;
@@ -59,8 +60,8 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
         final AuthenticationPayload authenticationPayload = ((AuthenticationPayload) authentication.getCredentials());
         try {
             final String nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
-            final X509Certificate userCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
-            final User user = userFromCertificate(authenticationPayload.username(), userCertificate);
+            final X509Certificate authenticationCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
+            final User user = userFromAuthenticationCertificate(authenticationPayload.username(), authenticationCertificate);
             final Tuple<Tenant, List<GrantedAuthority>> tuple = defaultTenant(user);
             if (tuple != null) {
                 return PkiAuthentication.of(user, (Tenant) tuple.first(), (List<GrantedAuthority>) tuple.second());
@@ -84,18 +85,18 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
      * Only the first first name is used for comparison.
      * TODO: only accept Belgian id cards
      */
-    private User userFromCertificate(
+    private User userFromAuthenticationCertificate(
         final String username, 
-        final X509Certificate userCertificate) throws AuthenticationException, CertificateEncodingException 
+        final X509Certificate authenticationCertificate) throws AuthenticationException, CertificateEncodingException 
     {
         final User user = userService.userByUsername(username);
-        final String issuerCountryCode = issuerCountryCode(userCertificate);
-        final String rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(userCertificate));
+        final String issuerCountryCode = issuerCountryCode(authenticationCertificate);
+        final String rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(authenticationCertificate));
         final String firstName = rawFirstName.contains(" ") ?
              rawFirstName.substring(0, rawFirstName.indexOf(" ")) 
              : rawFirstName;
-        final String lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(userCertificate));
-        final String nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(userCertificate));
+        final String lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(authenticationCertificate));
+        final String nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(authenticationCertificate));
         final Integer birthYear = Integer.parseInt(nrn.substring(0, 2));
         final Integer birthMonth = Integer.parseInt(nrn.substring(2, 4));
         final Integer birthDay = Integer.parseInt(nrn.substring(4, 6));
@@ -121,9 +122,9 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
         return tenantService.tenantWithUserAuthority(user.id(), Boolean.TRUE);
     }
 
-    private String issuerCountryCode(final X509Certificate userCertificate)
+    private String issuerCountryCode(final X509Certificate authenticationCertificate)
     {
-        final String issuerName = userCertificate.getIssuerX500Principal().getName();
+        final String issuerName = authenticationCertificate.getIssuerX500Principal().getName();
         String countryCode = null;
         final String[] parts = issuerName.split(",");
         for (String part : parts) {
