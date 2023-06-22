@@ -10,19 +10,14 @@ public class TomcatConfiguration {
     @Bean
     public TomcatServletWebServerFactory tomcatFactory() 
     {
-        final TomcatServletWebServerFactory tomcat = 
+        final TomcatServletWebServerFactory tomcatServletWebServerFactory = 
             new TomcatServletWebServerFactory() {
                 @Override
                 protected void postProcessContext(Context context) {
                     context.setAllowCasualMultipartParsing(true);
                 }
             };
-        // tomcat.addConnectorCustomizers((TomcatConnectorCustomizer) connector -> {
-        //     if ((connector.getProtocolHandler() instanceof AbstractHttp11Protocol<?>)) {
-        //         ((AbstractHttp11Protocol<?>) connector.getProtocolHandler()).setMaxSwallowSize(-1);
-        //     }
-        // });
-        return tomcat;
+        return tomcatServletWebServerFactory;
     }
 }
 

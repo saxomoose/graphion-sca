@@ -1,0 +1,15 @@
+<script type="text/javascript">
+    "use-script"
+    function initializeInfoScript() {
+        const triggerCollapseEl = document.querySelectorAll(".trigger-collapse")[0];
+        const collapseEl = document.querySelectorAll(".collapse")[0];
+        const collapse = new bootstrap.Collapse(collapseEl, { toggle: false });
+
+        triggerCollapseEl.addEventListener("click", (event) => {
+            collapse.toggle();
+            collapseEl.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+
+    window.addEventListener("load", initializeInfoScript);
+</script>
