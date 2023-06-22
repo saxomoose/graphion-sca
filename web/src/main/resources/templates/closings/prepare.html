@@ -8,20 +8,20 @@
     <div data-th-replace="${notifications} ? ~{fragments/notifications :: frag(${notifications})} : _"></div>
     <div class="flex-shrink-0">
         <div class="container-fluid">
-            <div class="row mt-3">
+            <div class="row my-3">
                 <aside data-th-replace="~{fragments/sidebar :: frag(activeNavLink = 1)}"></aside>
                 <main class="col-md-10">
-                    <form id="closing-form" data-th-action="@{/closings/prepare}" method="post">
+                    <nav data-th-replace="~{fragments/info-trigger}"></nav>
+                    <form class="mb-3" id="closing-form" data-th-action="@{/closings/prepare}" method="post">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label" for="name">Name</label>
                                     <input class="form-control" id="name" name="name" type="text" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="timestamp">Time</label>
-                                    <input class="form-control" id="timestamp" name="timestamp" type="datetime-local"
-                                        required>
+                                    <input class="form-control" id="timestamp" name="timestamp" type="datetime-local" required>
                                 </div>
                                 <div data-th-replace="~{fragments/zoneid-picker}"></div>
                                 <div class="mb-3">
@@ -30,35 +30,27 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="expiration-timestamp">Expiration time</label>
-                                    <input class="form-control" id="expiration-timestamp" name="expirationTimestamp"
-                                        type="datetime-local">
+                                    <input class="form-control" id="expiration-timestamp" name="expirationTimestamp" type="datetime-local">
                                 </div>
                             </div>
                             <div class="col-md-5">
                                 <div class="mb-3">
                                     <label class="form-label" for="user-select">Users</label>
-                                    <select class="form-select mb-1" id="user-select" name="userIds" multiple required
-                                        size="10">
+                                    <select class="form-select mb-1" id="user-select" name="userIds" multiple required size="10">
                                         <th-block data-th-each="user,userIterStat : ${userPage}">
-                                            <option class="user-option"
-                                                data-th-text="${#strings.concat(user.firstName(), ' ', user.lastName(), ' - ', user.username())}"
-                                                data-th-value="${user.id()}">
+                                            <option class="user-option" data-th-text="${#strings.concat(user.firstName(), ' ', user.lastName(), ' - ', user.username())}" data-th-value="${user.id()}">
                                             </option>
                                         </th-block>
                                     </select>
                                     <nav class="d-flex flex-row-reverse">
                                         <ul class="pagination">
-                                            <li class="page-item"
-                                                data-th-classappend="${userPage.isFirst() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/prepare', userPageIndex = __${userPage.getNumber() - 1}__)}">
+                                            <li class="page-item" data-th-classappend="${userPage.isFirst() ? 'disabled' : _}">
+                                                <a class="page-link" data-th-href="@{/{route}(route = 'closings/prepare', userPageIndex = __${userPage.getNumber() - 1}__)}">
                                                     <span>&laquo;</span>
                                                 </a>
                                             </li>
-                                            <li class="page-item"
-                                                data-th-classappend="${userPage.isLast() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/prepare', userPageIndex = __${userPage.getNumber() + 1}__)}">
+                                            <li class="page-item" data-th-classappend="${userPage.isLast() ? 'disabled' : _}">
+                                                <a class="page-link" data-th-href="@{/{route}(route = 'closings/prepare', userPageIndex = __${userPage.getNumber() + 1}__)}">
                                                     <span>&raquo;</span>
                                                 </a>
                                             </li>
@@ -66,30 +58,24 @@
                                     </nav>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="document-select">Documents</label>
-                                    <select class="form-select mb-1" id="document-select" name="documentIds" multiple
-                                        required size="10">
+                                    <select class="form-select mb-1" id="document-select" name="documentIds" multiple required size="10">
                                         <th-block data-th-each="document,documentIterStat : ${documentPage}">
-                                            <option class="document-option" data-th-text="${document.filename()}"
-                                                data-th-value="${document.id()}">
+                                            <option class="document-option" data-th-text="${document.filename()}" data-th-value="${document.id()}">
                                             </option>
                                         </th-block>
                                     </select>
                                     <nav class="d-flex flex-row-reverse">
                                         <ul class="pagination">
-                                            <li class="page-item"
-                                                data-th-classappend="${documentPage.isFirst() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/prepare', documentPageIndex = __${documentPage.getNumber() - 1}__)}">
+                                            <li class="page-item" data-th-classappend="${documentPage.isFirst() ? 'disabled' : _}">
+                                                <a class="page-link" data-th-href="@{/{route}(route = 'closings/prepare', documentPageIndex = __${documentPage.getNumber() - 1}__)}">
                                                     <span>&laquo;</span>
                                                 </a>
                                             </li>
-                                            <li class="page-item"
-                                                data-th-classappend="${documentPage.isLast() ? 'disabled' : _}">
-                                                <a class="page-link"
-                                                    data-th-href="@{/{route}(route = 'closings/prepare', documentPageIndex = __${documentPage.getNumber() + 1}__)}">
+                                            <li class="page-item" data-th-classappend="${documentPage.isLast() ? 'disabled' : _}">
+                                                <a class="page-link" data-th-href="@{/{route}(route = 'closings/prepare', documentPageIndex = __${documentPage.getNumber() + 1}__)}">
                                                     <span>&raquo;</span>
                                                 </a>
                                             </li>
@@ -97,9 +83,43 @@
                                     </nav>
                                 </div>
                             </div>
+                            <div class="d-flex flex-row-reverse">
+                                <button class="btn btn-primary" id="continue-button" type="submit">Continue</button>
+                            </div>
                         </div>
-                        <button class="btn btn-primary" type="submit">Continue</button>
                     </form>
+                    <div class="collapse row">
+                        <div class="col-md-8 mt-3 p-3 bg-light rounded-4">
+                            <h1 class="h5 text-muted">Closing creation form</h1>
+                            <p class="text-muted">Creating a closing is a two-step process. On this page, users provide the closing details and specify the closing parties and documents. On the following page, users stipulate which documents should be signed by each party.</p>
+                            <div class="ms-4">
+                                <h2 class="h6 text-muted">Name</h2>
+                                <ul>
+                                    <li class="text-muted">The name must be maximum 255 characters long
+                                    </li>
+                                </ul>
+                                <h2 class="h6 text-muted">Time</h2>
+                                <ul>
+                                    <li class="text-muted"></li>
+                                </ul>
+                                <h2 class="h6 text-muted">Region</h2>
+                                <p class="text-muted">The region will determine the time zone of the closing. All timestamps displayed are set in reference to that time zone.</p>
+                                <ul>
+                                    <li class="text-muted"></li>
+                                </ul>
+                                <h2 class="h6 text-muted">Location</h2>
+                                <ul>
+                                    <li class="text-muted"></li>
+                                </ul>
+                                <h2 class="h6 text-muted">Expiration time</h2>
+                                <p class="text-muted">The parties are permitted to sign the closing documents until a specified timestamp. If this field is left empty, the default expiration time is set as the closing time plus an additional 30 calendar days.</p>
+                                <ul>
+                                    <li class="text-muted"></li>
+                                </ul>
+                            </div>
+                            <p class="text-muted">All fields, excluding the expiration time, are mandatory.</p>
+                        </div>
+                    </div>
                 </main>
             </div>
         </div>
@@ -108,6 +128,8 @@
     <footer data-th-replace="~{fragments/footer}"></footer>
     <script data-th-replace="~{fragments/bootstrap-script}"></script>
     <script data-th-replace="~{fragments/toast-script}"></script>
+    <script data-th-replace="~{fragments/multiple-select-script}"></script>
+    <script data-th-replace="~{fragments/collapse-script}"></script>
     <script type="text/javascript">
         "use strict";
         function initializePage() {

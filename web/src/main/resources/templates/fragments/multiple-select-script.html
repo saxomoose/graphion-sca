@@ -1,0 +1,17 @@
+<script type="text/javascript">
+    "use strict";
+    const selectElList = document.querySelectorAll(".form-select");
+
+    selectElList.forEach((selectEl) => {
+        selectEl.addEventListener("mousedown", (event) => {
+            const option = event.target;
+            const selectFocused = document.activeElement === selectEl;
+            const noModifiers = !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
+            if (option.selected && selectFocused && noModifiers) {
+                event.preventDefault();
+                option.selected = false;
+            }
+        });
+    });
+
+</script>
