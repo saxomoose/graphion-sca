@@ -29,13 +29,13 @@ public class PkiAuthenticationProcessingFilter extends AbstractAuthenticationPro
      * TODO: error handling? How to report back to user?
      */
     public PkiAuthenticationProcessingFilter(
-        final AuthenticationManager authenticationManager,
-        final SecurityContextRepository securityContextRepository,
-        final PkiAuthenticationFailureHandler authenticationFailureHandler,
-        final PkiAuthenticationSuccessHandler authenticationSuccessHandler, 
-        final ObjectMapper objectMapper,
-        final String defaultFilterProcessesUrl,
-        final ValidationService validationService)
+        AuthenticationManager authenticationManager,
+        SecurityContextRepository securityContextRepository,
+        PkiAuthenticationFailureHandler authenticationFailureHandler,
+        PkiAuthenticationSuccessHandler authenticationSuccessHandler, 
+        ObjectMapper objectMapper,
+        String defaultFilterProcessesUrl,
+        ValidationService validationService)
     {
         super(defaultFilterProcessesUrl);
         this.setAuthenticationManager(authenticationManager);
@@ -55,13 +55,13 @@ public class PkiAuthenticationProcessingFilter extends AbstractAuthenticationPro
             logger.error("HTTP method not supported: {}", request.getMethod());
             throw new RuntimeException();
         }
-        final String contentType = request.getHeader("Content-Type");
+        String contentType = request.getHeader("Content-Type");
         if (!contentType.equals(MediaType.APPLICATION_JSON_VALUE)) {
             logger.error("Content type not supported: {}", contentType);
             throw new RuntimeException();
         }
-        final AuthenticationPayload authenticationPayload = objectMapper.readValue(request.getReader(), AuthenticationPayload.class);
-        final PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(null, authenticationPayload);
+        AuthenticationPayload authenticationPayload = objectMapper.readValue(request.getReader(), AuthenticationPayload.class);
+        PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(null, authenticationPayload);
         // TODO: validation should happen sooner.
         try {
             validationService.authenticationPayload(authenticationPayload);

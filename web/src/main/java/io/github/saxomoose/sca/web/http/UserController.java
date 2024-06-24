@@ -52,15 +52,15 @@ public class UserController {
         final HttpServletRequest request,
         final Pageable pageable) 
     {
-        // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
-        final var tenantId = 1L;
-        final Page<User> userPage = userService.usersByTenant(tenantId, pageable);
+        // Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
+        var tenantId = 1L;
+        Page<User> userPage = userService.usersByTenant(tenantId, pageable);
         if (userPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final ModelAndView modelAndView = new ModelAndView("users/index");
+        ModelAndView modelAndView = new ModelAndView("users/index");
         modelAndView.addObject("userPage", userPage);
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -71,8 +71,8 @@ public class UserController {
     @GetMapping("/users/create")
     public ModelAndView create(final HttpServletRequest request) 
     {
-        final ModelAndView modelAndView = new ModelAndView("users/create");
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        ModelAndView modelAndView = new ModelAndView("users/create");
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -89,8 +89,8 @@ public class UserController {
         final UserToCreate rawSignatory,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        final Tenant tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
-        // final var filename = validationService.documentArgs(rawFilename);
+        Tenant tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
+        // var filename = validationService.documentArgs(rawFilename);
         // signatoryService.create(tenant, filename);
         redirectAttributes.addFlashAttribute(
             "notifications", 

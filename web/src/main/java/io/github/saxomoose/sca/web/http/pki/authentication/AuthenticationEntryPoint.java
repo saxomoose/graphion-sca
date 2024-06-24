@@ -21,8 +21,8 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
         HttpServletResponse response,
         AuthenticationException authException) throws IOException, ServletException 
     {
-        final FlashMap flashMap = new FlashMap();
-        final FlashMapManager flashMapManager = new SessionFlashMapManager();
+        FlashMap flashMap = new FlashMap();
+        FlashMapManager flashMapManager = new SessionFlashMapManager();
         if (authException instanceof InsufficientAuthenticationException) {
             flashMap.put(
                 "notifications",

@@ -53,16 +53,16 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(final Authentication auth) throws AuthenticationException 
+    public Authentication authenticate(Authentication auth) throws AuthenticationException 
     {
         logger.info(String.format("authenticate(): %s", auth));
-        final PreAuthenticatedAuthenticationToken authentication = (PreAuthenticatedAuthenticationToken) auth;
-        final AuthenticationPayload authenticationPayload = ((AuthenticationPayload) authentication.getCredentials());
+        PreAuthenticatedAuthenticationToken authentication = (PreAuthenticatedAuthenticationToken) auth;
+        AuthenticationPayload authenticationPayload = ((AuthenticationPayload) authentication.getCredentials());
         try {
-            final String nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
-            final X509Certificate authenticationCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
-            final User user = userFromAuthenticationCertificate(authenticationPayload.username(), authenticationCertificate);
-            final Tuple<Tenant, List<GrantedAuthority>> tuple = defaultTenant(user);
+            String nonce = challengeNonceStore.getAndRemove().getBase64EncodedNonce();
+            X509Certificate authenticationCertificate = authTokenValidator.validate(authenticationPayload.token(), nonce);
+            User user = userFromAuthenticationCertificate(authenticationPayload.username(), authenticationCertificate);
+            Tuple<Tenant, List<GrantedAuthority>> tuple = defaultTenant(user);
             if (tuple != null) {
                 return PkiAuthentication.of(user, (Tenant) tuple.first(), (List<GrantedAuthority>) tuple.second());
             } else {
@@ -75,7 +75,7 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public boolean supports(final Class<?> authentication) 
+    public boolean supports(Class<?> authentication) 
     {
         return PreAuthenticatedAuthenticationToken.class.equals(authentication);
     }
@@ -86,20 +86,20 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
      * TODO: only accept Belgian id cards
      */
     private User userFromAuthenticationCertificate(
-        final String username, 
-        final X509Certificate authenticationCertificate) throws AuthenticationException, CertificateEncodingException 
+        String username, 
+        X509Certificate authenticationCertificate) throws AuthenticationException, CertificateEncodingException 
     {
-        final User user = userService.userByUsername(username);
-        final String issuerCountryCode = issuerCountryCode(authenticationCertificate);
-        final String rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(authenticationCertificate));
-        final String firstName = rawFirstName.contains(" ") ?
+        User user = userService.userByUsername(username);
+        String issuerCountryCode = issuerCountryCode(authenticationCertificate);
+        String rawFirstName = Objects.requireNonNull(CertificateData.getSubjectGivenName(authenticationCertificate));
+        String firstName = rawFirstName.contains(" ") ?
              rawFirstName.substring(0, rawFirstName.indexOf(" ")) 
              : rawFirstName;
-        final String lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(authenticationCertificate));
-        final String nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(authenticationCertificate));
-        final Integer birthYear = Integer.parseInt(nrn.substring(0, 2));
-        final Integer birthMonth = Integer.parseInt(nrn.substring(2, 4));
-        final Integer birthDay = Integer.parseInt(nrn.substring(4, 6));
+        String lastName = Objects.requireNonNull(CertificateData.getSubjectSurname(authenticationCertificate));
+        String nrn = Objects.requireNonNull(CertificateData.getSubjectIdCode(authenticationCertificate));
+        Integer birthYear = Integer.parseInt(nrn.substring(0, 2));
+        Integer birthMonth = Integer.parseInt(nrn.substring(2, 4));
+        Integer birthDay = Integer.parseInt(nrn.substring(4, 6));
         LocalDate dateOfBirth = null;
         if(bornAfter2000(nrn)) {
             dateOfBirth = LocalDate.of(Integer.parseInt(String.format("%d%d", 20, birthYear)), birthMonth, birthDay);
@@ -117,16 +117,16 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(final User user)
+    private Tuple<Tenant, List<GrantedAuthority>> defaultTenant(User user)
     {
         return tenantService.tenantWithUserAuthority(user.id(), Boolean.TRUE);
     }
 
-    private String issuerCountryCode(final X509Certificate authenticationCertificate)
+    private String issuerCountryCode(X509Certificate authenticationCertificate)
     {
-        final String issuerName = authenticationCertificate.getIssuerX500Principal().getName();
+        String issuerName = authenticationCertificate.getIssuerX500Principal().getName();
         String countryCode = null;
-        final String[] parts = issuerName.split(",");
+        String[] parts = issuerName.split(",");
         for (String part : parts) {
             if (part.trim().startsWith("C=")) {
                 countryCode = part.trim().substring(2);
@@ -136,10 +136,10 @@ public class PkiAuthenticationProvider implements AuthenticationProvider {
         return countryCode;
     }
 
-    private Boolean bornAfter2000(final String nrn)
+    private Boolean bornAfter2000(String nrn)
     {
-         final Long numberToCheck = Long.parseLong(String.format("%d%s", 2, nrn.substring(0, 9)));
-        final Integer controlNumber = Integer.parseInt(nrn.substring(9, 11));
+        Long numberToCheck = Long.parseLong(String.format("%d%s", 2, nrn.substring(0, 9)));
+        Integer controlNumber = Integer.parseInt(nrn.substring(9, 11));
         return (97 - (numberToCheck % 97)) == controlNumber;
     }
 

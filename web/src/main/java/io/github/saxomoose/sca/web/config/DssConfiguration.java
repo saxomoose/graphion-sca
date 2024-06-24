@@ -68,7 +68,7 @@ public class DssConfiguration {
     @Bean
 	public PAdESService padesService() 
     {
-		final PAdESService service = new PAdESService(certificateVerifier());
+		PAdESService service = new PAdESService(certificateVerifier());
 		service.setTspSource(tspSource());
         IPdfObjFactory pdfObjFactory = new ServiceLoaderPdfObjFactory();
         pdfObjFactory.setResourcesHandlerBuilder(tempFileResourcesHandlerBuilder());
@@ -79,7 +79,7 @@ public class DssConfiguration {
     @Bean
     public TempFileResourcesHandlerBuilder tempFileResourcesHandlerBuilder()
     {
-        final TempFileResourcesHandlerBuilder tempFileResourcesHandlerBuilder = new TempFileResourcesHandlerBuilder();
+        TempFileResourcesHandlerBuilder tempFileResourcesHandlerBuilder = new TempFileResourcesHandlerBuilder();
         tempFileResourcesHandlerBuilder.setTempFileDirectory(tmpWorkbenchDirectory());
         return tempFileResourcesHandlerBuilder;
     }
@@ -87,7 +87,7 @@ public class DssConfiguration {
     @Bean
 	public CertificateVerifier certificateVerifier() 
     {
-		final CertificateVerifier certificateVerifier = new CommonCertificateVerifier();
+		CertificateVerifier certificateVerifier = new CommonCertificateVerifier();
 		certificateVerifier.setTrustedCertSources(caCertificates(), timestampCertificates());
         certificateVerifier.setAIASource(aiaSource());
         certificateVerifier.setCrlSource(crlSource());
@@ -102,15 +102,15 @@ public class DssConfiguration {
 
     private CertificateSource caCertificates() 
     {
-		final TLValidationJob job = new TLValidationJob();
-        final LOTLSource lotlSource = new LOTLSource();
-        final TrustedListsCertificateSource caCertificates = new TrustedListsCertificateSource();
+		TLValidationJob job = new TLValidationJob();
+        LOTLSource lotlSource = new LOTLSource();
+        TrustedListsCertificateSource caCertificates = new TrustedListsCertificateSource();
         lotlSource.setUrl(environment.getProperty("dss.lotl.eu"));
 		lotlSource.setCertificateSource(ojSignatureCertificates());
         lotlSource.setPivotSupport(false);
         lotlSource.setTlPredicate(TLPredicateFactory.createEUTLCountryCodePredicate("BE"));
         lotlSource.setTrustServiceProviderPredicate((TSPType tspType) -> {
-            final String tradeName = tspType.getTSPInformation().getTSPTradeName().getName().get(0).getValue();
+            String tradeName = tspType.getTSPInformation().getTSPTradeName().getName().get(0).getValue();
             return tradeName.equals("VATBE-0475396406") 
                 || tradeName.equals("NTRBE-0671516647") 
                 || tradeName.equals("VATBE-0537698318");
@@ -130,7 +130,7 @@ public class DssConfiguration {
 
 	private DSSFileLoader offlineLoader() 
     {
-		final FileCacheDataLoader offlineFileLoader = new FileCacheDataLoader();
+		FileCacheDataLoader offlineFileLoader = new FileCacheDataLoader();
 		offlineFileLoader.setCacheExpirationTime(-1);
 		offlineFileLoader.setDataLoader(new IgnoreDataLoader());
 		offlineFileLoader.setFileCacheDirectory(tlCacheDirectory);
@@ -139,7 +139,7 @@ public class DssConfiguration {
 
     private DSSFileLoader onlineLoader() 
     {
-		final FileCacheDataLoader onlineFileLoader = new FileCacheDataLoader();
+		FileCacheDataLoader onlineFileLoader = new FileCacheDataLoader();
 		onlineFileLoader.setCacheExpirationTime(0);
 		onlineFileLoader.setDataLoader(new CommonsDataLoader());
 		onlineFileLoader.setFileCacheDirectory(tlCacheDirectory);
@@ -148,11 +148,11 @@ public class DssConfiguration {
 
     private File tlCacheDirectory()
     {
-        final String path = String.format(
+        String path = String.format(
             "%s/%s",
             System.getProperty("user.dir"),
             PathEnum.DSS_TRUST_LISTS);
-        final File tlCacheDirectory = new File(path); 
+        File tlCacheDirectory = new File(path); 
         tlCacheDirectory.mkdirs();
         return tlCacheDirectory;
     }
@@ -164,14 +164,14 @@ public class DssConfiguration {
 
     private CRLSource crlSource()
     {
-        final OnlineCRLSource crlSource = new OnlineCRLSource();
+        OnlineCRLSource crlSource = new OnlineCRLSource();
         crlSource.setDataLoader(new CommonsDataLoader());
         return crlSource;
     }
 
     private OCSPSource oscpSource()
     {
-        final OnlineOCSPSource ocspSource = new OnlineOCSPSource();
+        OnlineOCSPSource ocspSource = new OnlineOCSPSource();
         ocspSource.setCertIDDigestAlgorithm(DigestAlgorithm.SHA256);
         ocspSource.setDataLoader(new OCSPDataLoader());
         return ocspSource;
@@ -179,10 +179,10 @@ public class DssConfiguration {
 
     private TSPSource tspSource()
     {
-        final TimestampDataLoader timestampDataLoader = new TimestampDataLoader();
-        final OnlineTSPSource beTSPSource = new OnlineTSPSource(environment.getProperty("dss.timestamp.be"));
+        TimestampDataLoader timestampDataLoader = new TimestampDataLoader();
+        OnlineTSPSource beTSPSource = new OnlineTSPSource(environment.getProperty("dss.timestamp.be"));
         beTSPSource.setDataLoader(timestampDataLoader);
-        final CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
+        CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
         compositeTSPSource.setTspSources(Map.of(
             "be", beTSPSource));
         return compositeTSPSource;
@@ -193,15 +193,15 @@ public class DssConfiguration {
         return signatureCertificates(PathEnum.CERTS_DSS_TIMESTAMP);
     }
 
-    private CertificateSource signatureCertificates(final PathEnum path)
+    private CertificateSource signatureCertificates(PathEnum path)
     {
-        final CertificateSource certificateSource = new CommonTrustedCertificateSource();
-        final Iterable<Result<Item>> certListing = objectStorageService.listObjects(
+        CertificateSource certificateSource = new CommonTrustedCertificateSource();
+        Iterable<Result<Item>> certListing = objectStorageService.listObjects(
                 environment.getProperty("objectstorage.admin-bucket"),
                 path.toString());
         try {
-            final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            for (final Result<Item> result : certListing) {
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            for (Result<Item> result : certListing) {
                 X509Certificate signatureCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         objectStorageService.objectAsStream(
@@ -218,11 +218,11 @@ public class DssConfiguration {
 
     private File tmpWorkbenchDirectory()
     {
-        final String path = String.format(
+        String path = String.format(
             "%s/%s",
             System.getProperty("user.dir"),
             PathEnum.DSS_WORKBENCH_TMP);
-        final File tmpWorkbenchDirectory = new File(path); 
+        File tmpWorkbenchDirectory = new File(path); 
         tmpWorkbenchDirectory.mkdirs();
         return tmpWorkbenchDirectory;
     }

@@ -25,9 +25,9 @@ public class PkiSignatureAuthorizationManager implements AuthorizationManager<Re
         Supplier<Authentication> authentication, 
         RequestAuthorizationContext context) 
     {
-        final Long userId = ((User) authentication.get().getPrincipal()).id();
-        final Long rawClosingId = Long.parseLong(context.getVariables().get("rawClosingId"));
-        final UUID rawFileUUID = UUID.fromString(context.getVariables().get("rawFileUUID"));
+        Long userId = ((User) authentication.get().getPrincipal()).id();
+        Long rawClosingId = Long.parseLong(context.getVariables().get("rawClosingId"));
+        UUID rawFileUUID = UUID.fromString(context.getVariables().get("rawFileUUID"));
         
         return new AuthorizationDecision(true);
     }    

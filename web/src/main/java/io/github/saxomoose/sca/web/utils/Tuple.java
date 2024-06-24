@@ -1,8 +1,8 @@
 package io.github.saxomoose.sca.web.utils;
 
 public class Tuple<X, Y> {
-    final X first;
-    final Y second;
+    private final X first;
+    private final Y second;
 
     public Tuple(X first, Y second)
     {

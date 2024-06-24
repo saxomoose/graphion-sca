@@ -2,6 +2,7 @@ package io.github.saxomoose.sca.web.config.db;
 
 import java.util.Optional;
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -24,6 +25,15 @@ import io.github.saxomoose.sca.web.models.User;
 @Configuration
 @EnableTransactionManagement
 public class DbConfiguration {
+
+    private final DataSource dataSource;
+
+    @Autowired
+    public DbConfiguration(DataSource dataSource)
+    {
+        this.dataSource = dataSource;
+    }
+
     @Bean
     AuditorAware<Long> auditorProvider() {
         return new AuditorAware<Long>() {
@@ -41,19 +51,19 @@ public class DbConfiguration {
     }
 
     @Bean
-    DataSourceInitializer initializer(final DataSource dataSource) {
+    DataSourceInitializer initializer() {
         DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(dataSource);
         return initializer;
     }
 
     @Bean
-    NamedParameterJdbcOperations namedParameterJdbcOperations(final DataSource dataSource) {
+    NamedParameterJdbcOperations namedParameterJdbcOperations() {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Bean
-    TransactionManager transactionManager(final DataSource dataSource) {
+    TransactionManager transactionManager() {
         return new DataSourceTransactionManager(dataSource);
     }
 

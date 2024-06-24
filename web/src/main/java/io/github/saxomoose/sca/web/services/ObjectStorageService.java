@@ -28,7 +28,7 @@ public class ObjectStorageService {
         this.minioClient = minioClient;
     }
 
-    public StatObjectResponse statObject(final String bucket, final String path)
+    public StatObjectResponse statObject(String bucket, String path)
     {
         try {
             return minioClient.statObject(StatObjectArgs.builder().bucket(bucket).object(path).build());
@@ -38,12 +38,12 @@ public class ObjectStorageService {
         }
     }
 
-    public Iterable<Result<Item>> listObjects(final String bucket, final String path)
+    public Iterable<Result<Item>> listObjects(String bucket, String path)
     {
         return minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).prefix(path).recursive(true).build());
     }
 
-    public byte[] objectAsBytes(final String bucket, final String path) {
+    public byte[] objectAsBytes(String bucket, String path) {
         try {
             return objectAsStream(bucket, path).readAllBytes();
         } catch(Exception exception) {
@@ -52,7 +52,7 @@ public class ObjectStorageService {
         }
     }
 
-    public InputStream objectAsStream(final String bucket, final String path)
+    public InputStream objectAsStream(String bucket, String path)
     {
         // Handle exception if file does not exist.
         try {
@@ -66,7 +66,7 @@ public class ObjectStorageService {
     /**
      * WriteResponseObject contains versionId.
      */
-    public void storeObject(final String bucket, final String path, final InputStream inputStream)
+    public void storeObject(String bucket, String path, InputStream inputStream)
     {
         try {
             minioClient.putObject(PutObjectArgs.builder().bucket(bucket).object(path)
@@ -77,7 +77,7 @@ public class ObjectStorageService {
         }
     }
 
-    public void deleteObject(final String bucket, final String path)
+    public void deleteObject(String bucket, String path)
     {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(path).build());

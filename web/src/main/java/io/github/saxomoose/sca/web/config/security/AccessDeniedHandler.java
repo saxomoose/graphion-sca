@@ -31,8 +31,8 @@ public class AccessDeniedHandler implements org.springframework.security.web.acc
         HttpServletResponse response,
         AccessDeniedException accessDeniedException) throws IOException, ServletException
     {
-        final FlashMap flashMap = new FlashMap();
-        final FlashMapManager flashMapManager = new SessionFlashMapManager();
+        FlashMap flashMap = new FlashMap();
+        FlashMapManager flashMapManager = new SessionFlashMapManager();
         flashMap.put(
             "notifications", 
              List.of(new Notification(Notification.Type.ERROR, "notification.error.403", "http.403")));

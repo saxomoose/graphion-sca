@@ -15,7 +15,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 public class ThymeleafConfiguration {
     @Bean
     public ITemplateResolver templateResolver(){
-        final SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
+        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setPrefix("classpath:templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
@@ -26,7 +26,7 @@ public class ThymeleafConfiguration {
 
     @Bean
     public SpringTemplateEngine templateEngine(){
-    final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+    SpringTemplateEngine templateEngine = new SpringTemplateEngine();
     templateEngine.setTemplateResolver(templateResolver());
     templateEngine.setEnableSpringELCompiler(true);
     templateEngine.addDialect(new SpringSecurityDialect());
@@ -35,14 +35,14 @@ public class ThymeleafConfiguration {
     }
 
     public ThymeleafViewResolver viewResolver(){
-    final ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+    ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
     viewResolver.setTemplateEngine(templateEngine());
     return viewResolver;
     }
 
     public MessageSource messageSource() 
     {
-        final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("classpath:i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;

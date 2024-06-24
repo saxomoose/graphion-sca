@@ -38,7 +38,7 @@ public class PkiAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
         HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException
     {
-        final Tenant defaultTenant = ((PkiAuthentication) authentication).defaultTenant();
+        Tenant defaultTenant = ((PkiAuthentication) authentication).defaultTenant();
         String redirectUrl;
         if(defaultTenant != null) {
             httpSession.setAttribute(SessionEnum.TENANT.toString(), defaultTenant);
@@ -52,7 +52,7 @@ public class PkiAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setHeader("Content-Type", "application/json");
-        final String serializedAuthSuccess = objectMapper.writeValueAsString(new ResponsePayload(redirectUrl));
+        String serializedAuthSuccess = objectMapper.writeValueAsString(new ResponsePayload(redirectUrl));
         response.getWriter().write(serializedAuthSuccess);
     }
 }

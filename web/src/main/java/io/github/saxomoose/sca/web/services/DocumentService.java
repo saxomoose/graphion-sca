@@ -41,70 +41,70 @@ public class DocumentService {
 
     // Data
     // Aggregate
-    public Long countDocumentsByTenant(final Long tenantId) {
-        final String sql = """
+    public Long countDocumentsByTenant(Long tenantId) {
+        String sql = """
         SELECT COUNT(*)
         FROM sca.document
         WHERE tenant = :tenantId; 
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantId", tenantId);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantId", tenantId);
         return namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
     }
 
     // Read
-    public List<Document> documentsByIds(final List<Long> documentIds)
+    public List<Document> documentsByIds(List<Long> documentIds)
     {
-        final String sql = """
+        String sql = """
             SELECT *
             FROM sca.document
             WHERE id IN (:documentIds);    
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(Map.of("documentIds", documentIds));
+        MapSqlParameterSource params = new MapSqlParameterSource(Map.of("documentIds", documentIds));
         return namedParameterJdbcOperations.query(sql, params, rowMapper);
     }
 
-    public Page<Document> documentsByTenant(final Long tenantId, final Pageable pageable)
+    public Page<Document> documentsByTenant(Long tenantId, Pageable pageable)
     {
-        final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
-        final String sql = """
+        Integer offset = pageable.getPageNumber() * pageable.getPageSize();
+        String sql = """
             SELECT *
             FROM sca.document
             WHERE tenant = :tenantId
             ORDER BY filename
             LIMIT :pageSize OFFSET :offset;
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
+        MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final List<Document> tenantDocuments = namedParameterJdbcOperations.query(sql, params, rowMapper);
+        List<Document> tenantDocuments = namedParameterJdbcOperations.query(sql, params, rowMapper);
         return PageableExecutionUtils.getPage(tenantDocuments, pageable, () -> countDocumentsByTenant(tenantId));
     }
 
     public Document firstDocument()
     {
-        final String sql = """
+        String sql = """
         SELECT * FROM sca.document LIMIT 1;    
         """;
         return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMapper);
     }
 
-    public Document documentById(final Long documentId)
+    public Document documentById(Long documentId)
     {
-        final String sql = """
+        String sql = """
         SELECT * FROM sca.document WHERE id = :documentId;    
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("documentId", documentId);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("documentId", documentId);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
-    public Document documentByTenantAndFileUUID(final Long tenantId, final UUID fileUUID)
+    public Document documentByTenantAndFileUUID(Long tenantId, UUID fileUUID)
     {
-        final String sql = """
+        String sql = """
         SELECT * FROM sca.document WHERE tenant = :tenantId AND file_uuid = :fileUUID;    
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
+        MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", tenantId,
                 "fileUUID", fileUUID
@@ -112,12 +112,12 @@ public class DocumentService {
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
-    public InputStream fileAsStream(final String bucket, final UUID fileUUID)
+    public InputStream fileAsStream(String bucket, UUID fileUUID)
     {
         return objectStorageService.objectAsStream(bucket, filePath(PathEnum.CLOSING_DOCUMENTS, fileUUID));
     }
 
-    private String filePath(PathEnum path, final UUID fileUUID)
+    private String filePath(PathEnum path, UUID fileUUID)
     {
         return String.format("%s/%s", path, fileUUID);
     }
@@ -125,15 +125,15 @@ public class DocumentService {
     // Update
     @Transactional
     public void create(
-        final Tenant tenant,
-        final Long principalId,
-        final String filename,
-        final Long clientSideFileSize, 
-        final InputStream inputStream)
+        Tenant tenant,
+        Long principalId,
+        String filename,
+        Long clientSideFileSize, 
+        InputStream inputStream)
     {
-        final Document documentToCreate = Document.of(tenant.id(), filename);
-        final UUID fileUUID = insert(documentToCreate, principalId).fileUUID();
-        final String filePath = filePath(PathEnum.CLOSING_DOCUMENTS, fileUUID);
+        Document documentToCreate = Document.of(tenant.id(), filename);
+        UUID fileUUID = insert(documentToCreate, principalId).fileUUID();
+        String filePath = filePath(PathEnum.CLOSING_DOCUMENTS, fileUUID);
         objectStorageService.storeObject(tenant.bucket(), filePath, inputStream);
         if (objectStorageService.statObject(tenant.bucket(), filePath).size() != clientSideFileSize) {
             logger.error("The file size stored in the bucket does not match the client-side file size.");
@@ -142,14 +142,14 @@ public class DocumentService {
         }
     }
 
-    public Document insert(final Document document, final Long principalId)
+    public Document insert(Document document, Long principalId)
     {
-        final String sql = """
+        String sql = """
             INSERT INTO sca.document
             VALUES (:tenantId, DEFAULT, :filename, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
             RETURNING *;        
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
+        MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", document.tenantId(),
                 "filename", document.filename(),

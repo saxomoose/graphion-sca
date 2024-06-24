@@ -52,13 +52,13 @@ public class PkiConfiguration {
      */
     public X509Certificate[] belgianCACertificates() 
     {
-        final List<X509Certificate> caCertificates = new ArrayList<>();
-        final Iterable<Result<Item>> certListing = objectStorageService.listObjects(
+        List<X509Certificate> caCertificates = new ArrayList<>();
+        Iterable<Result<Item>> certListing = objectStorageService.listObjects(
                 environment.getProperty("objectstorage.admin-bucket"),
                 PathEnum.CERTS_WEBEID.toString());
         try {
-            final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            for (final Result<Item> result : certListing) {
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            for (Result<Item> result : certListing) {
                 X509Certificate caCertificate = 
                     (X509Certificate) certFactory.generateCertificate(
                         objectStorageService.objectAsStream(

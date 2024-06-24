@@ -64,7 +64,13 @@ tasks.bootRun {
             // tasks.findByName("resetDefaultBucket")
     )
     jvmArgs (
-            "-Dspring.output.ansi.enabled=ALWAYS"
+            "-Dspring.output.ansi.enabled=ALWAYS",
+            "-Dcom.sun.management.jmxremote=true",
+            "-Djava.rmi.server.hostname=10.0.0.2",
+            "-Dcom.sun.management.jmxremote.port=1099",
+            "-Dcom.sun.management.jmxremote.rmi.port=1099",
+            "-Dcom.sun.management.jmxremote.authenticate=false",
+            "-Dcom.sun.management.jmxremote.ssl=false"
     )
     systemProperty("spring.profiles.active", "dev")
 }

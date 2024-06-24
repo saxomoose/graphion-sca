@@ -18,8 +18,8 @@ public class IndexController {
     @GetMapping("/")
     public ModelAndView index(final Principal principal, final HttpServletRequest request)
     {
-        final ModelAndView modelAndView = new ModelAndView();
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        ModelAndView modelAndView = new ModelAndView();
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -40,14 +40,14 @@ public class IndexController {
     @GetMapping("/ping")
     public ModelAndView ping(HttpServletRequest request)
     {
-        final Principal principal = request.getUserPrincipal();
+        Principal principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 
     @GetMapping("/pki/ping")
     public ModelAndView pkiPing(HttpServletRequest request)
     {
-        final Principal principal = request.getUserPrincipal();
+        Principal principal = request.getUserPrincipal();
         return new ModelAndView("ping");
     }
 }
