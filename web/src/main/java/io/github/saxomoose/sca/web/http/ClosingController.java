@@ -63,17 +63,17 @@ public class ClosingController {
     public ModelAndView index(
         final Principal principal,
         final HttpServletRequest request,
-        @SortDefault(sort = "name") Pageable pageable) 
+        @SortDefault(sort = "name") final Pageable pageable) 
     {
         // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
-        final var tenantId = 1L;
-        final ClosingPageToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
+        var tenantId = 1L;
+        ClosingPageToIndex closingToIndex = closingService.closingsByTenant(tenantId, pageable);
         if (closingToIndex.closingPage().isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final ModelAndView modelAndView = new ModelAndView("closings/index");
+        ModelAndView modelAndView = new ModelAndView("closings/index");
         modelAndView.addObject("closingToIndex", closingToIndex);
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -94,14 +94,14 @@ public class ClosingController {
         if (documentPageIndex == null) {
             documentPageIndex = 0;
         }
-        final PageRequest userPageable = PageRequest.of(userPageIndex, 10);
-        final PageRequest documentPageable = PageRequest.of(documentPageIndex, 10);
-        final Page<User> userPage = userService.usersByTenant(1L, userPageable);
-        final Page<Document> documentPage = documentService.documentsByTenant(1L, documentPageable);
-        final ModelAndView modelAndView = new ModelAndView("closings/prepare");
+        PageRequest userPageable = PageRequest.of(userPageIndex, 10);
+        PageRequest documentPageable = PageRequest.of(documentPageIndex, 10);
+        Page<User> userPage = userService.usersByTenant(1L, userPageable);
+        Page<Document> documentPage = documentService.documentsByTenant(1L, documentPageable);
+        ModelAndView modelAndView = new ModelAndView("closings/prepare");
         modelAndView.addObject("userPage", userPage);
         modelAndView.addObject("documentPage", documentPage);
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -118,8 +118,8 @@ public class ClosingController {
         final ClosingToCreate rawClosing,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        final List<User> users = userService.usersByIds(rawClosing.userIds());
-        final List<Document> documents = documentService.documentsByIds(rawClosing.documentIds());
+        List<User> users = userService.usersByIds(rawClosing.userIds());
+        List<Document> documents = documentService.documentsByIds(rawClosing.documentIds());
         rawClosing.setUsers(users);
         rawClosing.setDocuments(documents);
         httpSession.setAttribute(SessionEnum.CLOSING.toString(), rawClosing);
@@ -131,11 +131,11 @@ public class ClosingController {
         final HttpServletRequest request
     ) 
     {
-        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
-        final ModelAndView modelAndView = new ModelAndView("closings/create");
+        ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
+        ModelAndView modelAndView = new ModelAndView("closings/create");
         modelAndView.addObject("users", rawClosing.users());
         modelAndView.addObject("documents", rawClosing.documents());
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -153,7 +153,7 @@ public class ClosingController {
         // Validation
         List<ClosingSignatory> closingSignatories = new ArrayList<>();
         Boolean sendInvites = Boolean.FALSE;
-        for (final Map.Entry<String, List<String>> entry : formData.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : formData.entrySet()) {
             if (entry.getKey().equals("_csrf")) {
                 continue;
             } else if (entry.getKey().equals("sendInvites")) {
@@ -164,19 +164,19 @@ public class ClosingController {
             } 
             // key == user.id().
             else {
-                final Long userId = Long.parseLong(entry.getKey());
-                for (final String documentId : entry.getValue()) {
+                Long userId = Long.parseLong(entry.getKey());
+                for (String documentId : entry.getValue()) {
                 closingSignatories.add(ClosingSignatory.of(userId, Long.parseLong(documentId)));
                 }
             }
         }
         // final Long principalId = ((User) ((PkiAuthentication) request.getUserPrincipal()).getPrincipal()).id();
-        final Long principalId = 1L;
+        Long principalId = 1L;
         // final Long tenantId = ((Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString())).id();
-        final Long tenantId = 1L;
-        final ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
+        Long tenantId = 1L;
+        ClosingToCreate rawClosing = (ClosingToCreate) httpSession.getAttribute(SessionEnum.CLOSING.toString());
         httpSession.removeAttribute(SessionEnum.CLOSING.toString());
-        final Closing closing = Closing.of(
+        Closing closing = Closing.of(
             tenantId,
             rawClosing.name(),
             rawClosing.timestamp(),
@@ -184,9 +184,9 @@ public class ClosingController {
             rawClosing.location(),
             rawClosing.expirationTimestamp()
         );
-        final Closing createdClosing = closingService.create(closing, principalId, closingSignatories);
-        final User closingOrganizer = userService.userById(principalId);
-        final List<User> signatories = userService.usersByIds(closingSignatories.stream().map(ClosingSignatory::signatoryId).toList());
+        Closing createdClosing = closingService.create(closing, principalId, closingSignatories);
+        User closingOrganizer = userService.userById(principalId);
+        List<User> signatories = userService.usersByIds(closingSignatories.stream().map(ClosingSignatory::signatoryId).toList());
         if (sendInvites) {
             mailService.sendClosingInvites(createdClosing, closingOrganizer, signatories);
         }

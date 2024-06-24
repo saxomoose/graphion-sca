@@ -31,8 +31,8 @@ public class UserService {
 
     // Data
     // Aggregate
-    public Long countUsersByTenant(final Long tenantId) {
-        final String sql = """
+    public Long countUsersByTenant(Long tenantId) {
+        String sql = """
         SELECT COUNT(*)
         FROM sca.user
         WHERE id IN (
@@ -40,26 +40,26 @@ public class UserService {
             FROM sca.tenant_user
             WHERE tenant = :tenantId); 
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantId", tenantId);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("tenantId", tenantId);
         return namedParameterJdbcOperations.queryForObject(sql, params, Long.class);
     }
 
     // Read
-    public List<User> usersByIds(final List<Long> userIds)
+    public List<User> usersByIds(List<Long> userIds)
     {
-        final String sql = """
+        String sql = """
             SELECT *
             FROM sca.user
             WHERE id IN (:userIds);    
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(Map.of("userIds", userIds));
+        MapSqlParameterSource params = new MapSqlParameterSource(Map.of("userIds", userIds));
         return namedParameterJdbcOperations.query(sql, params, rowMapper);
     }
 
-    public Page<User> usersByTenant(final Long tenantId, final Pageable pageable)
+    public Page<User> usersByTenant(Long tenantId, Pageable pageable)
     {
-        final Integer offset = pageable.getPageNumber() * pageable.getPageSize();
-        final String sql = """
+        Integer offset = pageable.getPageNumber() * pageable.getPageSize();
+        String sql = """
             SELECT *
             FROM sca.user
             WHERE id IN (
@@ -69,50 +69,50 @@ public class UserService {
             ORDER BY last_name
             LIMIT :pageSize OFFSET :offset;
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
+        MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "tenantId", tenantId,
                 "pageSize", pageable.getPageSize(),
                 "offset", offset));
-        final List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, rowMapper);
+        List<User> tenantUsers = namedParameterJdbcOperations.query(sql, params, rowMapper);
         return PageableExecutionUtils.getPage(tenantUsers, pageable, () -> countUsersByTenant(tenantId));
     }
 
     public User firstUser()
     {
-        final String sql = """
+        String sql = """
         SELECT * FROM sca.user LIMIT 1;    
         """;
         return namedParameterJdbcOperations.getJdbcOperations().queryForObject(sql, rowMapper);
     }
 
-    public User userById(final Long userId)
+    public User userById(Long userId)
     {
-        final String sql = """
+        String sql = """
         SELECT * FROM sca.user WHERE id = :userId;    
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("userId", userId);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("userId", userId);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
-    public User userByUsername(final String username)
+    public User userByUsername(String username)
     {
-        final String sql = """
+        String sql = """
         SELECT * FROM sca.user WHERE username = :username;    
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource().addValue("username", username);
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("username", username);
         return namedParameterJdbcOperations.queryForObject(sql, params, rowMapper);
     }
 
     // Update
-    public User insert(final User user, final Long principalId)
+    public User insert(User user, Long principalId)
     {
-        final String sql = """
+        String sql = """
         INSERT INTO sca.user
         VALUES (DEFAULT, :username, NULL, :firstName, :lastName, :dateOfBirth, DEFAULT, DEFAULT, :createdBy, :lastUpdatedBy, DEFAULT, DEFAULT)
         RETURNING *;        
         """;
-        final MapSqlParameterSource params = new MapSqlParameterSource(
+        MapSqlParameterSource params = new MapSqlParameterSource(
             Map.of(
                 "username", user.username(),
                 "firstName", user.firstName(),

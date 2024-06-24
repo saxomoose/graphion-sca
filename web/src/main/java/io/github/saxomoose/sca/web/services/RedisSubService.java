@@ -28,7 +28,7 @@ public class RedisSubService implements MessageListener, SubscriptionListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        final var channel = new String(message.getChannel(), StandardCharsets.UTF_8);
+        var channel = new String(message.getChannel(), StandardCharsets.UTF_8);
         Job job = null;
         try {
             job = objectMapper.readValue(message.toString(), Job.class);

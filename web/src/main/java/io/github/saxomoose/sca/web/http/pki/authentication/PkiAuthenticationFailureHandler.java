@@ -22,7 +22,7 @@ public class PkiAuthenticationFailureHandler extends SimpleUrlAuthenticationFail
         AuthenticationException exception) throws IOException, ServletException 
     {
         logger.error(exception.getMessage());
-        final HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);
         if (session != null) {
             logger.info("Invalidating session: %S", session.getId());
             session.invalidate();

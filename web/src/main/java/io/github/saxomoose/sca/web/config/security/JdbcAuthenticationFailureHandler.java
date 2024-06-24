@@ -22,8 +22,8 @@ public class JdbcAuthenticationFailureHandler
         HttpServletResponse response,
         AuthenticationException exception) throws IOException, ServletException
     {
-        final FlashMap flashMap = new FlashMap();
-        final FlashMapManager flashMapManager = new SessionFlashMapManager();
+        FlashMap flashMap = new FlashMap();
+        FlashMapManager flashMapManager = new SessionFlashMapManager();
         if (exception instanceof BadCredentialsException) {
             flashMap.put(
                 "notifications", 

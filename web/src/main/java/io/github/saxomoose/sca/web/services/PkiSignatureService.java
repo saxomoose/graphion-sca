@@ -61,32 +61,32 @@ public class PkiSignatureService {
     }
 
     public Tuple<DigestPayload, PAdESSignatureParameters> dataToSign(
-        final String bucket,
-        final UUID fileUUID,
-        final SignatureCertificatePayload signatureCertificate) 
+        String bucket,
+        UUID fileUUID,
+        SignatureCertificatePayload signatureCertificate) 
     throws CertificateException, NoSuchAlgorithmException, IOException, LogicException 
     {
         redisService.lockFile(fileUUID);
-        final InputStream inputStream = objectStorageService.objectAsStream(
+        InputStream inputStream = objectStorageService.objectAsStream(
             bucket, 
             String.format("%s/%s", PathEnum.CLOSING_DOCUMENTS, fileUUID));
-        final File file = workbenchFile(bucket, fileUUID);
+        File file = workbenchFile(bucket, fileUUID);
         file.getParentFile().mkdirs();
         Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-        final X509Certificate x509Certificate = signatureCertificate.toX509Certificate();
-        final CertificateToken certificateToken = new CertificateToken(x509Certificate);
-        final PAdESSignatureParameters parameters = new PAdESSignatureParameters();
+        X509Certificate x509Certificate = signatureCertificate.toX509Certificate();
+        CertificateToken certificateToken = new CertificateToken(x509Certificate);
+        PAdESSignatureParameters parameters = new PAdESSignatureParameters();
         parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
         parameters.setSigningCertificate(certificateToken);
         parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
         
-        final DSSDocument toSignDocument = new FileDocument(file);
-        final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
-        final Digest digest = new Digest(
+        DSSDocument toSignDocument = new FileDocument(file);
+        ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
+        Digest digest = new Digest(
             DigestAlgorithm.SHA256, 
             DSSUtils.digest(DigestAlgorithm.SHA256, toBeSigned.getBytes()));
-        final String base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
+        String base64Digest = Base64.getEncoder().encodeToString(digest.getValue());
 
         return new Tuple<DigestPayload, PAdESSignatureParameters>(
             new DigestPayload(base64Digest,
@@ -94,37 +94,37 @@ public class PkiSignatureService {
     }
 
     public DSSDocument applySignature(
-        final String bucket,
-        final UUID fileUUID, 
-        final PAdESSignatureParameters parameters,
-        final SignaturePayload signature) throws CertificateException, IOException, LogicException
+        String bucket,
+        UUID fileUUID, 
+        PAdESSignatureParameters parameters,
+        SignaturePayload signature) throws CertificateException, IOException, LogicException
     {    
-        final File workbenchFile = workbenchFile(bucket, fileUUID);
+        File workbenchFile = workbenchFile(bucket, fileUUID);
 
-        final DSSDocument toSignDocument = new FileDocument(workbenchFile);
-        final ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
-        final byte[] signatureBytes = Base64.getDecoder().decode(signature.base64Signature());
-        final SignatureValue signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
+        DSSDocument toSignDocument = new FileDocument(workbenchFile);
+        ToBeSigned toBeSigned = padesService.getDataToSign(toSignDocument, parameters);
+        byte[] signatureBytes = Base64.getDecoder().decode(signature.base64Signature());
+        SignatureValue signatureValue = new SignatureValue(SignatureAlgorithm.RSA_SHA256, signatureBytes);
         if(!padesService.isValidSignatureValue(toBeSigned, signatureValue, parameters.getSigningCertificate())) {
             logger.error("File {}: the signature value computed client-side is invalid.", fileUUID);
             throw new LogicException(new Notification(Notification.Type.ERROR, "TODO", "TODO"));
         } 
-        final FileDocument signedDocument = (FileDocument) padesService.signDocument(toSignDocument, parameters, signatureValue);
+        FileDocument signedDocument = (FileDocument) padesService.signDocument(toSignDocument, parameters, signatureValue);
         // parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LT);
-        // final FileDocument extendedLTDocument = (FileDocument) padesService.extendDocument(signedDocument, parameters);
+        // FileDocument extendedLTDocument = (FileDocument) padesService.extendDocument(signedDocument, parameters);
         parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_LTA);
-        final FileDocument extendedLTADocument = (FileDocument) padesService.extendDocument(signedDocument, parameters);
+        FileDocument extendedLTADocument = (FileDocument) padesService.extendDocument(signedDocument, parameters);
 
         return extendedLTADocument;
     }
 
     public void cleanUp(
-        final String bucket,
-        final UUID fileUUID) throws IOException
+        String bucket,
+        UUID fileUUID) throws IOException
     {
-        final File workbenchFile = workbenchFile(bucket, fileUUID);
+        File workbenchFile = workbenchFile(bucket, fileUUID);
         workbenchFile.delete();
-        final File parentFile = workbenchFile.getParentFile();
+        File parentFile = workbenchFile.getParentFile();
         if (!Files.list(parentFile.toPath()).findFirst().isPresent()) {
             Files.delete(parentFile.toPath());
         }
@@ -132,9 +132,9 @@ public class PkiSignatureService {
         redisService.unlockFile(fileUUID);
     }
 
-    private File workbenchFile(final String bucket, final UUID fileUUID)
+    private File workbenchFile(String bucket, UUID fileUUID)
     {
-        final String path = String.format(
+        String path = String.format(
             "%s/%s/%s/%s",
             System.getProperty("user.dir"),
             PathEnum.DSS_WORKBENCH,

@@ -53,18 +53,18 @@ public class TenantController {
     @GetMapping("/tenants/{rawUserId}")
     public ModelAndView index(
         @PathVariable final String rawUserId,
-        @SortDefault(sort = "name") Pageable pageable,
+        @SortDefault(sort = "name") final Pageable pageable,
         final HttpServletRequest request) 
     {
         // TODO: validate id
-        final Long userId = Long.parseLong(rawUserId);
-        final Page<Tenant> tenantPage = tenantService.tenantsByUser(userId, pageable);
+        Long userId = Long.parseLong(rawUserId);
+        Page<Tenant> tenantPage = tenantService.tenantsByUser(userId, pageable);
         if (tenantPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final ModelAndView modelAndView = new ModelAndView("tenants/index");
+        ModelAndView modelAndView = new ModelAndView("tenants/index");
         modelAndView.addObject("tenantPage", tenantPage);
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -81,8 +81,8 @@ public class TenantController {
     )
     {
         // TODO: validate tenant name
-        final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final Tuple<Tenant, List<GrantedAuthority>> tenantWithUserAuthority =
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Tuple<Tenant, List<GrantedAuthority>> tenantWithUserAuthority =
             tenantService.tenantWithUserAuthority(user.id(), Boolean.FALSE);
         Authentication authentication = null;
         if (!setDefaultConnection) {
@@ -96,7 +96,7 @@ public class TenantController {
                 tenantWithUserAuthority.second());
             tenantService.setDefaultConnection( tenantWithUserAuthority.first().id(), user.id());
         }
-        final SecurityContext securityContext = securityContextHolderStrategy.createEmptyContext();
+        SecurityContext securityContext = securityContextHolderStrategy.createEmptyContext();
         securityContext.setAuthentication(authentication);
         securityContextHolderStrategy.setContext(securityContext);
         securityContextRepository.saveContext(securityContext, request, response);
