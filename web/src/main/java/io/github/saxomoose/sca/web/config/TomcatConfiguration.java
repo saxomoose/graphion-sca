@@ -10,7 +10,7 @@ public class TomcatConfiguration {
     @Bean
     public TomcatServletWebServerFactory tomcatFactory() 
     {
-        final TomcatServletWebServerFactory tomcatServletWebServerFactory = 
+        TomcatServletWebServerFactory tomcatServletWebServerFactory = 
             new TomcatServletWebServerFactory() {
                 @Override
                 protected void postProcessContext(Context context) {

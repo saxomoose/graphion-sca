@@ -27,7 +27,7 @@ public class ChallengeController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChallengePayload> challenge() 
     {
-        final ChallengePayload challenge = new ChallengePayload();
+        ChallengePayload challenge = new ChallengePayload();
         challenge.setNonce(challengeNonceGenerator.generateAndStoreNonce().getBase64EncodedNonce());
         return ResponseEntity
             .ok()

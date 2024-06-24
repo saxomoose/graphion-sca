@@ -12,7 +12,7 @@ public class ClosingSignatoryRowMapper implements RowMapper<ClosingSignatory> {
     @Override
     public ClosingSignatory mapRow(ResultSet rs, int rowNum) throws SQLException 
     {
-        final Timestamp timestamp = rs.getTimestamp("signature_timestamp");
+        Timestamp timestamp = rs.getTimestamp("signature_timestamp");
         LocalDateTime signatureTimestamp = null;
         if (timestamp != null) {
             signatureTimestamp = timestamp.toLocalDateTime();

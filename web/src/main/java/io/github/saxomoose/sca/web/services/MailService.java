@@ -32,16 +32,16 @@ public class MailService {
         this.templateEngine = templateEngine;
     }
 
-    public void sendClosingInvites(final Closing closing, final User closingOrganizer, final List<User> recipients)
+    public void sendClosingInvites(Closing closing, User closingOrganizer, List<User> recipients)
     {
-        final String body = mailBody(
+        String body = mailBody(
                 Map.of(
                     "closingOrganizer", closingOrganizer,
                     "closing", closing
                 )
         );
-        final Mail mail = new Mail(String.format("%s - %s", "Closing invitation", closing.name()), body);
-        for (final User user : recipients) {
+        Mail mail = new Mail(String.format("%s - %s", "Closing invitation", closing.name()), body);
+        for (User user : recipients) {
             sendMails(Map.of(user, mail));
         }
     }
@@ -59,10 +59,10 @@ public class MailService {
         messages.forEach(message -> mailgunMessagesApi.sendMessage(domain, message));
     }
 
-    public String mailBody(final Map<String, Object> arguments)
+    public String mailBody(Map<String, Object> arguments)
     {
         // Prepare the evaluation Context
-        final Context thymeleafContext = new Context();
+        Context thymeleafContext = new Context();
         thymeleafContext.setVariables(arguments);
         return templateEngine.process("mail/closing-invite", thymeleafContext);
 

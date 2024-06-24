@@ -49,9 +49,9 @@ public class RedisService {
     /**
      * XADD graphionscaweb:jobs MAXLEN ~ 5 * "payload" "test1"
      */
-    public void sendJobToQueue(final Long tenantId)
+    public void sendJobToQueue(Long tenantId)
     {
-        final Job job = new Job(tenantId, Job.Type.UPLOAD, "message", Map.of("", ""));
+        Job job = new Job(tenantId, Job.Type.UPLOAD, "message", Map.of("", ""));
         String serializedJob;
         try {
             serializedJob = objectMapper.writeValueAsString(job);
@@ -60,7 +60,7 @@ public class RedisService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        final ByteRecord record = 
+        ByteRecord record = 
             StreamRecords
                 .rawBytes(Map.of("payload".getBytes(), serializedJob.getBytes()))
                 .withStreamKey(RedisEnum.JOB_KEY.toString().getBytes());
@@ -76,7 +76,7 @@ public class RedisService {
             logger.error(exception.getMessage());
             throw new RuntimeException(exception);
         }
-        final String outputStringKey = String.format("%s:%s:%s", RedisEnum.JOB_KEY, tenantId, recordId);
+        String outputStringKey = String.format("%s:%s:%s", RedisEnum.JOB_KEY, tenantId, recordId);
         try {
             redisConnection.stringCommands()
                 .set(
@@ -92,10 +92,10 @@ public class RedisService {
         // serializedJob.getBytes());
     }
 
-    public void lockFile(final UUID fileUUID) throws LogicException
+    public void lockFile(UUID fileUUID) throws LogicException
     {
         try {
-            final Boolean result = 
+            Boolean result = 
                 stringRedisTemplate.opsForValue()
                     .setIfAbsent(
                         String.format("%s:%s", RedisEnum.WORKBENCH_KEY, fileUUID),
@@ -113,7 +113,7 @@ public class RedisService {
         }
     }
 
-    public void unlockFile(final UUID fileUUID)
+    public void unlockFile(UUID fileUUID)
     {
         try {
             stringRedisTemplate.delete(String.format("%s:%s", RedisEnum.WORKBENCH_KEY, fileUUID));
@@ -134,9 +134,9 @@ public class RedisService {
     /**
      * TODO
      */
-    public void setUserPINCode(final Long id)
+    public void setUserPINCode(Long id)
     {
-        final Integer pinCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
+        Integer pinCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
         stringRedisTemplate.opsForValue()
             .set(
                 String.format("%s:%s", RedisEnum.USER_PINCODE_KEY, id),

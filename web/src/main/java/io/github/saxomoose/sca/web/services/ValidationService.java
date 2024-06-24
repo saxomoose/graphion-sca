@@ -25,10 +25,10 @@ public class ValidationService {
         this.redisService = redisService;
     }
 
-    public String documentFilename(final String filename) throws LogicException
+    public String documentFilename(String filename) throws LogicException
     {
-        final Pattern pattern = Pattern.compile("^[a-zA-Z0-9_-]{1,255}$", Pattern.CASE_INSENSITIVE);
-        final Matcher matcher = pattern.matcher(filename);
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9_-]{1,255}$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(filename);
         if (filename.isBlank() || !matcher.matches()) {
             throw new LogicException(new Notification(Notification.Type.ERROR, "document.validate","document.filename.invalid"
             ));
@@ -36,14 +36,14 @@ public class ValidationService {
         return filename;
     }
 
-    public void documentFileFormat(final String fileFormat) throws LogicException
+    public void documentFileFormat(String fileFormat) throws LogicException
     {
         if (!fileFormat.equals(MediaType.APPLICATION_PDF.toString())) {
             throw new LogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.unsupported_file_format"));
         }
     }
 
-    public void documentFileSize(final Long fileSize, final Long clientSideFileSize) throws LogicException {
+    public void documentFileSize(Long fileSize, Long clientSideFileSize) throws LogicException {
         if (fileSize.equals(0L)) {
             throw new LogicException(new Notification(Notification.Type.ERROR, "document.validate", "document.file.empty"));
         } else if (!fileSize.equals(clientSideFileSize)) {
@@ -51,12 +51,12 @@ public class ValidationService {
         }
     }
 
-    public UUID uuid(final String uuid)
+    public UUID uuid(String uuid)
     {
         return UUID.fromString(uuid);
     }
 
-    public void authenticationPayload(final AuthenticationPayload auth) throws LogicException 
+    public void authenticationPayload(AuthenticationPayload auth) throws LogicException 
     {
         try {
             // TODO: validate incoming JSON and email

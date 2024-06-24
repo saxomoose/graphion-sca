@@ -74,15 +74,15 @@ public class DocumentController {
         final HttpServletRequest request,
         final Pageable pageable) 
     {
-        // final Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
-        final var tenantId = 1L;
-        final Page<Document> documentPage = documentService.documentsByTenant(tenantId, pageable);
+        // Long tenantId = ((Tenant) httpSession.getAttribute(Session.TENANT.toString()).id();
+        var tenantId = 1L;
+        Page<Document> documentPage = documentService.documentsByTenant(tenantId, pageable);
         if (documentPage.isEmpty()) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
-        final ModelAndView modelAndView = new ModelAndView("documents/index");
+        ModelAndView modelAndView = new ModelAndView("documents/index");
         modelAndView.addObject("documentPage", documentPage);
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -97,11 +97,11 @@ public class DocumentController {
         @PathVariable final String rawFileUUID,
         @RequestParam final Boolean download) throws Exception 
     {
-        final Tenant tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
-        final UUID fileUUID = validationService.uuid(rawFileUUID);
+        Tenant tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
+        UUID fileUUID = validationService.uuid(rawFileUUID);
         // TODO validate tenantId (uuid)
-        final String filename = documentService.documentByTenantAndFileUUID(tenant.id(), fileUUID).filename();
-        final Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
+        String filename = documentService.documentByTenantAndFileUUID(tenant.id(), fileUUID).filename();
+        Resource inputStreamResource = new InputStreamResource(documentService.fileAsStream(tenant.bucket(), fileUUID));
         return ResponseEntity
             .ok().headers(httpHeaders -> {
                 httpHeaders.setContentType(MediaType.APPLICATION_PDF);
@@ -118,8 +118,8 @@ public class DocumentController {
     @GetMapping("/documents/create")
     public ModelAndView create(final HttpServletRequest request) 
     {
-        final ModelAndView modelAndView = new ModelAndView("documents/create");
-        final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+        ModelAndView modelAndView = new ModelAndView("documents/create");
+        Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
         if (inputFlashMap != null) {
             modelAndView.addObject("notifications", inputFlashMap.get("notifications"));
         }
@@ -136,16 +136,16 @@ public class DocumentController {
         final HttpServletResponse response,
         final RedirectAttributes redirectAttributes) throws Exception 
     {
-        final Collection<Part> parts = request.getParts();
+        Collection<Part> parts = request.getParts();
         if (parts.size() != 3) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         String rawFilename = null;
         Long clientSideFileSize = null;
         InputStream rawFileInputStream = null;
-        for (final Part part : parts) {
+        for (Part part : parts) {
             if (part.getName().equals("fileSize")) {
-                final byte[] bytes = part.getInputStream().readAllBytes();
+                byte[] bytes = part.getInputStream().readAllBytes();
                 clientSideFileSize = Long.parseLong(new String(bytes, StandardCharsets.UTF_8));
                 continue;
             } else if (part.getName().equals("filename")) {
@@ -161,11 +161,11 @@ public class DocumentController {
         Objects.requireNonNull(rawFilename);
         Objects.requireNonNull(rawFileInputStream);
         // TODO validate fileInputStream
-        final var tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
-        final String filename = validationService.documentFilename(rawFilename);
+        var tenant = (Tenant) httpSession.getAttribute(SessionEnum.TENANT.toString());
+        String filename = validationService.documentFilename(rawFilename);
         documentService.create(tenant, user.id(), filename, clientSideFileSize, rawFileInputStream);
-        final FlashMapManager flashMapManager = new SessionFlashMapManager();
-        final FlashMap flashMap = new FlashMap();
+        FlashMapManager flashMapManager = new SessionFlashMapManager();
+        FlashMap flashMap = new FlashMap();
         flashMap.put("notifications", List.of(new Notification(Notification.Type.SUCCESS, "TODO", "TODO")));
         flashMapManager.saveOutputFlashMap(flashMap, request, response);
         return ResponseEntity
@@ -180,7 +180,7 @@ public class DocumentController {
         final HttpServletRequest request,
         final RedirectAttributes redirectAttributes) 
     {
-        final String path = URI.create(request.getHeader("referer")).getPath();
+        String path = URI.create(request.getHeader("referer")).getPath();
         redirectAttributes.addFlashAttribute(
             "notifications", 
             List.of(
