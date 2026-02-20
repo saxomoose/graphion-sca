@@ -1,0 +1,40 @@
+insert into eid.users (id, username, password, enabled, role)
+values (1, 'admin@graphion.test', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7hw9L/p177.X3T.fLzR69vO', true, 0);
+
+-- insert into eid.closings (id, name, date, zone_offset)
+-- values
+--     (1, 'demo_closing_1', '2023-01-01', '+02:00'),
+--     (2, 'demo_closing_2', '2023-01-01', '+02:00');
+--
+-- insert into eid.legal_persons (id, enterprise_number, status)
+-- values
+--     (1, 502465839, false);
+--
+-- insert into eid.signatories (id, first_name, last_name, email, national_registration_number, consent)
+-- values
+-- (1, 'Jean', 'Dupont', 'jean.dupont@example.com', '850101-123-45', TRUE),
+-- (2, 'Marie', 'Janssens', 'm.janssens@provider.be', '920512-987-65', TRUE),
+-- (3, 'Thomas', 'Müller', 't.mueller@domain.de', '781130-445-12', FALSE),
+-- (4, 'Elena', 'Rossi', 'elena.rossi@service.it', '010322-556-89', TRUE)
+--
+-- insert into eid.legal_person_signatory(id, legal_person_id, signatory_id, function, enterprise_number)
+-- values
+--     (1, 1, 3, 1, null),
+--     (2, 1, 4, 2, 475697995);
+--
+-- insert into eid.documents (id, closing_id, filename, path, created_at, modified_at)
+-- values
+--     (1, 1, 'document_1.txt', '/home/ubuntu/storage/document_1.txt', '2023-01-01T00:00:00.00Z', '2023-01-01T00:00:00.00Z'),
+--     (2, 1, 'document_2.txt', '/home/ubuntu/storage/document_2.txt', '2023-01-01T00:00:00.00Z', '2023-01-01T00:00:00.00Z');
+--
+-- insert into eid.closing_signatory (id, closing_id, signatory_id, document_id, signature_timestamp)
+-- values
+--     (1, 1, 1, 1, '2023-01-01T00:00:00.00Z'),
+--     (2, 1, 1, 2, '2023-01-01T00:00:00.00Z'),
+--     (3, 1, 2, 1, '2023-01-01T00:00:00.00Z'),
+--     (4, 1, 2, 2, null);
+--
+-- insert into eid.closing_legal_person_signatory (id, closing_id, legal_person_signatory_id, document_id, signature_timestamp)
+-- values
+--     (1, 1, 1, 1, '2023-01-01T00:00:00.00Z'),
+--     (2, 1, 2, 1, '2023-01-01T00:00:00.00Z');
