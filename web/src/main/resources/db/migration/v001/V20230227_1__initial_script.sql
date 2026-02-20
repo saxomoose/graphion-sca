@@ -142,7 +142,7 @@ FOR EACH ROW
 EXECUTE FUNCTION public.update_timestamps();
 
 INSERT INTO sca.user
-    VALUES (1, 'admin@graphion.eu', NULL, 'Mathieu', 'Tulpinck', '1990-11-08', true, true, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    VALUES (1, 'admin@graphion.eu', NULL, 'Rupert', 'Riffin', '1990-11-08', true, true, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 SELECT setval('sca.user_id_seq', 1);
 
